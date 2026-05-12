@@ -24,9 +24,10 @@ function creaTabelle() {
             CREATE TABLE IF NOT EXISTS Utente (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
+                cognome TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
-                immagine_profilo TEXT,
+                immagine_profilo TEXT DEFAULT NULL,
                 stato TEXT CHECK(stato IN ('attivo', 'bloccato')) DEFAULT 'attivo',
                 tipologia_utente TEXT CHECK(tipologia_utente IN ('studente', 'tutor', 'amministratore')) NOT NULL
             )
@@ -216,3 +217,5 @@ function creaTabelle() {
     }
   });
 }
+
+module.exports = db; //mi permette di usare il db in altri file.
