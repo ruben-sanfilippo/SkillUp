@@ -177,8 +177,8 @@ function creaTabelle() {
                 descrizione TEXT,
                 file_url TEXT NOT NULL,
                 importo REAL NOT NULL,
-                FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id) ON DELETE CASCADE,
-                FOREIGN KEY (materia_id) REFERENCES Materie(id) ON DELETE CASCADE
+                FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id),
+                FOREIGN KEY (materia_id) REFERENCES Materie(id)
             )
         `,
       (err) => {
