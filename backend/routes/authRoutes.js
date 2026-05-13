@@ -3,8 +3,7 @@ const router = express.Router(); // Crea un router Express per gestire le rotte 
 
 const authController = require("../controllers/authControllers");
 
-
 router.post("/register", authController.register);
-//router.post("/login", authController.login);
+router.post("/login", authController.login);
 
 module.exports = router;
