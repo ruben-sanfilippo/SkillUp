@@ -207,15 +207,6 @@ function creaTabelle() {
       },
     );
   });
-
-  //Chiusura sicura
-  db.close((err) => {
-    if (err) {
-      console.error("Errore nella chiusura:", err.message);
-    } else {
-      console.log("Configurazione iniziale completata. Connessione chiusa.");
-    }
-  });
 }
 
 module.exports = db; //mi permette di usare il db in altri file.

@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt"); // per criptare le informazioni
 const jwt = require("jsonwebtoken"); // per creare token di autenticazione, che permettono di mantenere la sessione dell'utente dopo il login
 const User = require("../models/userModel");
-const User = require("../models/tutorModel");
-const User = require("../models/studenteModel");
+const Tutor = require("../models/tutorModel");
+const Studente = require("../models/studenteModel");
 
 exports.register = async (req, res) => {
     try {
