@@ -1,0 +1,1 @@
+Nel model inseriamo le query, nel controller inseriamo la logica di business, quindi effettuiamo i vari controlli prima di chiamare il model.
