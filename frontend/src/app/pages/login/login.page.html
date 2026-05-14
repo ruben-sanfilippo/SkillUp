@@ -7,7 +7,19 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">login</ion-title>
+      <div>
+        <form>
+          <ion-item>
+            <ion-label position="floating">Username</ion-label>
+            <ion-input
+              type="text"
+              [(ngModel)]="username"
+              name="username"
+              required
+            ></ion-input>
+          </ion-item>
+        </form>
+      </div>
     </ion-toolbar>
   </ion-header>
 </ion-content>
