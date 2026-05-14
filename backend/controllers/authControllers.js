@@ -55,7 +55,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const existingUser = User.findByEmail(email);
+    const existingUser = await User.findByEmail(email);
     if (!existingUser) {
       return res.status(400).json({ message: "Email o Password non corrette" });
     }
