@@ -12,4 +12,4 @@ const Student = {
   },
 };
 
-module.exports = Studente;
+module.exports = Student;
