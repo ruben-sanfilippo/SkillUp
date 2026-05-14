@@ -1,0 +1,94 @@
+openapi: 3.0.0
+info:
+  title: API SkillUp
+  version: 1.0.0
+  description: Documentazione dei servizi di autenticazione per SkillUp
+servers:
+  - url: http://localhost:3000
+    description: Server di sviluppo locale
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Registra un nuovo utente
+      tags:
+        - Autenticazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Utente creato con successo
+        "400":
+          description: Dati non validi o utente già esistente
+
+  /api/auth/login:
+    post:
+      summary: Effettua il login
+      tags:
+        - Autenticazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login effettuato, ritorna il token JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "401":
+          description: Credenziali errate
+
+components:
+  schemas:
+    RegisterInput:
+      type: object
+      required:
+        - nome
+        - cognome
+        - email
+        - password
+        - tipologia_utente
+      properties:
+        nome:
+          type: string
+          example: mario
+        cognome:
+          type: string
+          example: rossi
+        email:
+          type: string
+          format: email
+          example: mario@example.com
+        password:
+          type: string
+          format: password
+          example: PasswordSicura123!
+        tipologia_utente:
+          type: string
+          example: studente
+
+    LoginInput:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: mario@example.com
+        password:
+          type: string
+          format: password
+          example: PasswordSicura123!
