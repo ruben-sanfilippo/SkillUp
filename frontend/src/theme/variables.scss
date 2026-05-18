@@ -1,2 +1,9 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+:root {
+    --primary-color: #1E40AF;
+    --secondary-color: #0D9488;
+    --tertiary-color: #0369A1;
+    --neutral-color: #64748B;
+    --font-family-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; /*font base + font di fallback*/
+}

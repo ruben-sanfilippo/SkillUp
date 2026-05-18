@@ -8,6 +8,8 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
+/* Import del font utilizzato */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
@@ -35,3 +37,12 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+body {
+  font-family: var(--font-family-inter);
+}
+
+/* Sovrascrittura della variabile globale di Ionic */
+html {
+  --ion-font-family: var(--font-family-inter);
+}
