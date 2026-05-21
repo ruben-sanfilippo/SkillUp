@@ -27,14 +27,14 @@ import { mailOutline, lockClosedOutline, arrowForwardOutline } from 'ionicons/ic
     IonInput, 
     IonButton, 
     IonIcon
-  ]
+  ]  
 })
+
 export class LoginPage implements OnInit {
   email = '';
   password = '';
 
   constructor(private router: Router) {
-    // Iniezione esplicita delle icone secondo lo standard Standalone di Ionic 7+
     addIcons({ mailOutline, lockClosedOutline, arrowForwardOutline });
   }
 
@@ -42,7 +42,7 @@ export class LoginPage implements OnInit {
 
   gestisciLogin() {
     if (!this.email || !this.password) {
-      alert('Per favor, compila tutti i campi richiesti.');
+      alert('Per favore, compila tutti i campi richiesti.');
       return;
     }
 
@@ -56,7 +56,7 @@ export class LoginPage implements OnInit {
     } else {
       this.router.navigate(['/tabs/search-tutor']); // Vista Studente interna al guscio Tabs
     }
-  }
+  }  
 
   vaiAlRegister() {
     this.router.navigate(['/register']);

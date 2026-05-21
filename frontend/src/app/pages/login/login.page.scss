@@ -1,9 +1,8 @@
-// Contenitore principale agganciato allo sfondo globale
 .login-content {
   --background: var(--app-background);
 }
 
-// Struttura Flexbox per il centraggio responsivo su ogni display
+/* Struttura Flexbox per il centraggio responsivo su ogni display */
 .responsive-container {
   display: flex;
   min-height: 100%;
@@ -14,7 +13,6 @@
   box-sizing: border-box;
 }
 
-// Mobile First: Schermo intero fluido per smartphone
 .login-card {
   width: 100%;
   max-width: 100%;
@@ -43,32 +41,44 @@
   }
 }
 
-/* ==========================================================================
-   STRUTTURA INPUT BOX PERSONALIZZATA (Risolve il problema dell'alone nero)
-   ========================================================================== */
 .custom-input-box {
   display: flex;
   align-items: center;
-  background: var(--input-background); // Segue fedelmente il tuo file variables
+  background: var(--input-background);
   border-radius: 12px;
   padding: 0 16px;
   height: 52px;
   margin-bottom: 14px;
-  box-sizing: border-box;
+  box-sizing: border-box; /* evita che i form escano fuori dalla card */
 
   .input-icon {
     color: var(--neutral-color);
     font-size: 20px;
     margin-right: 10px;
-    flex-shrink: 0;
+    flex-shrink: 0;  /* In questo modo l'icona non viene compressa */
   }
-
+  
   ion-input {
+    --background: transparent; 
+    --color: var(--text-main);
+    --placeholder-color: var(--neutral-color);
+ion-input {
     --background: transparent !important;
     --color: var(--text-main);
     --placeholder-color: var(--neutral-color);
 
-    --highlight-color-focused: var(--text-main);
+    font-size: 15px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+
+    &::part(native) {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      outline: none !important;
+    }
+  }
     --highlight-color-valid: var(--text-main);
     --highlight-color-invalid: var(--text-main);
     font-size: 15px;
@@ -85,7 +95,6 @@
   }
 }
 
-// Link opzioni secondarie
 .forgot-password-container {
   text-align: right;
   margin: 4px 4px 28px 0;
@@ -103,19 +112,16 @@
   }
 }
 
-// Pulsante d'accesso principale coordinato
 .main-login-btn {
   --background: var(--primary-color);
-  --background-hover: var(--tertiary-color);
   --border-radius: 12px;
   --box-shadow: none;
   font-size: 16px;
   font-weight: 600;
   height: 52px;
-  text-transform: none; // Blocca il maiuscolo forzato su Android
+  text-transform: none; 
 }
 
-// Footer dell'area di interscambio
 .login-footer {
   margin-top: 40px;
   text-align: center;
@@ -134,20 +140,14 @@
   }
 }
 
-/* ==========================================================================
-   MEDIA QUERY: Ottimizzazione e adattamento per Tablet e Desktop
-   ========================================================================== */
 @media (min-width: 576px) {
   .login-card {
     max-width: 420px;
     background: var(
       --card-background
-    ); // Bianca di giorno, grigio scuro di notte
+    );
     border-radius: 20px;
     padding: 40px;
-    box-shadow:
-      0 10px 25px -5px rgba(0, 0, 0, 0.05),
-      0 8px 10px -6px rgba(0, 0, 0, 0.05);
   }
 
   .brand-header {

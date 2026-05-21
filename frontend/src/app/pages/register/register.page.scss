@@ -1,9 +1,7 @@
-// Contenitore principale agganciato allo sfondo dinamico globale
 .register-content {
   --background: var(--app-background);
 }
 
-// Struttura Flexbox per il perfetto centraggio responsive
 .responsive-container {
   display: flex;
   min-height: 100%;
@@ -14,7 +12,6 @@
   box-sizing: border-box;
 }
 
-// Mobile First: Schermo intero fluido per smartphone
 .register-card {
   width: 100%;
   max-width: 100%;
@@ -22,7 +19,6 @@
   background: transparent;
 }
 
-// Elementi dell'intestazione
 .brand-header {
   text-align: center;
   margin-bottom: 24px;
@@ -42,19 +38,16 @@
   }
 }
 
-/* ==========================================================================
-   NUOVO SELETTORE RUOLO PERSONALIZZATO (Zero Shadow DOM, Zero bug neri)
-   ========================================================================== */
 .custom-segment-container {
   display: flex;
-  background: #f1f5f9; // Sfondo chiaro di default
+  background: #f1f5f9;
   border-radius: 12px;
   padding: 4px;
   margin-bottom: 24px;
   box-sizing: border-box;
 
   .segment-btn {
-    flex: 1;
+    flex: 1;  /* permette all'elemento di occupare tutto lo spazio dell'elemento padre */
     text-align: center;
     padding: 10px 0;
     font-weight: 600;
@@ -65,11 +58,9 @@
     transition: all 0.2s ease-in-out;
     user-select: none;
 
-    // Quando il bottone è attivo/selezionato (Tema Chiaro)
     &.active {
       background: #ffffff;
       color: var(--primary-color);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     }
   }
 }
@@ -79,21 +70,18 @@
   .custom-segment-container {
     background: var(
       --input-background
-    ); // Si adegua allo sfondo dei campi testo
+    );
 
     .segment-btn {
       &.active {
-        background: var(--card-background); // Grigio intermedio coordinato
-        color: #ffffff; // Scritta bianca nitida
+        background: var(--card-background); 
+        color: #ffffff;
         box-shadow: none;
       }
     }
   }
 }
 
-/* ==========================================================================
-   STRUTTURA INPUT BOX PERSONALIZZATA
-   ========================================================================== */
 .custom-input-box {
   display: flex;
   align-items: center;
@@ -133,7 +121,6 @@
   }
 }
 
-// Bottone principale di registrazione
 .main-register-btn {
   --background: var(--primary-color);
   --background-hover: var(--tertiary-color);
@@ -146,7 +133,6 @@
   text-transform: none;
 }
 
-// Footer per il ritorno al login
 .register-footer {
   margin-top: 32px;
   text-align: center;
@@ -165,17 +151,11 @@
   }
 }
 
-/* ==========================================================================
-   MEDIA QUERY: Desktop e Tablet
-   ========================================================================== */
 @media (min-width: 576px) {
   .register-card {
     max-width: 440px;
     background: var(--card-background);
     border-radius: 20px;
     padding: 40px;
-    box-shadow:
-      0 10px 25px -5px rgba(0, 0, 0, 0.05),
-      0 8px 10px -6px rgba(0, 0, 0, 0.05);
   }
 }
