@@ -1,0 +1,173 @@
+// Contenitore principale agganciato allo sfondo dinamico globale
+.register-content {
+  --background: var(--app-background);
+}
+
+// Struttura Flexbox per il perfetto centraggio responsive
+.responsive-container {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+// Mobile First: Schermo intero fluido per smartphone
+.register-card {
+  width: 100%;
+  max-width: 100%;
+  padding: 24px 8px;
+  background: transparent; 
+}
+
+// Elementi dell'intestazione
+.brand-header {
+  text-align: center;
+  margin-bottom: 24px;
+
+  .brand-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin: 0;
+    letter-spacing: -1px;
+  }
+
+  .brand-subtitle {
+    font-size: 15px;
+    color: var(--neutral-color);
+    margin-top: 8px;
+  }
+}
+
+/* ==========================================================================
+   NUOVO SELETTORE RUOLO PERSONALIZZATO (Zero Shadow DOM, Zero bug neri)
+   ========================================================================== */
+.custom-segment-container {
+  display: flex;
+  background: #f1f5f9; // Sfondo chiaro di default
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+
+  .segment-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--neutral-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+
+    // Quando il bottone è attivo/selezionato (Tema Chiaro)
+    &.active {
+      background: #ffffff;
+      color: var(--primary-color);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+  }
+}
+
+/* Gestione dello switch quando il telefono passa in Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .custom-segment-container {
+    background: var(--input-background); // Si adegua allo sfondo dei campi testo
+
+    .segment-btn {
+      &.active {
+        background: var(--card-background); // Grigio intermedio coordinato
+        color: #ffffff; // Scritta bianca nitida
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+/* ==========================================================================
+   STRUTTURA INPUT BOX PERSONALIZZATA
+   ========================================================================== */
+.custom-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--input-background); 
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 52px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+
+  .input-icon {
+    color: var(--neutral-color);
+    font-size: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  ion-input {
+    --background: transparent !important; 
+    color: var(--text-main);
+    --placeholder-color: var(--neutral-color);
+    font-size: 15px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    
+    &::part(native) {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+  }
+}
+
+// Bottone principale di registrazione
+.main-register-btn {
+  --background: var(--primary-color);
+  --background-hover: var(--tertiary-color);
+  --border-radius: 12px;
+  --box-shadow: none;
+  font-size: 16px;
+  font-weight: 600;
+  height: 52px;
+  margin-top: 24px;
+  text-transform: none; 
+}
+
+// Footer per il ritorno al login
+.register-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--neutral-color);
+
+  .login-link {
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* ==========================================================================
+   MEDIA QUERY: Desktop e Tablet
+   ========================================================================== */
+@media (min-width: 576px) {
+  .register-card {
+    max-width: 440px;
+    background: var(--card-background); 
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 
+                0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  }
+}

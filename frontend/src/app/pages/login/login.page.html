@@ -1,32 +1,31 @@
 <ion-content class="login-content">
   <div class="responsive-container">
     <div class="login-card">
-
+      
       <div class="brand-header">
         <h1 class="brand-title">SkillUp</h1>
         <p class="brand-subtitle">Accedi per continuare il tuo percorso di studio</p>
       </div>
 
       <div class="form-container">
-        <ion-list lines="none">
-          <ion-item class="custom-input-item">
-            <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
-            <ion-input 
-              type="email" 
-              placeholder="E-mail" 
-              [(ngModel)]="email">
-            </ion-input>
-          </ion-item>
+        
+        <div class="custom-input-box">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <ion-input 
+            type="email" 
+            placeholder="E-mail" 
+            [(ngModel)]="email">
+          </ion-input>
+        </div>
 
-          <ion-item class="custom-input-item">
-            <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
-            <ion-input 
-              type="password" 
-              placeholder="Password" 
-              [(ngModel)]="password">
-            </ion-input>
-          </ion-item>
-        </ion-list>
+        <div class="custom-input-box">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input 
+            type="password" 
+            placeholder="Password" 
+            [(ngModel)]="password">
+          </ion-input>
+        </div>
 
         <div class="forgot-password-container">
           <a class="forgot-link" (click)="recuperaPassword()">Password dimenticata?</a>

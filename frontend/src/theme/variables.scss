@@ -6,4 +6,24 @@
     --tertiary-color: #0369A1;
     --neutral-color: #64748B;
     --font-family-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; /*font base + font di fallback*/
+    --app-background: #f8fafc;
+    --card-background: #ffffff;
+    --input-background: #f1f5f9;
+    --text-main: #1e293b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Desaturiamo leggermente il blu primario e il terziario per renderli leggibili
+    --primary-color: #3b82f6; 
+    --secondary-color: #14b8a6;
+    --tertiary-color: #38bdf8;
+    --neutral-color: #94a3b8;
+
+    // Invertiamo gli sfondi
+    --app-background: #0f172a;    // Sfondo principale scuro
+    --card-background: #1e293b;  // Le card spiccano essendo un po' più chiare
+    --input-background: #334155; // I campi di input cambiano di conseguenza
+    --text-main: #f8fafc;         // Il testo diventa chiaro
+  }
 }

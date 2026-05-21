@@ -1,13 +1,64 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>register</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="register-content">
+  <div class="responsive-container">
+    <div class="register-card">
+      
+      <div class="brand-header">
+        <h1 class="brand-title">SkillUp</h1>
+        <p class="brand-subtitle">Crea il tuo account per iniziare</p>
+      </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">register</ion-title>
-    </ion-toolbar>
-  </ion-header>
+      <div class="custom-segment-container">
+        <div 
+          class="segment-btn" 
+          [class.active]="tipologia_utente === 'studente'" 
+          (click)="tipologia_utente = 'studente'">
+          Studente
+        </div>
+        <div 
+          class="segment-btn" 
+          [class.active]="tipologia_utente === 'tutor'" 
+          (click)="tipologia_utente = 'tutor'">
+          Tutor
+        </div>
+      </div>
+
+      <div class="form-container">
+        
+        <div class="custom-input-box">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <ion-input type="text" placeholder="Nome" [(ngModel)]="nome"></ion-input>
+        </div>
+
+        <div class="custom-input-box">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <ion-input type="text" placeholder="Cognome" [(ngModel)]="cognome"></ion-input>
+        </div>
+
+        <div class="custom-input-box">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <ion-input type="email" placeholder="E-mail" [(ngModel)]="email"></ion-input>
+        </div>
+
+        <div class="custom-input-box">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input type="password" placeholder="Password" [(ngModel)]="password"></ion-input>
+        </div>
+
+        <div class="custom-input-box">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input type="password" placeholder="Conferma Password" [(ngModel)]="confermaPassword"></ion-input>
+        </div>
+
+        <ion-button expand="block" class="main-register-btn" (click)="gestisciRegistrazione()">
+          Registrati
+          <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="register-footer">
+        <p>Hai già un account? <a class="login-link" (click)="vaiAlLogin()">Accedi</a></p>
+      </div>
+
+    </div>
+  </div>
 </ion-content>

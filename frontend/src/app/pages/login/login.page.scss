@@ -1,9 +1,9 @@
-// Contenitore principale di Ionic
+// Contenitore principale agganciato allo sfondo globale
 .login-content {
-  --background: #f8fafc; // Sfondo neutro chiarissimo di contrasto per schermi grandi
+  --background: var(--app-background);
 }
 
-// Struttura Flexbox per centrare la card sia verticalmente che orizzontalmente
+// Struttura Flexbox per il centraggio responsivo su ogni display
 .responsive-container {
   display: flex;
   min-height: 100%;
@@ -14,7 +14,7 @@
   box-sizing: border-box;
 }
 
-// Mobile First: occupa tutto lo spazio senza sfondi aggiuntivi (effetto app nativa su smartphone)
+// Mobile First: Schermo intero fluido per smartphone
 .login-card {
   width: 100%;
   max-width: 100%;
@@ -30,47 +30,65 @@
   .brand-title {
     font-size: 36px;
     font-weight: 800;
-    color: var(--primary-color); // Recupera la variabile globale #1E40AF
+    color: var(--primary-color);
     margin: 0;
     letter-spacing: -1px;
   }
 
   .brand-subtitle {
     font-size: 15px;
-    color: var(--neutral-color); // Recupera la variabile globale #64748B
+    color: var(--neutral-color);
     margin-top: 8px;
     padding: 0 16px;
   }
 }
 
-// Input box (Sfondo grigio chiaro pulito e angoli arrotondati coerenti)
-.custom-input-item {
-  --background: #f1f5f9; 
-  --border-radius: 12px;
-  --padding-start: 16px;
+/* ==========================================================================
+   STRUTTURA INPUT BOX PERSONALIZZATA (Risolve il problema dell'alone nero)
+   ========================================================================== */
+.custom-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--input-background); // Segue fedelmente il tuo file variables
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 52px;
   margin-bottom: 14px;
-  
+  box-sizing: border-box;
+
   .input-icon {
     color: var(--neutral-color);
     font-size: 20px;
-    margin-right: 6px;
+    margin-right: 10px;
+    flex-shrink: 0;
   }
 
   ion-input {
+    --background: transparent !important; // Rimuove lo sfondo nativo di ion-input
+    color: var(--text-main);
+    --placeholder-color: var(--neutral-color);
     font-size: 15px;
-    color: #1e293b;
-    --placeholder-color: #94a3b8;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    
+    // Pulisce l'allineamento della Shadow DOM interna di ion-input
+    &::part(native) {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
   }
 }
 
-// Link opzioni
+// Link opzioni secondarie
 .forgot-password-container {
   text-align: right;
   margin: 4px 4px 28px 0;
 
   .forgot-link {
     font-size: 13px;
-    color: var(--tertiary-color); // Recupera la variabile globale #0369A1
+    color: var(--tertiary-color);
     text-decoration: none;
     cursor: pointer;
     font-weight: 500;
@@ -81,7 +99,7 @@
   }
 }
 
-// Pulsante d'accesso principale
+// Pulsante d'accesso principale coordinato
 .main-login-btn {
   --background: var(--primary-color);
   --background-hover: var(--tertiary-color);
@@ -90,10 +108,10 @@
   font-size: 16px;
   font-weight: 600;
   height: 52px;
-  text-transform: none; // Disabilita il maiuscolo forzato su Android
+  text-transform: none; // Blocca il maiuscolo forzato su Android
 }
 
-// Scambio d'area in calce
+// Footer dell'area di interscambio
 .login-footer {
   margin-top: 40px;
   text-align: center;
@@ -101,7 +119,7 @@
   color: var(--neutral-color);
 
   .register-link {
-    color: var(--secondary-color); // Recupera la variabile globale #0D9488
+    color: var(--secondary-color);
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
@@ -113,12 +131,12 @@
 }
 
 /* ==========================================================================
-   MEDIA QUERY: Adattamento automatico per Tablet e Desktop
+   MEDIA QUERY: Ottimizzazione e adattamento per Tablet e Desktop
    ========================================================================== */
 @media (min-width: 576px) {
   .login-card {
     max-width: 420px;
-    background: #ffffff; // Genera la card bianca isolata sullo sfondo grigio
+    background: var(--card-background); // Bianca di giorno, grigio scuro di notte
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { 
   IonContent, 
-  IonLabel,
   IonList, 
   IonItem, 
   IonInput, 
@@ -21,7 +20,6 @@ import { mailOutline, lockClosedOutline, arrowForwardOutline } from 'ionicons/ic
   standalone: true,
   imports: [
     CommonModule, 
-    IonLabel,
     FormsModule, 
     IonContent, 
     IonList, 
@@ -36,7 +34,7 @@ export class LoginPage implements OnInit {
   password = '';
 
   constructor(private router: Router) {
-    // Iniezione ottimizzata icone Standalone
+    // Iniezione esplicita delle icone secondo lo standard Standalone di Ionic 7+
     addIcons({ mailOutline, lockClosedOutline, arrowForwardOutline });
   }
 
@@ -44,19 +42,19 @@ export class LoginPage implements OnInit {
 
   gestisciLogin() {
     if (!this.email || !this.password) {
-      alert('Compila tutti i campi richiesti.');
+      alert('Per favor, compila tutti i campi richiesti.');
       return;
     }
 
     const emailLower = this.email.toLowerCase();
 
-    // Reindirizzamento basato sui ruoli definiti nel file app.routes.ts
+    // Logica di routing condizionale definita in base al ruolo utente
     if (emailLower.includes('admin')) {
-      this.router.navigate(['/admin-view']); // Pannello di controllo a schermo intero
+      this.router.navigate(['/admin-view']); // Vista amministratore desktop a schermo intero
     } else if (emailLower.includes('tutor')) {
-      this.router.navigate(['/tabs/tutor-dashboard']); // Reindirizza all'area protetta delle tabs
+      this.router.navigate(['/tabs/tutor-dashboard']); // Vista Tutor interna al guscio Tabs
     } else {
-      this.router.navigate(['/tabs/search-tutor']); // Atterra sul motore di ricerca interno
+      this.router.navigate(['/tabs/search-tutor']); // Vista Studente interna al guscio Tabs
     }
   }
 
@@ -65,6 +63,6 @@ export class LoginPage implements OnInit {
   }
 
   recuperaPassword() {
-    console.log('Procedura recupero credenziali avviata');
+    console.log('Link di recupero credenziali premuto');
   }
 }
