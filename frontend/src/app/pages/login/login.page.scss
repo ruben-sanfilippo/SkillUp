@@ -19,7 +19,7 @@
   width: 100%;
   max-width: 100%;
   padding: 24px 8px;
-  background: transparent; 
+  background: transparent;
 }
 
 // Elementi testuali del Brand
@@ -64,19 +64,23 @@
   }
 
   ion-input {
-    --background: transparent !important; // Rimuove lo sfondo nativo di ion-input
-    color: var(--text-main);
+    --background: transparent !important;
+    --color: var(--text-main);
     --placeholder-color: var(--neutral-color);
+
+    --highlight-color-focused: var(--text-main);
+    --highlight-color-valid: var(--text-main);
+    --highlight-color-invalid: var(--text-main);
     font-size: 15px;
     height: 100%;
     margin: 0;
     padding: 0;
-    
-    // Pulisce l'allineamento della Shadow DOM interna di ion-input
+
     &::part(native) {
       background: transparent !important;
       border: none !important;
       padding: 0 !important;
+      outline: none !important;
     }
   }
 }
@@ -92,7 +96,7 @@
     text-decoration: none;
     cursor: pointer;
     font-weight: 500;
-    
+
     &:hover {
       text-decoration: underline;
     }
@@ -123,7 +127,7 @@
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-    
+
     &:hover {
       text-decoration: underline;
     }
@@ -136,13 +140,16 @@
 @media (min-width: 576px) {
   .login-card {
     max-width: 420px;
-    background: var(--card-background); // Bianca di giorno, grigio scuro di notte
+    background: var(
+      --card-background
+    ); // Bianca di giorno, grigio scuro di notte
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 
-                0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.05),
+      0 8px 10px -6px rgba(0, 0, 0, 0.05);
   }
-  
+
   .brand-header {
     .brand-title {
       font-size: 40px;

@@ -1,46 +1,58 @@
 <ion-content class="login-content">
   <div class="responsive-container">
     <div class="login-card">
-      
       <div class="brand-header">
         <h1 class="brand-title">SkillUp</h1>
-        <p class="brand-subtitle">Accedi per continuare il tuo percorso di studio</p>
+        <p class="brand-subtitle">
+          Accedi per continuare il tuo percorso di studio
+        </p>
       </div>
 
       <div class="form-container">
-        
         <div class="custom-input-box">
           <ion-icon name="mail-outline" class="input-icon"></ion-icon>
-          <ion-input 
-            type="email" 
-            placeholder="E-mail" 
-            [(ngModel)]="email">
+          <ion-input
+            type="email"
+            placeholder="E-mail"
+            mode="ios"
+            [(ngModel)]="email"
+          >
           </ion-input>
         </div>
 
         <div class="custom-input-box">
           <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
-          <ion-input 
-            type="password" 
-            placeholder="Password" 
-            [(ngModel)]="password">
+          <ion-input
+            mode="ios"
+            type="password"
+            placeholder="Password"
+            [(ngModel)]="password"
+          >
           </ion-input>
         </div>
 
         <div class="forgot-password-container">
-          <a class="forgot-link" (click)="recuperaPassword()">Password dimenticata?</a>
+          <a class="forgot-link" (click)="recuperaPassword()"
+            >Password dimenticata?</a
+          >
         </div>
 
-        <ion-button expand="block" class="main-login-btn" (click)="gestisciLogin()">
+        <ion-button
+          expand="block"
+          class="main-login-btn"
+          (click)="gestisciLogin()"
+        >
           Accedi
           <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
         </ion-button>
       </div>
 
       <div class="login-footer">
-        <p>Non hai un account? <a class="register-link" (click)="vaiAlRegister()">Registrati</a></p>
+        <p>
+          Non hai un account?
+          <a class="register-link" (click)="vaiAlRegister()">Registrati</a>
+        </p>
       </div>
-
     </div>
   </div>
 </ion-content>
