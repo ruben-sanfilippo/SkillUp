@@ -11,7 +11,7 @@ import {
   IonIcon 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { mailOutline, lockClosedOutline, arrowForwardOutline } from 'ionicons/icons';
+import { mailOutline, lockClosedOutline, arrowForwardOutline, alertCircleOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -34,21 +34,29 @@ export class LoginPage implements OnInit {
   email = '';
   password = '';
 
+  messaggioErrore = '';
+  erroreEmail = false;
+  errorePassword = false;
+
   constructor(private router: Router) {
-    addIcons({ mailOutline, lockClosedOutline, arrowForwardOutline });
+    addIcons({ mailOutline, lockClosedOutline, arrowForwardOutline, alertCircleOutline });
   }
 
   ngOnInit() {}
 
   gestisciLogin() {
-    if (!this.email || !this.password) {
-      alert('Per favore, compila tutti i campi richiesti.');
+    this.resettaErrori();
+
+    if (!this.email) { this.erroreEmail = true; }
+    if (!this.password) { this.errorePassword = true; }
+
+    if (this.erroreEmail || this.errorePassword) {
+      this.messaggioErrore = 'Compila tutti i campi richiesti.';
       return;
     }
 
     const emailLower = this.email.toLowerCase();
 
-    // Logica di routing condizionale definita in base al ruolo utente
     if (emailLower.includes('admin')) {
       this.router.navigate(['/admin-view']); // Vista amministratore desktop a schermo intero
     } else if (emailLower.includes('tutor')) {
@@ -56,7 +64,13 @@ export class LoginPage implements OnInit {
     } else {
       this.router.navigate(['/tabs/search-tutor']); // Vista Studente interna al guscio Tabs
     }
-  }  
+  }   
+
+  resettaErrori() {
+    this.messaggioErrore = '';
+    this.erroreEmail = false;
+    this.errorePassword = false;
+  }
 
   vaiAlRegister() {
     this.router.navigate(['/register']);

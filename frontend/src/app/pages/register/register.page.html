@@ -24,55 +24,67 @@
       </div>
 
       <div class="form-container">
-        <div class="custom-input-box">
+        <div class="custom-input-box" [class.input-error]="erroreNome">
           <ion-icon name="person-outline" class="input-icon"></ion-icon>
           <ion-input
             type="text"
             mode="ios"
             placeholder="Nome"
             [(ngModel)]="nome"
+            (ionInput)="resettaErrori()"
           ></ion-input>
         </div>
 
-        <div class="custom-input-box">
+        <div class="custom-input-box" [class.input-error]="erroreCognome">
           <ion-icon name="person-outline" class="input-icon"></ion-icon>
           <ion-input
             type="text"
             mode="ios"
             placeholder="Cognome"
             [(ngModel)]="cognome"
+            (ionInput)="resettaErrori()"
           ></ion-input>
         </div>
 
-        <div class="custom-input-box">
+        <div class="custom-input-box" [class.input-error]="erroreEmail">
           <ion-icon name="mail-outline" class="input-icon"></ion-icon>
           <ion-input
             type="email"
             mode="ios"
             placeholder="E-mail"
             [(ngModel)]="email"
+            (ionInput)="resettaErrori()"
           ></ion-input>
         </div>
 
-        <div class="custom-input-box">
+        <div class="custom-input-box" [class.input-error]="errorePassword">
           <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
           <ion-input
             type="password"
             mode="ios"
             placeholder="Password"
             [(ngModel)]="password"
+            (ionInput)="resettaErrori()"
           ></ion-input>
         </div>
 
-        <div class="custom-input-box">
+        <div class="custom-input-box" [class.input-error]="erroreConfermaPassword">
           <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
           <ion-input
             type="password"
             mode="ios"
             placeholder="Conferma Password"
             [(ngModel)]="confermaPassword"
+            (ionInput)="resettaErrori()"
           ></ion-input>
         </div>
+
+        @if (messaggioErrore) {
+          <div class="error-message-container">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>{{ messaggioErrore }}</span>
+          </div>
+        }
 
         <ion-button
           expand="block"

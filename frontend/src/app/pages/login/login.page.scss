@@ -50,6 +50,8 @@
   height: 52px;
   margin-bottom: 14px;
   box-sizing: border-box; /* evita che i form escano fuori dalla card */
+  border: 1px solid transparent; // Predisposizione per il bordo di errore
+  transition: all 0.2s ease-in-out;
 
   .input-icon {
     color: var(--neutral-color);
@@ -59,13 +61,12 @@
   }
   
   ion-input {
-    --background: transparent; 
-    --color: var(--text-main);
-    --placeholder-color: var(--neutral-color);
-ion-input {
     --background: transparent !important;
     --color: var(--text-main);
     --placeholder-color: var(--neutral-color);
+    --highlight-color-focused: var(--text-main);
+    --highlight-color-valid: var(--text-main);
+    --highlight-color-invalid: var(--text-main);
 
     font-size: 15px;
     height: 100%;
@@ -79,18 +80,13 @@ ion-input {
       outline: none !important;
     }
   }
-    --highlight-color-valid: var(--text-main);
-    --highlight-color-invalid: var(--text-main);
-    font-size: 15px;
-    height: 100%;
-    margin: 0;
-    padding: 0;
 
-    &::part(native) {
-      background: transparent !important;
-      border: none !important;
-      padding: 0 !important;
-      outline: none !important;
+  &.input-error {
+    border: 1px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+
+    .input-icon {
+      color: #ef4444 !important;
     }
   }
 }
@@ -140,12 +136,31 @@ ion-input {
   }
 }
 
+.error-message-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 500;
+  margin: -10px 4px 18px 4px;
+  animation: fadeIn 0.2s ease-in-out;
+
+  ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (min-width: 576px) {
   .login-card {
     max-width: 420px;
-    background: var(
-      --card-background
-    );
+    background: var(--card-background);
     border-radius: 20px;
     padding: 40px;
   }

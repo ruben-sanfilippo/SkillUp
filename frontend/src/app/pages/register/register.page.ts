@@ -1,18 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { 
-  IonContent, 
-  IonButton, 
-  IonIcon,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonInput
-} from '@ionic/angular/standalone';
+import { IonContent, IonButton, IonIcon, IonInput } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personOutline, mailOutline, lockClosedOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { personOutline, mailOutline, lockClosedOutline, checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-register',
@@ -20,14 +11,10 @@ import { personOutline, mailOutline, lockClosedOutline, checkmarkCircleOutline }
   styleUrls: ['./register.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
     FormsModule, 
     IonContent, 
     IonButton, 
     IonIcon,
-    IonSegment,
-    IonSegmentButton,
-    IonLabel,
     IonInput
   ]
 })
@@ -40,20 +27,37 @@ export class RegisterPage implements OnInit {
   password = '';
   confermaPassword = '';
 
+  messaggioErrore = '';
+  erroreNome = false;
+  erroreCognome = false;
+  erroreEmail = false;
+  errorePassword = false;
+  erroreConfermaPassword = false;
+
   constructor(private router: Router) {
-    addIcons({ personOutline, mailOutline, lockClosedOutline, checkmarkCircleOutline });
+    addIcons({ personOutline, mailOutline, lockClosedOutline, checkmarkCircleOutline, alertCircleOutline });
   }
 
   ngOnInit() {}
 
   gestisciRegistrazione() {
-    if (!this.nome || !this.cognome || !this.email || !this.password || !this.confermaPassword) {
-      alert('Compila tutti i campi.');
+    this.resettaErrori();
+
+    if (!this.nome) { this.erroreNome = true; }
+    if (!this.cognome) { this.erroreCognome = true; }
+    if (!this.email) { this.erroreEmail = true; }
+    if (!this.password) { this.errorePassword = true; }
+    if (!this.confermaPassword) { this.erroreConfermaPassword = true; }
+
+    if (this.erroreNome || this.erroreCognome || this.erroreEmail || this.errorePassword || this.erroreConfermaPassword) {
+      this.messaggioErrore = 'Compila tutti i campi.';
       return;
     }
 
     if (this.password !== this.confermaPassword) {
-      alert('Le password non coincidono.');
+      this.errorePassword = true;
+      this.erroreConfermaPassword = true;
+      this.messaggioErrore = 'Le password non coincidono.';
       return;
     }
 
@@ -67,8 +71,16 @@ export class RegisterPage implements OnInit {
 
     console.log('Payload per il backend Node.js:', datiRegistrazione);
     
-    alert('Registrazione completata!');
     this.router.navigate(['/login']);
+  }
+
+  resettaErrori() {
+    this.messaggioErrore = '';
+    this.erroreNome = false;
+    this.erroreCognome = false;
+    this.erroreEmail = false;
+    this.errorePassword = false;
+    this.erroreConfermaPassword = false;
   }
 
   vaiAlLogin() {
