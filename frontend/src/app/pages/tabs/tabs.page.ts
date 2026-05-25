@@ -35,7 +35,7 @@ import {
   ],
 })
 export class TabsPage implements OnInit {
-  // 1. Definiamo la variabile con un valore di default
+  // Definiamo la variabile con un valore di default
   tipologiaUtente = 'studente';
 
   constructor() {
@@ -47,7 +47,7 @@ export class TabsPage implements OnInit {
   }
 
   ngOnInit() {
-    // 2. Recuperiamo la tipologia salvata al login (default a 'studente' se non trova nulla)
+    //Recuperiamo la tipologia salvata al login
     this.tipologiaUtente =
       localStorage.getItem('tipologia_utente') || 'studente';
   }

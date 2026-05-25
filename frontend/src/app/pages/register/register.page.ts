@@ -17,6 +17,7 @@ import {
   alertCircleOutline,
 } from 'ionicons/icons';
 import { AuthService } from 'src/app/services/authService';
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
@@ -25,7 +26,7 @@ import { AuthService } from 'src/app/services/authService';
   imports: [FormsModule, IonContent, IonButton, IonIcon, IonInput],
 })
 export class RegisterPage implements OnInit {
-  tipologia_utente = 'studente';
+  tipologia_utente = 'studente'; // 'studente' o 'tutor' mappati perfettamente con le condizioni del backend
   nome = '';
   cognome = '';
   email = '';
@@ -57,6 +58,7 @@ export class RegisterPage implements OnInit {
   async gestisciRegistrazione() {
     this.resettaErrori();
 
+    // 1. Validazione locale: Campi vuoti
     if (!this.nome) {
       this.erroreNome = true;
     }
@@ -83,6 +85,8 @@ export class RegisterPage implements OnInit {
       this.messaggioErrore = 'Compila tutti i campi.';
       return;
     }
+
+    // 2. Validazione locale: Complessità Password
     if (
       this.password.length < 8 ||
       !/[A-Z]/.test(this.password) ||
@@ -94,6 +98,7 @@ export class RegisterPage implements OnInit {
       return;
     }
 
+    // 3. Validazione locale: Corrispondenza Password
     if (this.password !== this.confermaPassword) {
       this.errorePassword = true;
       this.erroreConfermaPassword = true;
@@ -101,6 +106,8 @@ export class RegisterPage implements OnInit {
       return;
     }
 
+    // Struttura del payload allineata al destructuring del backend:
+    // const { nome, cognome, email, password, tipologia_utente } = req.body;
     const datiRegistrazione = {
       nome: this.nome,
       cognome: this.cognome,
@@ -110,16 +117,27 @@ export class RegisterPage implements OnInit {
     };
 
     try {
+      // Eseguo la chiamata POST. Se il backend risponde con 201, prosegue nel try.
+      // Se risponde con 400 o 500, Angular lancia un'eccezione ed entra direttamente nel catch.
       const risposta: any = await firstValueFrom(
         this.authService.register(datiRegistrazione),
       );
 
-      console.log('Registrazione riuscita');
-
+      console.log('Registrazione riuscita con successo:', risposta.message);
       this.router.navigate(['/login']);
     } catch (error: any) {
+      console.error('Errore catturato durante la registrazione:', error);
+
       const messaggioServer =
-        error?.error?.message || 'Errore di connessione al server.';
+        error?.error?.message ||
+        error?.error?.error ||
+        'Errore di connessione al server.';
+
+      this.messaggioErrore = messaggioServer;
+
+      if (messaggioServer.toLowerCase().includes('email')) {
+        this.erroreEmail = true;
+      }
     }
   }
 

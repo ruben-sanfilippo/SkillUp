@@ -1,0 +1,402 @@
+.register-content {
+  --background: var(--app-background);
+}
+
+.responsive-container {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  padding: 32px 16px;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+/* Layout Grid responsivo: 1 colonna su mobile, 2 colonne da Desktop (min-width: 992px) */
+.profile-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  width: 100%;
+  max-width: 1140px;
+}
+
+@media (min-width: 992px) {
+  .profile-grid-layout {
+    grid-template-columns: 380px 1fr; /* Rispetta le proporzioni dell'immagine caricata */
+  }
+}
+
+/* Stili contenitori generici delle sezioni */
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-card-edit,
+.info-section-card,
+.management-card {
+  background: var(--card-background, #ffffff);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.profile-card-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Avatar circolare con overlay per scattare/cambiare foto */
+.avatar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 16px;
+
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--input-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-color);
+    font-size: 48px;
+    border: 2px solid var(--primary-color);
+  }
+
+  .change-avatar-btn {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background: var(--primary-color);
+    color: #ffffff;
+    border-radius: 50%;
+    margin: 0;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+  }
+}
+
+.tutor-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+}
+
+.tutor-role {
+  font-size: 14px;
+  color: var(--neutral-color);
+  margin: 0 0 12px 0;
+}
+
+/* Box della media recensioni in sola lettura */
+.rating-summary-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background: rgba(var(--primary-color-rgb, 0), 0.03);
+  border-radius: 12px;
+  width: 100%;
+  box-sizing: border-box;
+
+  .stars-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #f59e0b; /* Colore oro per la stella */
+    font-size: 20px;
+
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+
+  .rating-value {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 18px;
+  }
+
+  .reviews-count {
+    font-size: 13px;
+    color: var(--neutral-color);
+    font-weight: 500;
+  }
+}
+
+/* Intestazioni delle sezioni */
+.section-title-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-main);
+  margin-bottom: 16px;
+
+  ion-icon {
+    font-size: 20px;
+    color: var(--primary-color);
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.header-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+  }
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: var(--neutral-color);
+  margin: 0 0 20px 0;
+}
+
+/* Modifica del prezzo orario */
+.price-edit-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--input-background);
+  padding: 8px 12px;
+  border-radius: 10px;
+
+  input {
+    width: 50px;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: right;
+    outline: none;
+  }
+  span {
+    font-size: 14px;
+    color: var(--text-main);
+    font-weight: 500;
+  }
+}
+
+/* Box di Input e Textarea personalizzati riutilizzabili */
+.custom-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--input-background);
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 50px;
+  width: 100%;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+
+  .input-icon {
+    color: var(--neutral-color);
+    font-size: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  ion-input {
+    --background: transparent !important;
+    --color: var(--text-main);
+    --placeholder-color: var(--neutral-color);
+    font-size: 14px;
+    height: 100%;
+    &::part(native) {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      padding: 0 !important;
+    }
+  }
+}
+
+.custom-textarea-box {
+  background: var(--input-background);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+
+  textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    &::placeholder {
+      color: var(--neutral-color);
+    }
+  }
+}
+
+/* Sottosezione per il caricamento delle dispense */
+.dispensa-upload-form {
+  background: rgba(0, 0, 0, 0.01);
+  border: 1px dashed rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.form-row-double {
+  display: flex;
+  gap: 12px;
+  .custom-input-box {
+    flex: 1;
+  }
+}
+
+/* Pulsanti per caricamento File */
+.file-mock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--input-background);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  height: 50px;
+  padding: 0 16px;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  &.upload-main-file {
+    width: 100%;
+    margin-bottom: 12px;
+    border: 1px dashed var(--secondary-color);
+    color: var(--secondary-color);
+    background: rgba(var(--secondary-color-rgb), 0.05);
+  }
+}
+
+.placeholder-calendar-setup {
+  height: 180px;
+  background: var(--input-background);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--neutral-color);
+  gap: 8px;
+  ion-icon {
+    font-size: 32px;
+  }
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+/* Lista delle dispense caricate */
+.uploaded-dispense-list {
+  margin-top: 20px;
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+}
+
+.dispensa-item-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--input-background);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+
+  .dispensa-cover-preview {
+    width: 48px;
+    height: 48px;
+    background: var(--card-background);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .dispensa-info-preview {
+    flex: 1;
+    h4 {
+      margin: 0 0 2px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--neutral-color);
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  .dispensa-price-tag {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--success-color, #10b981);
+  }
+}
+
+/* Pulsanti principali azione */
+.add-dispensa-btn {
+  --background: var(--secondary-color);
+  --border-radius: 10px;
+  margin: 8px 0 0 0;
+}
+
+.save-profile-btn {
+  --background: var(--primary-color);
+  --border-radius: 12px;
+  height: 52px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 10px;
+}
