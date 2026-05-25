@@ -1,0 +1,173 @@
+.login-content {
+  --background: var(--app-background);
+}
+
+/* Struttura Flexbox per il centraggio responsivo su ogni display */
+.responsive-container {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 100%;
+  padding: 24px 8px;
+  background: transparent;
+}
+
+// Elementi testuali del Brand
+.brand-header {
+  text-align: center;
+  margin-bottom: 36px;
+
+  .brand-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin: 0;
+    letter-spacing: -1px;
+  }
+
+  .brand-subtitle {
+    font-size: 15px;
+    color: var(--neutral-color);
+    margin-top: 8px;
+    padding: 0 16px;
+  }
+}
+
+.custom-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--input-background);
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 52px;
+  margin-bottom: 14px;
+  box-sizing: border-box; /* evita che i form escano fuori dalla card */
+  border: 1px solid transparent; // Predisposizione per il bordo di errore
+  transition: all 0.2s ease-in-out;
+
+  .input-icon {
+    color: var(--neutral-color);
+    font-size: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;  /* In questo modo l'icona non viene compressa */
+  }
+  
+  ion-input {
+    --background: transparent !important;
+    --color: var(--text-main);
+    --placeholder-color: var(--neutral-color);
+    --highlight-color-focused: var(--text-main);
+    --highlight-color-valid: var(--text-main);
+    --highlight-color-invalid: var(--text-main);
+
+    font-size: 15px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+
+    &::part(native) {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      outline: none !important;
+    }
+  }
+
+  &.input-error {
+    border: 1px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+
+    .input-icon {
+      color: #ef4444 !important;
+    }
+  }
+}
+
+.forgot-password-container {
+  text-align: right;
+  margin: 4px 4px 28px 0;
+
+  .forgot-link {
+    font-size: 13px;
+    color: var(--tertiary-color);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.main-login-btn {
+  --background: var(--primary-color);
+  --border-radius: 12px;
+  --box-shadow: none;
+  font-size: 16px;
+  font-weight: 600;
+  height: 52px;
+  text-transform: none; 
+}
+
+.login-footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--neutral-color);
+
+  .register-link {
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.error-message-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 500;
+  margin: -10px 4px 18px 4px;
+  animation: fadeIn 0.2s ease-in-out;
+
+  ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 576px) {
+  .login-card {
+    max-width: 420px;
+    background: var(--card-background);
+    border-radius: 20px;
+    padding: 40px;
+  }
+
+  .brand-header {
+    .brand-title {
+      font-size: 40px;
+    }
+  }
+}

@@ -1,0 +1,107 @@
+<ion-content class="register-content">
+  <div class="responsive-container">
+    <div class="register-card">
+      <div class="brand-header">
+        <h1 class="brand-title">SkillUp</h1>
+        <p class="brand-subtitle">Crea il tuo account per iniziare</p>
+      </div>
+
+      <div class="custom-segment-container">
+        <div
+          class="segment-btn"
+          [class.active]="tipologia_utente === 'studente'"
+          (click)="tipologia_utente = 'studente'"
+        >
+          Studente
+        </div>
+        <div
+          class="segment-btn"
+          [class.active]="tipologia_utente === 'tutor'"
+          (click)="tipologia_utente = 'tutor'"
+        >
+          Tutor
+        </div>
+      </div>
+
+      <div class="form-container">
+        <div class="custom-input-box" [class.input-error]="erroreNome">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <ion-input
+            type="text"
+            mode="ios"
+            placeholder="Nome"
+            [(ngModel)]="nome"
+            (ionInput)="resettaErrori()"
+          ></ion-input>
+        </div>
+
+        <div class="custom-input-box" [class.input-error]="erroreCognome">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <ion-input
+            type="text"
+            mode="ios"
+            placeholder="Cognome"
+            [(ngModel)]="cognome"
+            (ionInput)="resettaErrori()"
+          ></ion-input>
+        </div>
+
+        <div class="custom-input-box" [class.input-error]="erroreEmail">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <ion-input
+            type="email"
+            mode="ios"
+            placeholder="E-mail"
+            [(ngModel)]="email"
+            (ionInput)="resettaErrori()"
+          ></ion-input>
+        </div>
+
+        <div class="custom-input-box" [class.input-error]="errorePassword">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input
+            type="password"
+            mode="ios"
+            placeholder="Password"
+            [(ngModel)]="password"
+            (ionInput)="resettaErrori()"
+          ></ion-input>
+        </div>
+
+        <div class="custom-input-box" [class.input-error]="erroreConfermaPassword">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input
+            type="password"
+            mode="ios"
+            placeholder="Conferma Password"
+            [(ngModel)]="confermaPassword"
+            (ionInput)="resettaErrori()"
+          ></ion-input>
+        </div>
+
+        @if (messaggioErrore) {
+          <div class="error-message-container">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>{{ messaggioErrore }}</span>
+          </div>
+        }
+
+        <ion-button
+          expand="block"
+          class="main-register-btn"
+          (click)="gestisciRegistrazione()"
+        >
+          Registrati
+          <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="register-footer">
+        <p>
+          Hai già un account?
+          <a class="login-link" (click)="vaiAlLogin()">Accedi</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</ion-content>

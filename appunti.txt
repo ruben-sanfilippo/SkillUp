@@ -1,2 +1,6 @@
 Nel model inseriamo le query, nel controller inseriamo la logica di business, quindi effettuiamo i vari controlli prima di chiamare il model.
 Il router decide quale funzione del Controller deve gestire una determinata richiesta che arriva dall'app.
+
+
+tutor profile
+-immagine, nome, biografia

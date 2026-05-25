@@ -1,0 +1,193 @@
+.register-content {
+  --background: var(--app-background);
+}
+
+.responsive-container {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 100%;
+  padding: 24px 8px;
+  background: transparent;
+}
+
+.brand-header {
+  text-align: center;
+  margin-bottom: 24px;
+
+  .brand-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin: 0;
+    letter-spacing: -1px;
+  }
+
+  .brand-subtitle {
+    font-size: 15px;
+    color: var(--neutral-color);
+    margin-top: 8px;
+  }
+}
+
+.custom-segment-container {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+
+  .segment-btn {
+    flex: 1;  /* permette all'elemento di occupare tutto lo spazio dell'elemento padre */
+    text-align: center;
+    padding: 10px 0;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--neutral-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+
+    &.active {
+      background: #ffffff;
+      color: var(--primary-color);
+    }
+  }
+}
+
+/* Gestione dello switch quando il telefono passa in Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .custom-segment-container {
+    background: var(
+      --input-background
+    );
+
+    .segment-btn {
+      &.active {
+        background: var(--card-background); 
+        color: #ffffff;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+.custom-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--input-background);
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 52px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+
+  .input-icon {
+    color: var(--neutral-color);
+    font-size: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  ion-input {
+    --background: transparent !important;
+    --color: var(--text-main);
+    --placeholder-color: var(--neutral-color);
+
+    --highlight-color-focused: var(--text-main);
+    --highlight-color-valid: var(--text-main);
+    --highlight-color-invalid: var(--text-main);
+    font-size: 15px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+
+    &::part(native) {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      outline: none !important;
+    }
+  }
+
+  &.input-error {
+    border: 1px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+
+    .input-icon {
+      color: #ef4444 !important;
+    }
+  }
+}
+
+.main-register-btn {
+  --background: var(--primary-color);
+  --background-hover: var(--tertiary-color);
+  --border-radius: 12px;
+  --box-shadow: none;
+  font-size: 16px;
+  font-weight: 600;
+  height: 52px;
+  margin-top: 24px;
+  text-transform: none;
+}
+
+.register-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--neutral-color);
+
+  .login-link {
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.error-message-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 6px 4px 0 4px;
+  animation: fadeIn 0.2s ease-in-out;
+
+  ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 576px) {
+  .register-card {
+    max-width: 440px;
+    background: var(--card-background);
+    border-radius: 20px;
+    padding: 40px;
+  }
+}

@@ -1,2 +1,24 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+:root {
+    --primary-color: #1E40AF;
+    --tertiary-color: #0369A1;
+    --neutral-color: #64748B;
+    --font-family-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    --app-background: #f8fafc;
+    --card-background: #ffffff;
+    --input-background: #f1f5f9;
+    --text-main: #1e293b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #3b82f6; 
+    --secondary-color: #14b8a6;
+    --tertiary-color: #38bdf8;
+    --neutral-color: #94a3b8;
+
+    --app-background: #0f172a;   
+    --card-background: #1e293b;  
+    --input-background: #334155; 
+    --text-main: #f8fafc;         
+  }
+}

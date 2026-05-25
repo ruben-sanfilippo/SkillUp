@@ -26,7 +26,7 @@ const User = {
 
   findByEmail: (email) => {
     return new Promise((resolve, reject) => {
-      const query = `SELECT * FROM users WHERE email = ?`;
+      const query = `SELECT * FROM Utente WHERE email = ?`;
       db.get(query, [email], (err, row) => {
         if (err) {
           reject(err);
