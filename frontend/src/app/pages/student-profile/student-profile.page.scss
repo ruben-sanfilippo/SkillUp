@@ -1,0 +1,427 @@
+.main-bg {
+  --background: var(--app-background);
+  font-family: var(--font-body);
+}
+
+.content-wrapper {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 50px 40px;
+
+  @media (max-width: 1024px) {
+    padding: 30px 20px;
+  }
+}
+
+.dashboard-layout {
+  display: flex;
+  gap: 44px;
+  align-items: stretch;
+  width: 100%;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    gap: 32px;
+  }
+}
+
+.profile-sidebar {
+  flex: 0 0 440px; 
+  width: 440px;
+
+  @media (max-width: 1300px) {
+    flex: 0 0 380px;
+    width: 380px;
+  }
+
+  @media (max-width: 1024px) {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.card {
+  background: var(--card-background);
+  border: none; 
+  border-radius: 20px; 
+  overflow: hidden;
+  box-shadow: none; 
+}
+
+.hr {
+  height: 1.5px;
+  background: var(--app-background);
+  margin: 28px 0;
+}
+
+.profile-card {
+  height: 100%;
+  position: relative; 
+
+  .banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 140px;
+    background: linear-gradient(135deg, var(--primary-color), var(--tertiary-color));
+    z-index: 1; 
+  }
+
+  .profile-details {
+    padding: 140px 36px 36px; 
+    position: relative;
+    z-index: 2; 
+
+    .profile-center-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .avatar-holder {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      border: 5px solid var(--card-background);
+      margin-top: -62px; 
+      overflow: hidden;
+      margin-bottom: 20px;
+      background: var(--input-background);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+    }
+
+    .name {
+      font-family: var(--font-headline);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .bio {
+      h3 {
+        font-family: var(--font-headline);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--neutral-color);
+        margin: 0 0 12px 0;
+        font-weight: 700;
+      }
+
+      p {
+        font-size: 1.02rem;
+        line-height: 1.65;
+        color: var(--neutral-color);
+        margin: 0 0 16px 0;
+      }
+
+      .edit-bio-btn {
+        background: transparent;
+        color: var(--primary-color);
+        font-family: var(--font-body);
+        font-size: 0.92rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        ion-icon {
+          font-size: 18px;
+        }
+      }
+    }
+
+    .stats-container {
+      display: flex;
+      gap: 20px;
+
+      .stat-box {
+        flex: 1;
+        background: var(--app-background);
+        padding: 18px;
+        border-radius: 14px;
+
+        .label {
+          font-size: 0.8rem;
+          color: var(--neutral-color);
+          font-weight: 600;
+          display: block;
+          margin-bottom: 6px;
+        }
+
+        .val {
+          font-family: var(--font-headline);
+          font-size: 1.7rem;
+          font-weight: 800;
+          color: var(--primary-color);
+        }
+      }
+    }
+  }
+}
+
+.row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h3 {
+    font-family: var(--font-headline);
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    letter-spacing: -0.3px;
+  }
+
+  .link-btn {
+    background: none;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+
+    &:hover {
+      background: rgba(30, 64, 175, 0.05);
+    }
+  }
+}
+
+.bookings-grid {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 40px;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .booking-card {
+    flex: 1;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .booking-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+
+      .tutor {
+        display: flex;
+        gap: 16px;
+
+        img {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .tutor-info {
+          h4 {
+            font-family: var(--font-headline);
+            margin: 0 0 4px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+          }
+
+          p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--neutral-color);
+            font-weight: 500;
+          }
+        }
+      }
+
+      .status-chip {
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 6px 14px;
+        border-radius: 20px;
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--neutral-color);
+        letter-spacing: 0.5px;
+
+        &.upcoming {
+          background: rgba(3, 105, 161, 0.1);
+          color: var(--tertiary-color);
+        }
+      }
+    }
+
+    .booking-mid {
+      background: var(--app-background);
+      padding: 16px;
+      border-radius: 12px;
+      margin: 24px 0 0 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .booking-bottom {
+      display: flex;
+      margin-top: 20px; 
+      width: 100%;
+    }
+  }
+}
+
+.material-section {
+  padding: 32px;
+
+  .material-scroll-container {
+    max-height: 340px; 
+    overflow-y: auto;
+    padding-right: 8px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--neutral-color);
+      border-radius: 10px;
+      opacity: 0.4;
+    }
+  }
+
+  .material-list {
+    display: flex;
+    flex-direction: column;
+
+    .material-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 22px 0;
+      border-bottom: 1.5px solid var(--app-background);
+
+      &:last-child {
+        border: none;
+      }
+
+      .icon-box {
+        width: 54px;
+        height: 54px;
+        border-radius: 12px;
+        background: rgba(3, 105, 161, 0.08);
+        color: var(--tertiary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+
+        &.notes {
+          background: rgba(13, 148, 136, 0.08);
+          color: var(--secondary-color);
+        }
+      }
+
+      .info {
+        flex: 1;
+
+        h4 {
+          font-family: var(--font-headline);
+          margin: 0 0 2px 0;
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: var(--text-main);
+        }
+
+        .author-name {
+          margin: 0 0 4px 0;
+          font-size: 0.95rem;
+          color: var(--neutral-color);
+          font-weight: 500;
+        }
+
+        .file-spec {
+          margin: 0;
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: var(--neutral-color);
+          text-transform: uppercase; 
+        }
+      }
+
+      .btn-download {
+        --color: var(--neutral-color);
+        margin: 0;
+        margin-right: 12px; 
+        font-size: 22px;
+
+        &:hover {
+          --color: var(--primary-color);
+        }
+      }
+    }
+  }
+}
+
+ion-button {
+  text-transform: none;
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  margin: 0;
+}
+
+.btn-outline {
+  --background: transparent; 
+  --color: var(--primary-color);
+  --border-color: var(--primary-color);
+  --border-width: 1.5px;
+  --border-radius: 12px;
+  font-weight: 700;
+  height: 48px;
+  font-size: 0.95rem;
+
+  &:hover {
+    --background: rgba(30, 64, 175, 0.05);
+  }
+}
+
+.full-width {
+  width: 100%;
+  flex: 1 1 100%;
+}

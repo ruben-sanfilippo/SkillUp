@@ -1,13 +1,121 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>student-profile</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="main-bg">
+  <div class="content-wrapper">
+    <div class="dashboard-layout">
+        
+      <aside class="profile-sidebar">
+        <div class="card profile-card">
+          
+          <div class="banner"></div>
+          
+          <div class="profile-details">
+            <div class="profile-center-group">
+              <div class="avatar-holder">
+                <img [src]="student.avatar" alt="Avatar Studente" />
+              </div>
+              <h2 class="name">{{ student.firstName }} {{ student.lastName }}</h2>
+            </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">student-profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+            <div class="hr"></div>
+
+            <div class="bio">
+              <h3>Biografia</h3>
+              <p>{{ student.about }}</p>
+              <button class="edit-bio-btn" (click)="eseguiAzione('MODIFICA_BIO')">
+                <ion-icon name="create-outline"></ion-icon>
+                Modifica biografia
+              </button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="stats-container">
+              <div class="stat-box">
+                <span class="label">Sessioni</span>
+                <span class="val">{{ student.sessionsCompleted }}</span>
+              </div>
+              <div class="stat-box">
+                <span class="label">Ore Studio</span>
+                <span class="val">{{ student.studyHours }}h</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <main class="main-content">
+        
+        <div class="row-header">
+          <h3>Le tue Prenotazioni</h3>
+          <button class="link-btn" (click)="eseguiAzione('VEDI_TUTTE_PRENOTAZIONI')">Vedi tutto</button>
+        </div>
+
+        <div class="bookings-grid">
+          @for (booking of recentBookings; track booking.id) {
+            <div class="card booking-card">
+              
+              <div class="booking-top">
+                <div class="tutor">
+                  <img [src]="booking.tutorAvatar" alt="Tutor" />
+                  <div class="tutor-info">
+                    <h4>{{ booking.tutorName }}</h4>
+                    <p>{{ booking.subject }}</p>
+                  </div>
+                </div>
+                <div class="status-chip" [class.upcoming]="booking.status === 'IN PROGRAMMA'">
+                  {{ booking.status }}
+                </div>
+              </div>
+
+              <div class="booking-mid">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ booking.dataItaliana }} • {{ booking.startTime }} - {{ booking.endTime }}</span>
+              </div>
+
+              <div class="booking-bottom">
+                @if (booking.status === 'COMPLETATA') {
+                  <ion-button fill="outline" class="btn-outline full-width" (click)="eseguiAzione('RECENSISCI', booking.id)">
+                    Lascia una recensione
+                  </ion-button>
+                }
+              </div>
+
+            </div>
+          }
+        </div>
+
+        <div class="card material-section">
+          <div class="row-header">
+            <h3>Materiali Acquistati</h3>
+          </div>
+
+          <div class="material-scroll-container">
+            <div class="material-list">
+              @for (item of purchasedMaterials; track item.id) {
+                <div class="material-row">
+                  
+                  <div class="icon-box" [class.notes]="item.type === 'notes'">
+                    <ion-icon [name]="item.type === 'pdf' ? 'document-text-outline' : 'book-outline'"></ion-icon>
+                  </div>
+                  
+                  <div class="info">
+                    <h4>{{ item.title }}</h4>
+                    <p class="author-name">{{ item.author }}</p>
+                    <p class="file-spec">{{ item.fileLabel }} • {{ item.sizeInMb }}</p>
+                  </div>
+                  
+                  <ion-button fill="clear" class="btn-download" (click)="eseguiAzione('SCARICA_MATERIALE', item.id)">
+                    <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
 </ion-content>
