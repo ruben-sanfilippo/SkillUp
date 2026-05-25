@@ -5,7 +5,7 @@ import { addIcons } from 'ionicons';
 import { searchOutline } from 'ionicons/icons';
 import { TutorCardComponent } from '../../components/tutor-card/tutor-card.component';
 //Devo aggiungere in disponibilita Da giorno x a giorno y e levare le checkbox
-
+//levare il bottone vedi profilo e rendere la card cliccabile
 import {
   IonContent,
   IonGrid,
