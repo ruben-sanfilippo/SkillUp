@@ -10,11 +10,13 @@ import {
   IonTabs,
   IonRouterOutlet,
   IonTabBar,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
-import { homeOutline, searchOutline, personOutline } from 'ionicons/icons';
+import {
+  searchOutline,
+  personOutline,
+  chatbubblesOutline,
+} from 'ionicons/icons'; // Aggiunta l'icona per i messaggi
+
 @Component({
   selector: 'app-tabs',
   templateUrl: './tabs.page.html',
@@ -22,27 +24,31 @@ import { homeOutline, searchOutline, personOutline } from 'ionicons/icons';
   standalone: true,
   imports: [
     IonContent,
-    IonHeader,
     IonIcon,
     IonLabel,
     IonTabButton,
     IonTabs,
     IonRouterOutlet,
     IonTabBar,
-    IonTitle,
-    IonToolbar,
     CommonModule,
     FormsModule,
   ],
 })
 export class TabsPage implements OnInit {
+  // 1. Definiamo la variabile con un valore di default
+  tipologiaUtente = 'studente';
+
   constructor() {
     addIcons({
-      homeOutline,
       searchOutline,
+      chatbubblesOutline,
       personOutline,
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // 2. Recuperiamo la tipologia salvata al login (default a 'studente' se non trova nulla)
+    this.tipologiaUtente =
+      localStorage.getItem('tipologia_utente') || 'studente';
+  }
 }

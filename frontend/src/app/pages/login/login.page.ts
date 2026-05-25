@@ -85,7 +85,7 @@ export class LoginPage implements OnInit {
 
       // salvo il token e la tipologia nel localStorage:
       localStorage.setItem('token', risposta.token);
-      localStorage.setItem('tipologia', risposta.tipologia_utente);
+      localStorage.setItem('tipologia_utente', risposta.tipologia_utente);
 
       if (risposta.tipologia_utente === 'admin') {
         this.router.navigate(['/admin-view']);
