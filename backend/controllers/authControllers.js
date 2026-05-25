@@ -37,9 +37,7 @@ exports.register = async (req, res) => {
       await Student.create(newUser.id);
     }
 
-    res
-      .status(201)
-      .json({ message: "Registrazione completata!", user: newUser });
+    res.status(201).json({ message: "Registrazione completata!" });
   } catch (err) {
     if (err.message.includes("UNIQUE constraint failed")) {
       //errore restituito da SQLite quando si tenta di inserire un'email già esistente
@@ -58,11 +56,12 @@ exports.login = async (req, res) => {
     const existingUser = await User.findByEmail(email);
     if (!existingUser) {
       return res.status(400).json({ message: "Email o Password non corrette" });
-    }
-    //Verifica che la password criptata sia corrispondente
-    const isMatch = await bcrypt.compare(password, existingUser.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Credenziali non valide" });
+    } else {
+      //Verifica che la password criptata sia corrispondente
+      const isMatch = await bcrypt.compare(password, existingUser.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Credenziali non valide" });
+      }
     }
 
     //Creazione del token JWT
@@ -77,7 +76,9 @@ exports.login = async (req, res) => {
       },
     );
 
-    res.status(200).json({ token });
+    res
+      .status(200)
+      .json({ token: token, tipologia_utente: existingUser.tipologia_utente });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

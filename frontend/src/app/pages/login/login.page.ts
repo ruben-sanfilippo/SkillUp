@@ -81,24 +81,22 @@ export class LoginPage implements OnInit {
         this.authService.login(this.email, this.password),
       );
 
-      console.log('Login riuscito, ecco i dati:', risposta);
+      console.log('Login riuscito, ecco i dati:', risposta.tipologia_utente);
 
-      // salvo il token nel localStorage:
+      // salvo il token e la tipologia nel localStorage:
       localStorage.setItem('token', risposta.token);
+      localStorage.setItem('tipologia', risposta.tipologia_utente);
 
-      this.router.navigateByUrl('/tabs');
+      if (risposta.tipologia_utente === 'admin') {
+        this.router.navigate(['/admin-view']);
+      } else if (risposta.tipologia_utente === 'tutor') {
+        this.router.navigate(['/tabs/tutor-profile']);
+      } else {
+        this.router.navigate(['/tabs/search-tutor']);
+      }
     } catch (error: any) {
-      // Catturiamo l'errore del tuo backend
       const messaggioServer =
         error?.error?.message || 'Errore di connessione al server.';
-    }
-
-    if (emailLower.includes('admin')) {
-      this.router.navigate(['/admin-view']); // Vista amministratore desktop a schermo intero
-    } else if (emailLower.includes('tutor')) {
-      this.router.navigate(['/tabs/tutor-dashboard']); // Vista Tutor interna al guscio Tabs
-    } else {
-      this.router.navigate(['/tabs/search-tutor']); // Vista Studente interna al guscio Tabs
     }
   }
 

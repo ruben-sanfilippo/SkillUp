@@ -3,13 +3,6 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   //LANDING PAGE E AUTENTICAZIONE
   {
-    path: '',
-    loadComponent: () =>
-      import('./pages/landing-page/landing-page.page').then(
-        (m) => m.LandingPagePage,
-      ),
-  },
-  {
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.page').then((m) => m.LoginPage),
@@ -20,14 +13,14 @@ export const routes: Routes = [
       import('./pages/register/register.page').then((m) => m.RegisterPage),
   },
 
-  //VISTA ADMIN: separata e fuori dalle tabs 
+  //VISTA ADMIN: separata e fuori dalle tabs
   {
     path: 'admin-view',
     loadComponent: () =>
       import('./pages/admin-view/admin-view.page').then((m) => m.AdminViewPage),
   },
 
-  //AREA APPLICAZIONE PER TUTOR E STUDENTI. QUI COMPARE LA TAB 
+  //AREA APPLICAZIONE PER TUTOR E STUDENTI. QUI COMPARE LA TAB
   {
     path: 'tabs',
     loadComponent: () =>
@@ -46,9 +39,18 @@ export const routes: Routes = [
           import('./pages/messages/messages.page').then((m) => m.MessagesPage),
       },
       {
-        path: 'profile',
+        path: 'tutor-profile',
         loadComponent: () =>
-          import('./pages/profile/profile.page').then((m) => m.ProfilePage),
+          import('./pages/tutor-profile/tutor-profile.page').then(
+            (m) => m.TutorProfilePage,
+          ),
+      },
+      {
+        path: 'student-profile',
+        loadComponent: () =>
+          import('./pages/student-profile/student-profile.page').then(
+            (m) => m.StudentProfilePage,
+          ),
       },
       {
         path: 'tutor-dashboard',
@@ -77,5 +79,12 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: '',
+  },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./pages/landing-page/landing-page.page').then(
+        (m) => m.LandingPagePage,
+      ),
   },
 ];
