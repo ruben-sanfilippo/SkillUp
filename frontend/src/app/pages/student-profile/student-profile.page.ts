@@ -33,7 +33,7 @@ interface Booking {
   startTime: string;
   endTime: string;
   status: 'IN PROGRAMMA' | 'COMPLETATA';
-  hasReviewed: boolean; // TRUE: Recensione già lasciata, FALSE: Recensione mancante
+  hasReviewed: boolean; 
 }
 
 interface Material {
@@ -54,7 +54,11 @@ interface Material {
 })
 export class StudentProfilePage implements OnInit {
   
-  isModalOpen = false;
+  isModalOpen = false;       
+  isReviewModalOpen = false; 
+
+  selectedBookingForReview: Booking | null = null;
+  currentRating: number = 0; 
 
   student: StudentData = {
     firstName: 'Alessandro',
@@ -65,7 +69,6 @@ export class StudentProfilePage implements OnInit {
     studyHours: 112
   };
 
-  // Elenco Prenotazioni Recenti (Dashboard)
   recentBookings: Booking[] = [
     {
       id: 'b1',
@@ -77,7 +80,7 @@ export class StudentProfilePage implements OnInit {
       startTime: '10:00',
       endTime: '11:30',
       status: 'IN PROGRAMMA',
-      hasReviewed: false // Non modificabile (In programma)
+      hasReviewed: false
     },
     {
       id: 'b2',
@@ -89,11 +92,10 @@ export class StudentProfilePage implements OnInit {
       startTime: '14:00',
       endTime: '15:00',
       status: 'COMPLETATA',
-      hasReviewed: false // COMPLETATA e non ancora recensita -> MOSTRA IL PULSANTE
+      hasReviewed: false 
     }
   ];
 
-  // Storico completo di tutte le prenotazioni
   allBookings: Booking[] = [
     {
       id: 'b1',
@@ -117,7 +119,7 @@ export class StudentProfilePage implements OnInit {
       startTime: '14:00',
       endTime: '15:00',
       status: 'COMPLETATA',
-      hasReviewed: false // COMPLETATA e non ancora recensita -> MOSTRA IL PULSANTE
+      hasReviewed: false 
     },
     {
       id: 'b3',
@@ -129,7 +131,7 @@ export class StudentProfilePage implements OnInit {
       startTime: '09:00',
       endTime: '11:00',
       status: 'COMPLETATA',
-      hasReviewed: true // COMPLETATA MA GIÀ RECENSITA -> IL PULSANTE NON SARA VISIBILE
+      hasReviewed: true 
     },
     {
       id: 'b4',
@@ -141,7 +143,7 @@ export class StudentProfilePage implements OnInit {
       startTime: '16:00',
       endTime: '17:30',
       status: 'COMPLETATA',
-      hasReviewed: false // COMPLETATA e non ancora recensita -> MOSTRA IL PULSANTE
+      hasReviewed: false 
     }
   ];
 
@@ -169,6 +171,22 @@ export class StudentProfilePage implements OnInit {
       type: 'pdf',
       fileLabel: 'PDF',
       sizeInMb: '6.8 MB'
+    },
+    {
+      id: 'm4',
+      title: 'Esercitazioni Risolte di Fisica Sperimentale I',
+      author: 'Studio Co-Tutor',
+      type: 'notes',
+      fileLabel: 'NOTE',
+      sizeInMb: '5.1 MB'
+    },
+    {
+      id: 'm5',
+      title: 'Prontuario di Comandi e Sintassi SQL per Database',
+      author: 'Alessandro Rossi',
+      type: 'pdf',
+      fileLabel: 'PDF',
+      sizeInMb: '1.5 MB'
     }
   ];
 
@@ -188,7 +206,6 @@ export class StudentProfilePage implements OnInit {
 
   ngOnInit() {}
 
-  // Ritorna lo storico ordinato dal più recente al meno recente
   get allBookingsSorted(): Booking[] {
     return [...this.allBookings].sort((a, b) => b.date.getTime() - a.date.getTime());
   }
@@ -197,24 +214,42 @@ export class StudentProfilePage implements OnInit {
     this.isModalOpen = true;
   }
 
-  // Azione specifica per la recensione che aggiorna dinamicamente lo stato locale a true
-  lasciaRecensione(bookingId: string) {
-    console.log(`Apertura sistema di recensione per la prenotazione: ${bookingId}`);
+  apriModalRecensione(booking: Booking) {
+    this.selectedBookingForReview = booking;
+    this.currentRating = 0; 
+    this.isReviewModalOpen = true;
+  }
+
+  chiudiModalRecensione() {
+    this.isReviewModalOpen = false;
+    this.selectedBookingForReview = null;
+    this.currentRating = 0;
+  }
+
+  setRating(rating: number) {
+    this.currentRating = rating; 
+  }
+
+  inviaRecensione() {
+    if (!this.selectedBookingForReview) return;
     
-    // Aggiorna lo storico principale
-    const bookingInAll = this.allBookings.find(b => b.id === bookingId);
+    const targetId = this.selectedBookingForReview.id;
+    console.log(`Valutazione inviata per il Tutor ID: ${targetId} con ${this.currentRating} stelle`);
+
+    const bookingInAll = this.allBookings.find(b => b.id === targetId);
     if (bookingInAll) {
       bookingInAll.hasReviewed = true;
     }
 
-    // Aggiorna l'anteprima recente se presente
-    const bookingInRecent = this.recentBookings.find(b => b.id === bookingId);
+    const bookingInRecent = this.recentBookings.find(b => b.id === targetId);
     if (bookingInRecent) {
       bookingInRecent.hasReviewed = true;
     }
+
+    this.chiudiModalRecensione();
   }
 
   eseguiAzione(azione: string, id?: string) {
-    console.log(`Azione intercettata: ${azione}${id ? ' su elemento con ID: ' + id : ''}`);
+    console.log(`Azione: ${azione}${id ? ' ID: ' + id : ''}`);
   }
 }

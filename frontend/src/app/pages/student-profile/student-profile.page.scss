@@ -1,3 +1,29 @@
+:host {
+  --primary-color: #1E40AF;
+  --secondary-color: #0D9488;
+  --tertiary-color: #0369A1;
+  --neutral-color: #64748B;
+  
+  --font-headline: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --app-background: #F8FAFC;
+  --card-background: #FFFFFF;
+  --input-background: #F1F5F9;
+  --text-main: #1E293B;
+
+  @media (prefers-color-scheme: dark) {
+    --primary-color: #3B82F6;
+    --secondary-color: #14B8A6;
+    --tertiary-color: #38BDF8;
+    --neutral-color: #94A3B8;
+    --app-background: #0F172A;  
+    --card-background: #1E293B;  
+    --input-background: #334155;
+    --text-main: #F8FAFC;        
+  }
+}
+
 .main-bg {
   --background: var(--app-background);
   font-family: var(--font-body);
@@ -62,7 +88,7 @@
   margin: 28px 0;
 }
 
-/* --- CARD PROFILO CON BANNER ATTIVO --- */
+/* --- CARD PROFILO --- */
 .profile-card {
   height: 100%;
   position: relative; 
@@ -288,12 +314,11 @@
       display: flex;
       margin-top: 20px; 
       width: 100%;
-      min-height: 48px; /* Evita scatti grafici tra card recensite e non recensite */
+      min-height: 48px;
     }
   }
 }
 
-/* --- CHIP STATO CONDIVISO --- */
 .status-chip {
   font-size: 0.75rem;
   font-weight: 800;
@@ -310,11 +335,12 @@
   }
 }
 
-/* --- MATERIALI ACQUISTATI CON SCROLL --- */
+/* --- MATERIALI ACQUISTATI --- */
 .material-section {
   padding: 32px;
 
   .material-scroll-container {
+    display: block;
     max-height: 340px; 
     overflow-y: auto;
     padding-right: 8px;
@@ -328,7 +354,7 @@
     &::-webkit-scrollbar-thumb {
       background: var(--neutral-color);
       border-radius: 10px;
-      opacity: 0.4;
+      opacity: 0.3;
     }
   }
 
@@ -406,46 +432,51 @@
   }
 }
 
-/* --- STILI DEL POPUP PRENOTAZIONI --- */
+/* --- POPUP INFRASTRUTTURA COMUNE --- */
+.modal-header {
+  ion-toolbar {
+    --background: var(--card-background);
+    --color: var(--text-main);
+    --padding-start: 24px;
+    --padding-end: 24px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+
+    ion-title {
+      font-family: var(--font-headline);
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.3px;
+      padding: 0;
+    }
+  }
+}
+.close-modal-btn {
+  --color: var(--text-main);
+  font-size: 24px;
+  margin: 0;
+}
+.modal-content-bg {
+  --background: var(--card-background);
+}
+
+/* --- POPUP 1: STORICO PRENOTAZIONI (Vedi tutto) --- */
 .bookings-modal {
-  --width: 700px;
+  --backdrop-opacity: 0.45 !important;
+  --width: 720px;
   --height: 80%;
   --border-radius: 24px;
   --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  &::part(backdrop) {
+    background-color: #000000 !important;
+    opacity: 0.45 !important;
+  }
 
   @media (max-width: 768px) {
     --width: 100%;
     --height: 100%;
     --border-radius: 0px;
-  }
-
-  .modal-header {
-    ion-toolbar {
-      --background: var(--card-background);
-      --color: var(--text-main);
-      --padding-start: 24px;
-      --padding-end: 24px;
-      --padding-top: 12px;
-      --padding-bottom: 12px;
-
-      ion-title {
-        font-family: var(--font-headline);
-        font-weight: 800;
-        font-size: 1.35rem;
-        letter-spacing: -0.3px;
-        padding: 0;
-      }
-    }
-  }
-
-  .close-modal-btn {
-    --color: var(--text-main);
-    font-size: 24px;
-    margin: 0;
-  }
-
-  .modal-content-bg {
-    --background: var(--card-background);
   }
 
   .modal-list-container {
@@ -530,7 +561,129 @@
   }
 }
 
-/* --- CONFIGURAZIONE BOTTONI --- */
+/* --- POPUP 2: RECENSIONE (LUMINOSA E PROTETTA DA AUTO-SCURIMENTO) --- */
+.review-modal {
+  --width: 480px;
+  --height: 440px; 
+  --border-radius: 24px;
+  --box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+  /* Spiegazione tecnica: impostando lo sfondo del backdrop a una tinta semitrasparente 
+     senza forzare il filtro nativo sul web component di Ionic, otteniamo l'effetto desiderato.
+     Scurisce lo storico dietro in modo naturale, ma la modale stessa rimane al 100% della sua luminosità.
+  */
+  &::part(backdrop) {
+    background: rgba(0, 0, 0, 0.4) !important;
+    opacity: 1.0 !important;
+    backdrop-filter: none !important; // Impedisce che il filtro influisca sulla card stessa
+  }
+
+  // Garantisce che il contenitore interno mantenga la massima brillantezza cromatica
+  &::part(content) {
+    background: var(--card-background) !important;
+    filter: brightness(1) !important; 
+  }
+
+  @media (max-width: 480px) {
+    --width: 100%;
+    --height: 100%;
+    --border-radius: 0px;
+  }
+
+  .review-modal-body {
+    padding: 24px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+
+    .target-tutor {
+      margin-bottom: 24px;
+
+      img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      }
+
+      h3 {
+        font-family: var(--font-headline);
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0 0 4px 0;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--neutral-color);
+        font-weight: 500;
+      }
+    }
+
+    .stars-rating-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      width: 100%;
+      user-select: none;
+      pointer-events: auto !important;
+
+      .star-clickable-item {
+        font-size: 46px;
+        cursor: pointer !important;
+        line-height: 1;
+        display: inline-block;
+        pointer-events: auto !important;
+        color: #E2E8F0 !important; 
+        transition: transform 0.1s ease, color 0.1s ease;
+
+        @media (prefers-color-scheme: dark) {
+          color: #334155 !important;
+        }
+
+        &:hover {
+          transform: scale(1.2);
+        }
+
+        &.star-selected {
+          color: #F59E0B !important; 
+        }
+      }
+    }
+
+    .review-actions {
+      width: 100%;
+
+      .btn-submit-review {
+        --background: var(--primary-color);
+        --color: #FFFFFF;
+        --border-radius: 14px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        height: 52px;
+        font-size: 1rem;
+        margin: 0;
+        display: block;
+        width: 100%;
+
+        &[disabled] {
+          opacity: 0.4;
+        }
+      }
+    }
+  }
+}
+
+/* --- REGOLE CONFIGURAZIONE BOTTONI --- */
 ion-button {
   text-transform: none;
   font-family: var(--font-body);
