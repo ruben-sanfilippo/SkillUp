@@ -62,6 +62,7 @@
   margin: 28px 0;
 }
 
+/* --- CARD PROFILO CON BANNER ATTIVO --- */
 .profile-card {
   height: 100%;
   position: relative; 
@@ -186,6 +187,7 @@
   }
 }
 
+/* --- SEZIONE PRENOTAZIONI --- */
 .row-header {
   display: flex;
   justify-content: space-between;
@@ -267,21 +269,6 @@
           }
         }
       }
-
-      .status-chip {
-        font-size: 0.75rem;
-        font-weight: 800;
-        padding: 6px 14px;
-        border-radius: 20px;
-        background: rgba(100, 116, 139, 0.1);
-        color: var(--neutral-color);
-        letter-spacing: 0.5px;
-
-        &.upcoming {
-          background: rgba(3, 105, 161, 0.1);
-          color: var(--tertiary-color);
-        }
-      }
     }
 
     .booking-mid {
@@ -301,10 +288,29 @@
       display: flex;
       margin-top: 20px; 
       width: 100%;
+      min-height: 48px; /* Evita scatti grafici tra card recensite e non recensite */
     }
   }
 }
 
+/* --- CHIP STATO CONDIVISO --- */
+.status-chip {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(100, 116, 139, 0.1);
+  color: var(--neutral-color);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+
+  &.upcoming {
+    background: rgba(3, 105, 161, 0.1);
+    color: var(--tertiary-color);
+  }
+}
+
+/* --- MATERIALI ACQUISTATI CON SCROLL --- */
 .material-section {
   padding: 32px;
 
@@ -359,6 +365,7 @@
       }
 
       .info {
+        box-sizing: border-box;
         flex: 1;
 
         h4 {
@@ -399,6 +406,131 @@
   }
 }
 
+/* --- STILI DEL POPUP PRENOTAZIONI --- */
+.bookings-modal {
+  --width: 700px;
+  --height: 80%;
+  --border-radius: 24px;
+  --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  @media (max-width: 768px) {
+    --width: 100%;
+    --height: 100%;
+    --border-radius: 0px;
+  }
+
+  .modal-header {
+    ion-toolbar {
+      --background: var(--card-background);
+      --color: var(--text-main);
+      --padding-start: 24px;
+      --padding-end: 24px;
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+
+      ion-title {
+        font-family: var(--font-headline);
+        font-weight: 800;
+        font-size: 1.35rem;
+        letter-spacing: -0.3px;
+        padding: 0;
+      }
+    }
+  }
+
+  .close-modal-btn {
+    --color: var(--text-main);
+    font-size: 24px;
+    margin: 0;
+  }
+
+  .modal-content-bg {
+    --background: var(--card-background);
+  }
+
+  .modal-list-container {
+    padding: 0 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+
+    .modal-booking-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1.5px solid var(--app-background);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .modal-left-layout {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        flex: 1;
+
+        @media (max-width: 600px) {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 14px;
+        }
+      }
+
+      .modal-action-wrapper {
+        display: flex;
+        align-items: center;
+      }
+
+      .modal-tutor-group {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex: 1;
+
+        img {
+          width: 52px;
+          height: 52px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .modal-tutor-details {
+          h4 {
+            font-family: var(--font-headline);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0 0 2px 0;
+          }
+
+          p {
+            margin: 0 0 6px 0;
+            font-size: 0.9rem;
+            color: var(--neutral-color);
+            font-weight: 500;
+          }
+
+          .modal-time-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-main);
+
+            ion-icon {
+              color: var(--neutral-color);
+              font-size: 15px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* --- CONFIGURAZIONE BOTTONI --- */
 ion-button {
   text-transform: none;
   font-family: var(--font-body);
@@ -419,6 +551,14 @@ ion-button {
   &:hover {
     --background: rgba(30, 64, 175, 0.05);
   }
+}
+
+.btn-small {
+  height: 36px;
+  font-size: 0.85rem;
+  --border-radius: 8px;
+  --border-width: 1.2px;
+  padding: 0 12px;
 }
 
 .full-width {
