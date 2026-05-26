@@ -1,0 +1,425 @@
+.main-bg {
+  --background: var(--app-background);
+  font-family: var(--font-body);
+  --overflow: hidden; /* Blocca gli scroll spuri della pagina esterna */
+}
+
+.admin-wrapper {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 30px 40px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    gap: 16px;
+    height: 100%;
+  }
+}
+
+.card {
+  background: var(--card-background);
+  border: none;
+  border-radius: 16px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+/* --- HEADER PRINCIPALE --- */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 8px;
+  }
+
+  .header-title-group {
+    h2 {
+      font-family: var(--font-headline);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0 0 4px 0;
+      letter-spacing: -0.5px;
+    }
+    p {
+      font-size: 0.95rem;
+      color: var(--neutral-color);
+      margin: 0;
+    }
+  }
+
+  .search-container {
+    position: relative;
+    width: 320px;
+    height: 44px;
+    @media (max-width: 768px) { width: 100%; }
+
+    ion-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: var(--neutral-color);
+    }
+
+    input {
+      width: 100%;
+      height: 100%;
+      background: var(--card-background);
+      border: 1.5px solid var(--input-background, transparent);
+      border-radius: 10px;
+      padding: 0 14px 0 42px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--text-main);
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+
+      &:focus { border-color: var(--primary-color); }
+    }
+  }
+}
+
+/* --- BLOCCHI CONTEGGI (KPI) --- */
+.kpi-grid {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+
+  .kpi-card {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 90px;
+
+    .kpi-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+
+      .kpi-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--neutral-color);
+        font-weight: 700;
+      }
+
+      .kpi-icon-box {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+
+        &.primary-tint { background: rgba(30, 64, 175, 0.06); color: var(--primary-color); }
+        &.danger-tint { background: rgba(239, 68, 68, 0.06); color: #EF4444; }
+      }
+    }
+
+    .kpi-bottom {
+      .kpi-value {
+        font-family: var(--font-headline);
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1;
+        &.val-danger { color: #EF4444; }
+      }
+    }
+  }
+}
+
+/* --- STRUTTURA CONTENITORE TABELLA --- */
+.table-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; 
+  margin-bottom: 20px;
+}
+
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1.5px solid var(--input-background);
+  flex-shrink: 0;
+  background: var(--card-background);
+
+  h3 {
+    font-family: var(--font-headline);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+  }
+}
+
+.btn-action-outline {
+  background: var(--card-background);
+  border: 1.5px solid var(--input-background);
+  color: var(--text-main);
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 14px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  &:hover { background: var(--app-background); }
+}
+
+/* ABILITA SCROLL INTERNO ALLA TABELLA SENZA SPOSTARE L'HEADER DELLA PAGINA */
+.table-scroll-container {
+  flex: 1; 
+  overflow-y: auto; 
+  min-height: 0; 
+  background: var(--card-background);
+
+  scrollbar-color: var(--input-background) transparent;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar { 
+    width: 8px; 
+    height: 8px;
+    background-color: var(--card-background); 
+  }
+  &::-webkit-scrollbar-track {
+    background: var(--card-background);
+  }
+  &::-webkit-scrollbar-thumb { 
+    background-color: var(--input-background, #333333); 
+    border-radius: 10px;
+    border: 2px solid var(--card-background);
+    &:hover {
+      background-color: var(--neutral-color, #555555);
+    }
+  }
+}
+
+.table-responsive-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  background: var(--card-background);
+}
+
+/* --- STRUTTURA TABELLA E PROPORZIONI COLONNE --- */
+.admin-table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 1000px; /* Forza lo scroll orizzontale pulito solo su schermi piccoli */
+  background: var(--card-background);
+
+  /* PROPORZIONI BILANCIATE STRUTTURALI */
+  .col-user    { flex: 2.2; min-width: 250px; }
+  .col-role    { flex: 1.0; min-width: 110px; }
+  .col-date    { flex: 1.3; min-width: 140px; }
+  .col-status  { flex: 1.0; min-width: 110px; }
+  .col-actions { flex: 1.5; min-width: 160px; }
+
+  .table-header-row {
+    display: flex;
+    align-items: center;
+    gap: 24px; /* Padding/gap bilanciato e uniforme tra tutte le colonne */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--card-background);
+    border-bottom: 1.5px solid var(--input-background);
+    padding: 16px 24px;
+    
+    .th-cell {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--neutral-color);
+    }
+  }
+
+  .table-body {
+    background: var(--card-background);
+    display: flex;
+    flex-direction: column;
+
+    .table-body-row {
+      display: flex;
+      align-items: center;
+      gap: 24px; /* Stesso identico gap dell'header per garantire l'allineamento geometrico */
+      padding: 14px 24px;
+      border-bottom: 1.5px solid var(--input-background);
+      background: var(--card-background);
+      transition: background-color 0.15s ease;
+
+      &:hover {
+        background: rgba(var(--primary-color-rgb, 30, 64, 175), 0.02);
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .td-cell {
+      display: flex;
+      align-items: center;
+      vertical-align: middle;
+    }
+  }
+}
+
+/* --- ELEMENTI INTERNI DELLE RIGHE --- */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+
+  .avatar-holder {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    .avatar-placeholder {
+      width: 100%; 
+      height: 100%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      color: #FFFFFF; 
+      font-size: 0.85rem; 
+      font-weight: 700;
+    }
+    img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+    }
+  }
+
+  .user-meta {
+    overflow: hidden;
+    h4 { 
+      margin: 0; 
+      font-size: 0.95rem; 
+      font-weight: 700; 
+      color: var(--text-main); 
+      white-space: nowrap; 
+      text-overflow: ellipsis; 
+    }
+    p { 
+      margin: 0; 
+      font-size: 0.85rem; 
+      color: var(--neutral-color); 
+      white-space: nowrap; 
+      text-overflow: ellipsis; 
+    }
+  }
+}
+
+.role-text { 
+  font-size: 0.9rem; 
+  font-weight: 600; 
+  color: var(--text-main); 
+  white-space: nowrap; 
+}
+
+.date-text { 
+  font-size: 0.9rem; 
+  font-weight: 600; 
+  color: var(--neutral-color); 
+  white-space: nowrap; 
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  &.status-active { background: rgba(16, 185, 129, 0.08); color: #10B981; .dot { background-color: #10B981; } }
+  &.status-blocked { background: rgba(239, 68, 68, 0.08); color: #EF4444; .dot { background-color: #EF4444; } }
+}
+
+/* --- BLOCCO AZIONI (DISTANZIAMENTI ED ALLINEAMENTI AGGIORNATI) --- */
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Avvicina il pulsante "Attiva/Disabilita" alla colonna dello stato */
+  gap: 28px; /* Incrementa lo spazio vuoto di sicurezza prima dei tre puntini delle opzioni */
+  width: 100%;
+}
+
+.btn-table-action {
+  background: transparent;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+  white-space: nowrap;
+
+  &.btn-danger-action { 
+    color: #EF4444; 
+    &:hover { opacity: 0.8; } 
+  }
+  
+  /* AGGIORNATO: Impostato il colore verde coerente con lo stato attivo */
+  &.btn-success-action { 
+    color: #10B981; 
+    &:hover { opacity: 0.8; } 
+  }
+}
+
+.btn-icon-more {
+  background: transparent;
+  border: none;
+  color: var(--neutral-color);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  border-radius: 50%;
+  flex-shrink: 0;
+  &:hover { background: var(--app-background); }
+}
+
+.empty-table-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--neutral-color);
+  font-weight: 600;
+  width: 100%;
+}

@@ -1,13 +1,139 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>adminView</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="main-bg" [scrollY]="false">
+  <div class="admin-wrapper">
+    
+    <header class="admin-header">
+      <div class="header-title-group">
+        <h2>Gestione Utenti</h2>
+        <p>Monitora e gestisci gli account degli studenti e dei tutor sulla piattaforma.</p>
+      </div>
+      
+      <div class="search-container">
+        <ion-icon name="search-outline"></ion-icon>
+        <input 
+          type="text" 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Cerca per nome, email o ruolo..." />
+      </div>
+    </header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">adminView</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <section class="kpi-grid">
+      <div class="card kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Utenti Totali</span>
+          <div class="kpi-icon-box primary-tint">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+        </div>
+        <div class="kpi-bottom">
+          <span class="kpi-value">{{ totalUsersCount() }}</span>
+        </div>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Account Bloccati</span>
+          <div class="kpi-icon-box danger-tint">
+            <ion-icon name="ban-outline"></ion-icon>
+          </div>
+        </div>
+        <div class="kpi-bottom">
+          <span class="kpi-value val-danger">{{ blockedUsersCount() }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card table-section">
+      
+      <div class="table-toolbar">
+        <h3>Elenco Utenti ({{ filteredUsersList().length }})</h3>
+        <div class="toolbar-actions">
+          <button class="btn-action-outline" (click)="apriFiltri($event)">
+            <ion-icon name="funnel-outline"></ion-icon>
+            <span>Filtra</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-scroll-container">
+        <div class="table-responsive-wrapper">
+          <div class="admin-table">
+            
+            <div class="table-header-row">
+              <div class="th-cell col-user">Utente</div>
+              <div class="th-cell col-role">Ruolo</div>
+              <div class="th-cell col-date">Data Iscrizione</div>
+              <div class="th-cell col-status">Stato</div>
+              <div class="th-cell col-actions">Azioni</div>
+            </div>
+            
+            <div class="table-body">
+              @for (user of filteredUsersList(); track user.id) {
+                <div class="table-body-row">
+                  
+                  <div class="td-cell col-user">
+                    <div class="user-cell">
+                      <div class="avatar-holder">
+                        @if (user.avatar) {
+                          <img [src]="user.avatar" alt="Avatar" />
+                        } @else {
+                          <div class="avatar-placeholder">
+                            {{ user.firstName[0] }}{{ user.lastName[0] }}
+                          </div>
+                        }
+                      </div>
+                      <div class="user-meta">
+                        <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+                        <p>{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="td-cell col-role">
+                    <span class="role-text">{{ user.role }}</span>
+                  </div>
+                  
+                  <div class="td-cell col-date">
+                    <span class="date-text">{{ user.formattedRegistrationDate }}</span>
+                  </div>
+                  
+                  <div class="td-cell col-status">
+                    <span class="status-badge" [class.status-active]="user.status === 'Attivo'" [class.status-blocked]="user.status === 'Bloccato'">
+                      <span class="dot"></span>
+                      {{ user.status }}
+                    </span>
+                  </div>
+                  
+                  <div class="td-cell col-actions">
+                    <div class="actions-cell">
+                      @if (user.status === 'Attivo') {
+                        <button class="btn-table-action btn-danger-action" (click)="cambiaStatoUtente(user, 'Bloccato')">
+                          Disabilita
+                        </button>
+                      } @else {
+                        <button class="btn-table-action btn-success-action" (click)="cambiaStatoUtente(user, 'Attivo')">
+                          Attiva
+                        </button>
+                      }
+                      <button class="btn-icon-more" (click)="apriMenuOpzioni(user, $event)">
+                        <ion-icon name="ellipsis-vertical"></ion-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              } @empty {
+                <div class="empty-table-state">
+                  Nessun utente trovato con i criteri di filtro correnti.
+                </div>
+              }
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+    </section>
+
+  </div>
 </ion-content>
