@@ -1,25 +1,26 @@
 :root {
-    --primary-color: #1E40AF;
-    --secondary-color: #0D9488;
-    --tertiary-color: #0369A1;
-    --neutral-color: #64748B;
-    --font-family-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-    --app-background: #eaeff5;
-    --card-background: #ffffff;
-    --input-background: #f1f5f9;
-    --text-main: #1e293b;
+  --primary-color: #1e40af;
+  --secondary-color: #0d9488;
+  --tertiary-color: #0369a1;
+  --neutral-color: #64748b;
+  --font-family-inter:
+    "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --app-background: #eaeff5;
+  --card-background: #ffffff;
+  --input-background: #f1f5f9;
+  --text-main: #1e293b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary-color: #3b82f6; 
+    --primary-color: #3b82f6;
     --secondary-color: #14b8a6;
     --tertiary-color: #38bdf8;
     --neutral-color: #94a3b8;
 
-    --app-background: #0f172a;   
-    --card-background: #1e293b;  
-    --input-background: #334155; 
-    --text-main: #f8fafc;         
+    --app-background: #0f172a;
+    --card-background: #1e293b;
+    --input-background: #334155;
+    --text-main: #f8fafc;
   }
 }

@@ -89,7 +89,6 @@
       text-align: center;
     }
 
-    /* Struttura contenitore dell'avatar per posizionare il badge di modifica */
     .avatar-container {
       position: relative;
       width: 124px;
@@ -114,7 +113,6 @@
         display: block;
       }
 
-      /* Segnaposto grafico quando non è presente nessuna immagine utente */
       .avatar-placeholder {
         width: 100%;
         height: 100%;
@@ -130,7 +128,6 @@
       }
     }
 
-    /* Bottone/badge fluttuante per attivare l'Action Sheet dell'immagine */
     .avatar-edit-badge {
       position: absolute;
       bottom: 2px;
@@ -186,6 +183,8 @@
         line-height: 1.65;
         color: var(--neutral-color);
         margin: 0 0 16px 0;
+        white-space: pre-line;
+        word-break: break-word;
       }
 
       .edit-bio-btn {
@@ -363,6 +362,39 @@
   }
 }
 
+/* --- BADGE STATO RECENSITO --- */
+.reviewed-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.08); 
+  color: #10B981; 
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: 1.5px solid rgba(16, 185, 129, 0.2);
+  box-sizing: border-box;
+  white-space: nowrap;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  &.badge-small {
+    height: 36px;
+    font-size: 0.88rem;
+    padding: 0 16px;
+    border-radius: 8px;
+    border-width: 1.2px;
+
+    ion-icon {
+      font-size: 17px;
+    }
+  }
+}
+
 /* --- MATERIALI ACQUISTATI --- */
 .material-section {
   padding: 32px;
@@ -460,7 +492,7 @@
   }
 }
 
-/* --- POPUP INFRASTRUTTURA COMUNE --- */
+/* --- INFRASTRUTTURA MODALI --- */
 .modal-header {
   ion-toolbar {
     --background: var(--card-background);
@@ -488,7 +520,7 @@
   --background: var(--card-background);
 }
 
-/* --- POPUP 1: STORICO PRENOTAZIONI (Vedi tutto) --- */
+/* --- STORICO PRENOTAZIONI --- */
 .bookings-modal {
   --backdrop-opacity: 0.45 !important;
   --width: 720px;
@@ -517,6 +549,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 20px 0;
+      gap: 16px; /* Aggiunto gap principale per separare nettamente l'area sinistra dallo status-chip grigio */
       border-bottom: 1.5px solid var(--app-background);
 
       &:last-child {
@@ -526,10 +559,11 @@
       .modal-left-layout {
         display: flex;
         align-items: center;
-        gap: 32px;
+        justify-content: space-between; /* Forza il badge della recensione tutto a destra del suo blocco */
+        gap: 24px; /* Lascia dello spazio minimo di sicurezza prima che i testi tocchino il badge */
         flex: 1;
 
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
           flex-direction: column;
           align-items: flex-start;
           gap: 14px;
@@ -539,19 +573,20 @@
       .modal-action-wrapper {
         display: flex;
         align-items: center;
+        margin-right: 4px; /* Genera il distacco visivo richiesto tra 'Lezione recensita' e il chip di stato */
       }
 
       .modal-tutor-group {
         display: flex;
         gap: 16px;
         align-items: center;
-        flex: 1;
 
         img {
           width: 52px;
           height: 52px;
           border-radius: 50%;
           object-fit: cover;
+          display: block;
         }
 
         .modal-tutor-details {
@@ -589,7 +624,7 @@
   }
 }
 
-/* --- POPUP 2: RECENSIONE --- */
+/* --- RECENSIONE STELLA --- */
 .review-modal {
   --width: 480px;
   --height: 440px; 
@@ -599,12 +634,10 @@
   &::part(backdrop) {
     background: rgba(0, 0, 0, 0.4) !important;
     opacity: 1.0 !important;
-    backdrop-filter: none !important;
   }
 
   &::part(content) {
     background: var(--card-background) !important;
-    filter: brightness(1) !important; 
   }
 
   @media (max-width: 480px) {
@@ -658,15 +691,15 @@
       margin-bottom: 32px;
       width: 100%;
       user-select: none;
-      pointer-events: auto !important;
 
       .star-clickable-item {
         font-size: 46px;
         cursor: pointer !important;
         line-height: 1;
         display: inline-block;
-        pointer-events: auto !important;
         color: #E2E8F0 !important; 
+        padding: 0 4px;
+        -webkit-tap-highlight-color: transparent;
         transition: transform 0.1s ease, color 0.1s ease;
 
         @media (prefers-color-scheme: dark) {
@@ -706,10 +739,10 @@
   }
 }
 
-/* --- POPUP 3: MODIFICA BIOGRAFIA --- */
+/* --- MODIFICA BIOGRAFIA --- */
 .bio-modal {
   --width: 540px;
-  --height: 340px; 
+  --height: 360px; 
   --border-radius: 24px;
   --box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
 
@@ -728,9 +761,14 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     box-sizing: border-box;
     height: 100%;
+
+    .textarea-container {
+      position: relative;
+      width: 100%;
+    }
 
     .bio-textarea {
       width: 100%;
@@ -739,7 +777,7 @@
       background: var(--app-background);
       color: var(--text-main);
       border-radius: 14px;
-      padding: 16px;
+      padding: 16px 16px 36px 16px; 
       font-family: var(--font-body);
       font-size: 1rem;
       line-height: 1.6;
@@ -749,6 +787,22 @@
 
       &:focus {
         border-color: var(--primary-color);
+      }
+    }
+
+    .char-counter {
+      position: absolute;
+      bottom: 12px;
+      right: 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--neutral-color);
+      pointer-events: none;
+      background: transparent;
+      letter-spacing: 0.3px;
+
+      &.counter-max {
+        color: #EF4444; 
       }
     }
 
@@ -774,7 +828,7 @@
   }
 }
 
-/* --- CONFIGURAZIONI AGGIUNTIVE BOTTONI --- */
+/* --- CONFIGURAZIONI GLOBALI ELEMENTI IONIC --- */
 ion-button {
   text-transform: none;
   font-family: var(--font-body);
@@ -793,7 +847,7 @@ ion-button {
   font-size: 0.95rem;
 
   &:hover {
-    --background: rgba(30, 64, 175, 0.05);
+    background: rgba(30, 64, 175, 0.05);
   }
 }
 

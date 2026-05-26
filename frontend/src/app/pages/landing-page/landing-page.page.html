@@ -1,13 +1,100 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>landingPage</ion-title>
+<ion-header class="ion-no-border landing-header">
+  <ion-toolbar class="landing-toolbar">
+    <div class="nav-container">
+      <div class="brand-logo">
+        <ion-icon name="school-outline" class="logo-icon"></ion-icon>
+        <span class="logo-text">SkillUp</span>
+      </div>
+
+      <div class="nav-actions">
+        <ion-button fill="clear" class="btn-login-nav" (click)="vaiAlLogin()">
+          Accedi
+        </ion-button>
+        <ion-button class="btn-register-nav" (click)="vaiAlRegister()">
+          Registrati
+        </ion-button>
+      </div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">landingPage</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="landing-content">
+  <div class="landing-wrapper">
+    <section class="hero-section">
+      <div class="hero-text-content">
+        <h1 class="hero-title">
+          Migliora il tuo percorso di studio con i migliori tutor
+        </h1>
+        <p class="hero-subtitle">
+          Trova tutor per lezioni private personalizzate, acquista dispense
+          esclusive e raggiungi i tuoi obiettivi accademici.
+        </p>
+
+        <div class="hero-cta-buttons">
+          <ion-button class="cta-primary" (click)="vaiAlRegister()">
+            Inizia Ora
+            <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            fill="outline"
+            class="cta-secondary"
+            (click)="vaiAlLogin()"
+          >
+            Esplora la Piattaforma
+          </ion-button>
+        </div>
+      </div>
+
+      <div class="hero-image-container">
+        <img
+          src="../../../assets/tutor-student.jpg"
+          alt="Tutor che spiega a uno studente"
+          class="hero-image"
+        />
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div class="section-header">
+        <h2>Perché scegliere SkillUp?</h2>
+        <p>Tutto ciò di cui hai bisogno per eccellere, in un unico posto.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon-wrapper">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <h3>Tutor</h3>
+          <p>Scegli tra centinaia di tutor in base alle tue necessità.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-wrapper">
+            <ion-icon name="book-outline"></ion-icon>
+          </div>
+          <h3>Materiale di Studio</h3>
+          <p>
+            Accedi e acquista dispense, appunti ed eserciziari creati
+            direttamente dai tutor per preparare i tuoi esami.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-wrapper">
+            <ion-icon name="ribbon-outline"></ion-icon>
+          </div>
+          <h3>Massima Flessibilità</h3>
+          <p>
+            Gestisci le tue prenotazioni e pianifica le lezioni nelle fasce
+            orarie che preferisci, sia online che di persona.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <p>© 2026 SkillUp. Tutti i diritti riservati.</p>
+    </footer>
+  </div>
 </ion-content>

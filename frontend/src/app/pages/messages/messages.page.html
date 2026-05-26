@@ -1,13 +1,124 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>messages</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="main-bg" [scrollX]="false" [scrollY]="true">
+  <div class="content-wrapper">
+    <div class="dashboard-layout">
+      
+      <aside class="chat-sidebar" [class.hidden-mobile]="isChatOpen">
+        <div class="card sidebar-card">
+          
+          <div class="sidebar-header">
+            <h2>Messaggi</h2>
+          </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">messages</ion-title>
-    </ion-toolbar>
-  </ion-header>
+          <div class="search-container">
+            <div class="search-input-wrapper">
+              <ion-icon name="search-outline" class="search-icon"></ion-icon>
+              <input 
+                type="text" 
+                placeholder="Cerca conversazione..." 
+                [(ngModel)]="searchQuery" 
+                (input)="filtraChat()" />
+            </div>
+          </div>
+
+          <div class="chats-scroll-container">
+            <div class="chats-list">
+              @for (chat of filteredChats; track chat.id) {
+                <div 
+                  class="chat-item-row" 
+                  [class.active-chat]="activeChat?.id === chat.id"
+                  (click)="selezionaChat(chat)">
+                  
+                  <div class="avatar-sidebar-wrapper">
+                    <img [src]="chat.avatar" [alt]="chat.name" />
+                  </div>
+
+                  <div class="chat-item-body">
+                    <div class="chat-item-top">
+                      <h4>{{ chat.name }}</h4>
+                      <span class="chat-time">{{ chat.lastMessageTime }}</span>
+                    </div>
+                    <div class="chat-item-bottom">
+                      <p class="last-message">
+                        {{ chat.lastMessageText }}
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+              } @empty {
+                <div style="text-align: center; padding: 24px; color: var(--neutral-color);">
+                  Nessuna conversazione trovata
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <main class="chat-main-window" [class.visible-mobile]="isChatOpen">
+        @if (activeChat) {
+          <div class="card chat-window-card">
+            
+            <header class="chat-window-header">
+              <button class="back-button-mobile" (click)="chiudiChatMobile()">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+
+              <div class="active-user-profile">
+                <div class="avatar-active-chat">
+                  <img [src]="activeChat.avatar" [alt]="activeChat.name" />
+                </div>
+                <div class="user-meta-info">
+                  <h3>{{ activeChat.name }}</h3>
+                </div>
+              </div>
+            </header>
+
+            <div class="messages-scroll-area" id="messagesContainer">
+              <div class="messages-thread">
+                @for (msg of activeChat.messages; track msg.id) {
+                  <div class="message-row" [class.msg-sent]="msg.sender === 'student'" [class.msg-received]="msg.sender === 'tutor'">
+                    <div class="message-bubble">
+                      <p class="msg-text">{{ msg.text }}</p>
+                      <span class="msg-meta">{{ msg.time }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <footer class="chat-input-footer">
+              <div class="message-input-box">
+                <input 
+                  type="text" 
+                  placeholder="Scrivi un messaggio..." 
+                  [(ngModel)]="newMessageText" 
+                  (keyup.enter)="inviaMessaggio()" />
+              </div>
+
+              <button 
+                class="send-message-btn" 
+                [disabled]="!newMessageText.trim()" 
+                (click)="inviaMessaggio()">
+                <ion-icon name="send"></ion-icon>
+              </button>
+            </footer>
+
+          </div>
+        } @else {
+          <div class="card empty-chat-window">
+            <div class="placeholder-content">
+              <div class="icon-bubble">
+                <ion-icon name="chatbubbles-outline"></ion-icon>
+              </div>
+              <h3>I tuoi Messaggi</h3>
+              <p>Seleziona una conversazione dall'elenco per iniziare a scambiare messaggi.</p>
+            </div>
+          </div>
+        }
+      </main>
+
+    </div>
+  </div>
 </ion-content>

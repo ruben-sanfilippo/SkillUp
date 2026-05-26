@@ -1,13 +1,201 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>searchTutor</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="search-page-content">
+  <div class="content-wrapper">
+    <ng-template #pannelloFiltri>
+      <div class="filters-panel">
+        <div class="filters-banner">
+          <h2>Filtri</h2>
+          <button class="clear-btn" (click)="cancellaFiltri()">
+            Cancella Tutto
+          </button>
+        </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">searchTutor</ion-title>
-    </ion-toolbar>
-  </ion-header>
+        <div class="filters-body">
+          <div class="filter-group">
+            <label>Materia</label>
+            <div class="tag-selector-container">
+              <div class="selected-tags-box">
+                @for (m of materiaFiltro; track m) {
+                <span class="tag-chip">
+                  {{ m }}
+                  <ion-icon
+                    name="close-circle"
+                    (click)="rimuoviMateria(m)"
+                  ></ion-icon>
+                </span>
+                }
+              </div>
+
+              <ion-searchbar
+                mode="ios"
+                search-icon="search-outline"
+                placeholder="Cerca materia..."
+                (ionInput)="filtraMaterie($event)"
+                (ionFocus)="mostraListaMaterie = true"
+                class="custom-profile-searchbar"
+              ></ion-searchbar>
+
+              @if (mostraListaMaterie) {
+              <div class="search-dropdown-list">
+                @for (materia of materieFiltrate; track materia) {
+                <div class="dropdown-item" (click)="aggiungiMateria(materia)">
+                  {{ materia }}
+                </div>
+                }
+                <div
+                  class="dropdown-item close-trigger"
+                  (click)="mostraListaMaterie = false"
+                >
+                  Chiudi elenco ×
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label>Lingua</label>
+            <div class="tag-selector-container">
+              <div class="selected-tags-box">
+                @for (l of linguaFiltro; track l) {
+                <span class="tag-chip lang-chip">
+                  {{ l }}
+                  <ion-icon
+                    name="close-circle"
+                    (click)="rimuoviLingua(l)"
+                  ></ion-icon>
+                </span>
+                }
+              </div>
+
+              <ion-searchbar
+                mode="ios"
+                search-icon="globe-outline"
+                placeholder="Cerca lingua..."
+                (ionInput)="filtraLingue($event)"
+                (ionFocus)="mostraListaLingue = true"
+                class="custom-profile-searchbar"
+              ></ion-searchbar>
+
+              @if (mostraListaLingue) {
+              <div class="search-dropdown-list">
+                @for (lingua of lingueFiltrate; track lingua) {
+                <div class="dropdown-item" (click)="aggiungiLingua(lingua)">
+                  {{ lingua }}
+                </div>
+                }
+                <div
+                  class="dropdown-item close-trigger"
+                  (click)="mostraListaLingue = false"
+                >
+                  Chiudi elenco ×
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label>Tariffa Oraria</label>
+            <ion-range
+              [dualKnobs]="true"
+              min="10"
+              max="100"
+              [(ngModel)]="rangePrezzo"
+              color="dark"
+            ></ion-range>
+            <div class="range-labels">
+              <span>€{{ rangePrezzo.lower }}</span>
+              <span>€{{ rangePrezzo.upper }}</span>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label>Disponibilità</label>
+            <div class="date-range-group">
+              <div class="date-input-box">
+                <span class="date-label">Da:</span>
+                <input type="date" [(ngModel)]="dataDa" />
+              </div>
+              <div class="date-input-box">
+                <span class="date-label">A:</span>
+                <input type="date" [(ngModel)]="dataA" />
+              </div>
+            </div>
+          </div>
+
+          <button class="apply-filters-btn" (click)="applicaFiltri()">
+            Applica Filtri
+          </button>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="dashboard-layout">
+      <aside class="profile-sidebar desktop-only">
+        <ng-container *ngTemplateOutlet="pannelloFiltri"></ng-container>
+      </aside>
+
+      <main class="main-content">
+        <div class="header-section">
+          <h1>Trova il tutor perfetto per te</h1>
+          <p>
+            Esplora la nostra community di tutor e migliora il tuo percorso di
+            studio.
+          </p>
+
+          <div class="main-search-bar">
+            <ion-icon name="search-outline"></ion-icon>
+            <input
+              type="text"
+              placeholder="Cerca per nome del tutor..."
+              [(ngModel)]="testoRicerca"
+              (keyup.enter)="applicaFiltri()"
+            />
+            <button class="search-btn" (click)="applicaFiltri()">Cerca</button>
+          </div>
+        </div>
+
+        <div class="mobile-filters-section mobile-only">
+          <button
+            class="toggle-filters-btn"
+            (click)="mostraFiltriMobile = !mostraFiltriMobile"
+          >
+            <ion-icon name="options-outline"></ion-icon>
+            Filtri
+            <ion-icon
+              [name]="mostraFiltriMobile ? 'chevron-up-outline' : 'chevron-down-outline'"
+              class="chevron-icon"
+            ></ion-icon>
+          </button>
+
+          @if (mostraFiltriMobile) {
+          <div class="mobile-filters-wrapper">
+            <ng-container *ngTemplateOutlet="pannelloFiltri"></ng-container>
+          </div>
+          }
+        </div>
+
+        @if (isCaricamento) {
+        <div style="text-align: center; padding: 40px">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <p style="color: var(--neutral-color); font-size: 14px">
+            Ricerca in corso...
+          </p>
+        </div>
+        } @else {
+
+        <div class="tutors-css-grid">
+          @for (tutor of tutorsFiltrati; track tutor.id) {
+          <app-tutor-card [tutor]="tutor"></app-tutor-card>
+          }
+        </div>
+
+        @if (tutorsFiltrati.length === 0) {
+        <div class="no-results-msg">
+          Nessun tutor trovato con questi filtri.
+        </div>
+        } }
+      </main>
+    </div>
+  </div>
 </ion-content>

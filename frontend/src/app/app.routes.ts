@@ -68,7 +68,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'tutor-detail',
+    path: 'tutor-detail/:id',
     loadComponent: () =>
       import('./pages/tutor-detail/tutor-detail.page').then(
         (m) => m.TutorDetailPage,
