@@ -15,7 +15,8 @@ import {
   closeOutline,
   cameraOutline,
   imageOutline,
-  trashOutline
+  trashOutline,
+  checkmarkCircleOutline
 } from 'ionicons/icons';
 
 interface StudentData {
@@ -54,14 +55,18 @@ interface Material {
   templateUrl: './student-profile.page.html',
   styleUrls: ['./student-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule] 
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    IonicModule
+  ] 
 })
 export class StudentProfilePage implements OnInit {
   
   isModalOpen = false;       
   isReviewModalOpen = false; 
   isBioModalOpen = false;    
-  isAvatarActionSheetOpen = false; // Stato per l'apertura del foglio d'azione dell'avatar
+  isAvatarActionSheetOpen = false; 
 
   selectedBookingForReview: Booking | null = null;
   currentRating: number = 0; 
@@ -70,13 +75,12 @@ export class StudentProfilePage implements OnInit {
   student: StudentData = {
     firstName: 'Alessandro',
     lastName: 'Rossi',
-    avatar: 'https://i.pravatar.cc/150?u=alessandro', // Può essere svuotata ('') per testare il placeholder con le iniziali
-    about: 'Appassionato di intelligenza artificiale e machine learning. Attualmente concentrato sullo sviluppo di algoritmi efficienti per l\'analisi dei dati e integrazioni backend.',
+    avatar: 'https://i.pravatar.cc/150?u=alessandro', 
+    about: 'Appassionato di intelligenza artificiale e machine learning. Sviluppo algoritmi efficienti per l\'analisi dati.', 
     sessionsCompleted: 24,
     studyHours: 112
   };
 
-  // Configurazione dei bottoni dell'Action Sheet per la gestione foto
   public avatarActionSheetButtons = [
     {
       text: 'Carica / Modifica foto',
@@ -236,7 +240,8 @@ export class StudentProfilePage implements OnInit {
       closeOutline,
       cameraOutline,
       imageOutline,
-      trashOutline
+      trashOutline,
+      checkmarkCircleOutline
     });
   }
 
@@ -285,7 +290,6 @@ export class StudentProfilePage implements OnInit {
     this.chiudiModalRecensione();
   }
 
-  /* --- GESTIONE FOTO PROFILO (ADD / MODIFY / DELETE) --- */
   apriMenuAvatar() {
     this.isAvatarActionSheetOpen = true;
   }
@@ -302,7 +306,6 @@ export class StudentProfilePage implements OnInit {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        // Aggiorna l'avatar convertendolo in una stringa Base64 per la visualizzazione immediata
         this.student.avatar = reader.result as string;
         console.log('Nuova foto profilo caricata con successo!');
       };
@@ -311,13 +314,12 @@ export class StudentProfilePage implements OnInit {
   }
 
   rimuoviAvatar() {
-    this.student.avatar = ''; // Svuotando la stringa, l'HTML mostrerà il segnaposto con le iniziali
+    this.student.avatar = ''; 
     console.log('Foto profilo rimossa.');
   }
 
-  /* --- LOGICA MODIFICA BIOGRAFIA --- */
   apriModalBio() {
-    this.tempBio = this.student.about; 
+    this.tempBio = this.student.about ? this.student.about.substring(0, 200) : ''; 
     this.isBioModalOpen = true;
   }
 
@@ -327,19 +329,16 @@ export class StudentProfilePage implements OnInit {
   }
 
   salvaBio() {
-    if (this.tempBio && this.tempBio.trim()) {
+    if (this.tempBio && this.tempBio.trim() && this.tempBio.length <= 200) {
       this.student.about = this.tempBio.trim(); 
       console.log('Biografia aggiornata con successo!');
       this.chiudiModalBio();
     }
   }
 
-  /* --- LOGICA DOWNLOAD FILE --- */
   scaricaMateriale(item: Material) {
     console.log(`Inizio download: ${item.title}`);
-
-    const contenutoMock = `STUDY HUB - FILE ACQUISTATO\n\nTitolo: ${item.title}\nAutore: ${item.author}\nFormato: ${item.fileLabel}\nDimensione: ${item.sizeInMb}\nID Transazione: SEC-${Math.random().toString(36).substr(2, 9).toUpperCase()}\n\nContenuto protetto da licenza utente.`;
-    
+    const contenutoMock = `STUDY HUB - FILE ACQUISTATO\n\nTitolo: ${item.title}\nAutore: ${item.author}`;
     const estensione = item.type === 'pdf' ? 'pdf' : 'txt';
     const nomeFile = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
 
