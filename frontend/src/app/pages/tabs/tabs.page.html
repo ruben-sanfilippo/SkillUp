@@ -1,25 +1,32 @@
 <ion-tabs>
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="search-tutor">
-      <ion-icon name="search-outline"></ion-icon>
-      <ion-label>Cerca</ion-label>
-    </ion-tab-button>
+  <ion-tab-bar class="responsive-tab-bar">
+    <div class="brand-container desktop-only">
+      <ion-icon name="school-outline" class="brand-icon"></ion-icon>
+      <span class="brand-text">Skill Up</span>
+    </div>
 
-    <ion-tab-button tab="messages">
-      <ion-icon name="chatbubbles-outline"></ion-icon>
-      <ion-label>Messaggi</ion-label>
-    </ion-tab-button>
+    <div class="tabs-group">
+      <ion-tab-button tab="search-tutor">
+        <ion-icon name="search-outline"></ion-icon>
+        <ion-label>Cerca</ion-label>
+      </ion-tab-button>
 
-    @if (tipologiaUtente === 'tutor') {
-    <ion-tab-button tab="tutor-profile">
-      <ion-icon name="person-outline"></ion-icon>
-      <ion-label>Profilo Tutor</ion-label>
-    </ion-tab-button>
-    } @else {
-    <ion-tab-button tab="student-profile">
-      <ion-icon name="person-outline"></ion-icon>
-      <ion-label>Profilo</ion-label>
-    </ion-tab-button>
-    }
+      <ion-tab-button tab="messages">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+        <ion-label>Messaggi</ion-label>
+      </ion-tab-button>
+
+      @if (tipologiaUtente === 'tutor') {
+      <ion-tab-button tab="tutor-profile">
+        <ion-icon name="person-outline"></ion-icon>
+        <ion-label>Profilo Tutor</ion-label>
+      </ion-tab-button>
+      } @else {
+      <ion-tab-button tab="student-profile">
+        <ion-icon name="person-outline"></ion-icon>
+        <ion-label>Profilo</ion-label>
+      </ion-tab-button>
+      }
+    </div>
   </ion-tab-bar>
 </ion-tabs>
