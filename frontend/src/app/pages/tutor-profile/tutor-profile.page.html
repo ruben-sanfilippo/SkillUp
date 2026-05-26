@@ -250,7 +250,7 @@
                 fill="clear"
                 size="small"
                 class="edit-icon-btn"
-                (click)="isEditingDisponibilita = true; prezzoOrarioTmp = prezzoOrario"
+                (click)="attivaModificaDisponibilita()"
               >
                 <ion-icon slot="icon-only" name="create-outline"></ion-icon>
               </ion-button>
@@ -281,13 +281,128 @@
             }
           </div>
           <p class="section-subtitle">
-            Seleziona i giorni e le fasce orarie in cui sei disponibile per le
-            lezioni.
+            Seleziona i giorni sul calendario mensile per gestire lo stato di
+            disponibilità e impostare le fasce orarie delle lezioni.
           </p>
 
-          <div class="placeholder-calendar-setup">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <p>Configurazione Orari Settimanali</p>
+          <div class="monthly-calendar-wrapper compact-calendar">
+            <div class="calendar-month-header">
+              <button class="nav-month-btn" (click)="cambiaMese(-1)">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+              <span class="current-month-label"
+                >{{ nomeMeseCorrente }} {{ annoCorrente }}</span
+              >
+              <button class="nav-month-btn" (click)="cambiaMese(1)">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </div>
+
+            <div class="calendar-weekdays-grid">
+              <span>L</span><span>M</span><span>M</span><span>G</span
+              ><span>V</span><span>S</span><span>D</span>
+            </div>
+
+            <div class="calendar-days-grid">
+              @for (vuoto of spaziVuotiIniziali; track $index) {
+              <div class="calendar-day-wrapper empty-cell"></div>
+              } @for (giorno of giorniDelMese; track giorno.dataString) {
+              <div class="calendar-day-wrapper">
+                <div
+                  class="calendar-day-circle"
+                  [class.is-available]="giorno.info?.attivo"
+                  [class.is-selected]="giorno.dataString === giornoSelezionato?.dataString"
+                  (click)="selezionaGiorno(giorno)"
+                >
+                  <span class="day-number-text">{{ giorno.giorno }}</span>
+                  @if (giorno.info?.attivo && giorno.dataString !==
+                  giornoSelezionato?.dataString) {
+                  <span class="time-dot-indicator"></span>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+
+            @if (giornoSelezionato) {
+            <div class="day-config-panel animate-fade-in">
+              <div class="panel-header-inline">
+                <h4>{{ dataFormattataPannello }}</h4>
+                @if (!giornoSelezionato.info?.attivo) {
+                <span class="badge-status-closed">Non disponibile</span>
+                } @else {
+                <span class="badge-status-open">Disponibile</span>
+                }
+              </div>
+
+              @if (isEditingDisponibilita) {
+              <div class="editing-controls-inside-panel">
+                <div class="toggle-row">
+                  <label class="checkbox-container-custom">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="giornoSelezionato.info!.attivo"
+                    />
+                    <span class="checkmark-box"></span>
+                    <span class="label-text-checkbox"
+                      >Disponibile in questo giorno</span
+                    >
+                  </label>
+                </div>
+
+                <div
+                  class="time-range-row-inputs"
+                  [style.opacity]="giornoSelezionato.info!.attivo ? '1' : '0.4'"
+                >
+                  <div class="input-time-field">
+                    <label>Dalle</label>
+                    <input
+                      type="time"
+                      [(ngModel)]="giornoSelezionato.info!.dalle"
+                      [disabled]="!giornoSelezionato.info!.attivo"
+                    />
+                  </div>
+                  <div class="input-time-field">
+                    <label>Alle</label>
+                    <input
+                      type="time"
+                      [(ngModel)]="giornoSelezionato.info!.alle"
+                      [disabled]="!giornoSelezionato.info!.attivo"
+                    />
+                  </div>
+                </div>
+              </div>
+              } @else {
+              <div class="static-day-info-display">
+                @if (giornoSelezionato.info?.attivo) {
+                <div class="info-hours-box">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span
+                    >Orario:
+                    <strong
+                      >{{ giornoSelezionato.info?.dalle }} - {{
+                      giornoSelezionato.info?.alle }}</strong
+                    ></span
+                  >
+                </div>
+                } @else {
+                <div class="instruction-inline-tip">
+                  <ion-icon name="create-outline"></ion-icon>
+                  <p>
+                    Clicca sulla matita in alto per impostare la disponibilità
+                    di questo giorno.
+                  </p>
+                </div>
+                }
+              </div>
+              }
+            </div>
+            } @else {
+            <div class="no-day-selected-placeholder">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <p>Seleziona un giorno sul calendario per gestirne gli orari.</p>
+            </div>
+            }
           </div>
         </div>
 

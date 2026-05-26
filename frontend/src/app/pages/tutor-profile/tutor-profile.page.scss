@@ -71,7 +71,6 @@
   margin-top: -55px;
 }
 
-/* Blocco Statistiche e Punteggio Tutor (Grande e Perfettamente Allineato) */
 .tutor-stats-display {
   display: flex;
   justify-content: center;
@@ -81,26 +80,24 @@
 
 .stat-block {
   display: flex;
-  align-items: center; /* Forza l'allineamento verticale sulla stessa linea */
+  align-items: center;
   justify-content: center;
   gap: 6px;
 
   .star-gold {
     color: #f59e0b;
-    font-size: 22px; /* Stella più visibile */
+    font-size: 22px;
     display: inline-block;
     line-height: 1;
   }
-
   .stat-number {
-    font-size: 19px; /* Media voto incrementata */
+    font-size: 19px;
     font-weight: 700;
     color: var(--text-main);
     line-height: 1;
   }
-
   .stat-label {
-    font-size: 17px; /* Numero tra parentesi proporzionato */
+    font-size: 17px;
     font-weight: 500;
     color: var(--neutral-color);
     line-height: 1;
@@ -149,7 +146,6 @@
   background: rgba(var(--neutral-color), 0.12);
   margin: 0 24px;
 }
-
 .section-header-inline {
   display: flex;
   align-items: center;
@@ -245,12 +241,13 @@
   }
 }
 
-/* AVATAR GESTIONE */
+/* BLOCCO AVATAR AGGIORNATO CON TRANSIZIONI ED EFFETTI HOVER */
 .avatar-container {
   position: relative;
   width: 110px;
   height: 110px;
   margin-bottom: 12px;
+
   .avatar-placeholder {
     width: 100%;
     height: 100%;
@@ -263,12 +260,25 @@
     border: 3px solid var(--card-background);
     overflow: hidden;
     cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+    &:hover {
+      transform: scale(1.03);
+      filter: brightness(0.95);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
   }
+
   .avatar-img-render {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
+
   .change-avatar-btn {
     position: absolute;
     bottom: -2px;
@@ -282,9 +292,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease;
+
     ion-icon {
       color: white;
       font-size: 14px;
+    }
+
+    &:hover {
+      transform: scale(1.15);
+      background: #2563eb !important; 
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 }
@@ -316,27 +339,334 @@
   }
 }
 .price-edit-box input {
-  width: 40px;
-  border: none;
-  background: transparent;
+  width: 55px;
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  border-radius: 8px;
+  background: var(--input-background);
   font-weight: 700;
-  text-align: right;
+  text-align: center;
   outline: none;
+  padding: 4px;
+  color: var(--text-main);
 }
 
-.placeholder-calendar-setup {
-  height: 130px;
-  border: 1px dashed rgba(var(--neutral-color), 0.3);
-  border-radius: 14px;
+/* CALENDARIO ADATTIVO LATERALE */
+.monthly-calendar-wrapper.compact-calendar {
+  margin-top: 10px;
+  background: var(--input-background);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--neutral-color), 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.calendar-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .nav-month-btn {
+    background: var(--card-background);
+    border: 1px solid rgba(var(--neutral-color), 0.15);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-main);
+
+    &:hover {
+      background: rgba(var(--primary-color), 0.05);
+    }
+    ion-icon {
+      font-size: 12px;
+    }
+  }
+
+  .current-month-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+}
+
+.calendar-weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 6px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--neutral-color);
+  }
+}
+
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.calendar-day-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.calendar-day-circle {
+  width: 100%;
+  height: 100%;
+  max-width: 32px;
+  max-height: 32px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--neutral-color);
-  gap: 6px;
+  position: relative;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--neutral-color), 0.08);
+  }
+
+  &.is-available {
+    background: rgba(30, 64, 175, 0.08);
+    color: var(--primary-color);
+    font-weight: 700;
+
+    .time-dot-indicator {
+      width: 3.5px;
+      height: 3.5px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 2px;
+    }
+  }
+
+  &.is-selected {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(var(--primary-color), 0.3);
+  }
 }
 
-/* STRUTTURA BLOCCO FORM CARICAMENTO DISPENSE */
+.day-config-panel {
+  margin-top: 10px;
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--neutral-color), 0.12);
+
+  .panel-header-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(var(--neutral-color), 0.06);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+
+    h4 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+  }
+}
+
+.badge-status-open {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.badge-status-closed {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.instruction-inline-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(var(--primary-color), 0.05);
+  border: 1px dashed rgba(var(--primary-color), 0.25);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 4px 0;
+
+  ion-icon {
+    font-size: 16px;
+    color: var(--primary-color);
+    flex-shrink: 0;
+  }
+  p {
+    margin: 0 !important;
+    font-size: 12px !important;
+    font-weight: 600;
+    color: var(--text-main) !important;
+    line-height: 1.4;
+  }
+}
+
+.editing-controls-inside-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-container-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-main);
+  input {
+    display: none;
+  }
+  input:checked + .checkmark-box {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    &::after {
+      display: block;
+    }
+  }
+  .checkmark-box {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(var(--neutral-color), 0.4);
+    border-radius: 4px;
+    position: relative;
+    background: var(--input-background);
+    &::after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 4px;
+      top: 1px;
+      width: 3px;
+      height: 6px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+}
+
+.time-range-row-inputs {
+  display: flex;
+  gap: 12px;
+  .input-time-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--neutral-color);
+      margin-bottom: 4px;
+    }
+    input[type="time"] {
+      height: 36px;
+      border: 1px solid rgba(var(--neutral-color), 0.15);
+      border-radius: 8px;
+      padding: 0 8px;
+      background: var(--input-background);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+      &:disabled {
+        background: rgba(var(--neutral-color), 0.05);
+      }
+    }
+  }
+}
+
+.static-day-info-display {
+  .info-hours-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-main);
+    ion-icon {
+      color: var(--primary-color);
+      font-size: 16px;
+    }
+    strong {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.no-day-selected-placeholder {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  text-align: center;
+  background: var(--card-background);
+  border-radius: 12px;
+  border: 1px dashed rgba(var(--neutral-color), 0.2);
+  ion-icon {
+    font-size: 20px;
+    color: var(--neutral-color);
+    margin-bottom: 4px;
+  }
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--neutral-color);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* FORMATTAZIONE DISPENSE */
 .dispensa-upload-form {
   border: 1px dashed rgba(var(--neutral-color), 0.25);
   border-radius: 14px;
@@ -411,8 +741,6 @@
   margin-top: 4px;
   --background: var(--primary-color);
 }
-
-/* CONTENITORE INFO METADATI (DISTANZIAMENTO PREZZO-BADGE CORRETTO) */
 .dispensa-meta-inline {
   display: flex;
   align-items: center;
@@ -499,7 +827,6 @@
   font-weight: 600;
 }
 
-/* STRUTTURA DELLE MODALI (BIOGRAFIA E ANTEPRIMA SOLIDA) */
 .bio-modal,
 .preview-modal {
   --width: 100%;
@@ -566,7 +893,6 @@
   }
 }
 
-/* DETTAGLI ANTEPRIMA SOLIDA (SENZA TASTO SCARICA) */
 .preview-top-bar {
   display: block;
   margin-bottom: 18px;
@@ -582,14 +908,12 @@
     margin: 4px 0 0 0;
   }
 }
-
 .document-preview-render.structural-clean {
   background: #ffffff;
   border: 1px solid rgba(var(--neutral-color), 0.2);
   border-radius: 12px;
   padding: 12px;
 }
-
 .pdf-frame-container {
   width: 100%;
   height: 500px;
@@ -597,7 +921,6 @@
   border-radius: 8px;
   overflow: hidden;
 }
-
 .image-preview-clean-container {
   width: 100%;
   display: flex;
@@ -609,7 +932,5 @@
     width: 100%;
     max-height: 550px;
     object-fit: contain;
-    filter: none !important;
-    opacity: 1 !important;
   }
 }
