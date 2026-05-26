@@ -6,7 +6,7 @@
   display: flex;
   min-height: 100%;
   width: 100%;
-  padding: 32px 16px;
+  padding: 24px 16px;
   box-sizing: border-box;
   justify-content: center;
 }
@@ -16,12 +16,16 @@
   grid-template-columns: 1fr;
   gap: 24px;
   width: 100%;
-  max-width: 1140px;
+  max-width: 1340px;
 }
 
 @media (min-width: 992px) {
+  .responsive-container {
+    padding: 32px 24px;
+  }
   .profile-grid-layout {
-    grid-template-columns: 380px 1fr;
+    grid-template-columns: minmax(340px, 440px) 1fr;
+    gap: 32px;
   }
 }
 
@@ -29,10 +33,10 @@
 .right-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  width: 100%;
 }
 
-/* Card Standard Colonna Destra */
 .management-card {
   background: var(--card-background);
   border-radius: 20px;
@@ -41,24 +45,19 @@
   border: 1px solid rgba(var(--neutral-color), 0.15);
 }
 
-/* ==========================================
-   CARD UNIFICATA (FOTO + BIO + MATERIE + LINGUE)
-   ========================================== */
 .main-profile-card {
   background: var(--card-background);
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
   border: 1px solid rgba(var(--neutral-color), 0.15);
-  display: flex;
-  flex-direction: column;
-  /* Rimossa l'altezza massima o l'overflow hidden per far evadere la tendina */
+  width: 100%;
+  position: relative;
 }
 
 .profile-banner-top {
-  height: 100px;
-  background: var(--primary-color);
+  height: 110px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
   width: 100%;
-  /* L'arrotondamento viene gestito qui per mantenere gli angoli superiori puliti */
   border-top-left-radius: 19px;
   border-top-right-radius: 19px;
 }
@@ -68,28 +67,93 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 0 24px 20px 24px;
+  padding: 0 24px 24px 24px;
   margin-top: -55px;
+}
+
+/* Blocco Statistiche e Punteggio Tutor (Grande e Perfettamente Allineato) */
+.tutor-stats-display {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.stat-block {
+  display: flex;
+  align-items: center; /* Forza l'allineamento verticale sulla stessa linea */
+  justify-content: center;
+  gap: 6px;
+
+  .star-gold {
+    color: #f59e0b;
+    font-size: 22px; /* Stella più visibile */
+    display: inline-block;
+    line-height: 1;
+  }
+
+  .stat-number {
+    font-size: 19px; /* Media voto incrementata */
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 17px; /* Numero tra parentesi proporzionato */
+    font-weight: 500;
+    color: var(--neutral-color);
+    line-height: 1;
+  }
+}
+
+.bio-section {
+  padding: 24px;
+  border-top: 1px solid rgba(var(--neutral-color), 0.15);
+  border-bottom: 1px solid rgba(var(--neutral-color), 0.15);
+
+  h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--neutral-color);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .static-text-display {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--neutral-color);
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+    text-align: left;
+  }
+  .edit-bio-btn {
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 0.92rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+  }
 }
 
 .inner-profile-section {
   padding: 20px 24px;
-  /* Crea un contesto locale per ancorare la tendina in modo assoluto */
-  position: relative;
 }
-
 .card-divider-line {
   height: 1px;
   background: rgba(var(--neutral-color), 0.12);
   margin: 0 24px;
 }
 
-/* Allineamento Header Elementi Interni */
 .section-header-inline {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   margin-bottom: 14px;
 }
 
@@ -97,234 +161,36 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--text-main);
-
-  ion-icon {
-    font-size: 20px;
-    color: var(--primary-color);
-  }
   h3 {
     font-size: 15px;
     font-weight: 700;
     margin: 0;
-    font-family: var(--font-family-inter);
   }
-}
-
-.edit-icon-btn {
-  --color: var(--neutral-color);
-  margin: 0;
-  font-size: 18px;
-  &:hover {
-    --color: var(--primary-color);
+  ion-icon {
+    font-size: 20px;
+    color: var(--primary-color);
   }
 }
 
 .action-buttons-group {
   display: flex;
   gap: 4px;
-  ion-button {
-    font-weight: 600;
-    font-size: 13px;
-    margin: 0;
-  }
 }
-
-.save-card-btn {
-  --color: var(--primary-color);
-}
-.static-text-display {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-main);
-  opacity: 0.85;
-  margin: 0;
-  white-space: pre-wrap;
-}
-
-/* Textarea & Inputs standard */
-.custom-textarea-box,
-.custom-textarea-box-upload {
-  background: var(--input-background);
-  border: 1px solid rgba(var(--neutral-color), 0.2);
-  border-radius: 12px;
-  padding: 12px;
-  width: 100%;
-
-  textarea {
-    width: 100%;
-    border: none;
-    background: transparent;
-    color: var(--text-main);
-    font-size: 14px;
-    font-family: var(--font-family-inter);
-    resize: none;
-    outline: none;
-    &::placeholder {
-      color: var(--neutral-color);
-    }
-  }
-}
-.custom-textarea-box-upload {
-  margin-bottom: 12px;
-}
-
-.custom-input-box {
-  display: flex;
-  align-items: center;
-  background: var(--input-background);
-  border: 1px solid rgba(var(--neutral-color), 0.2);
-  border-radius: 12px;
-  padding: 0 16px;
-  height: 48px;
-  margin-bottom: 12px;
-  width: 100%;
-
-  &.compact-input {
-    margin-bottom: 0;
-  }
-  .input-inline-icon-cash {
-    color: var(--neutral-color);
-    font-size: 18px;
-    margin-right: 8px;
-  }
-
-  ion-input {
-    --background: transparent !important;
-    --color: var(--text-main);
-    font-size: 14px;
-    &::part(native) {
-      padding: 0 !important;
-    }
-  }
-}
-
-/* Avatar e placeholder */
-/* Avatar e pulsante fotocamera */
-.avatar-container {
-  position: relative;
-  width: 110px;
-  height: 110px;
-  margin-bottom: 12px;
-
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: var(--card-background);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--neutral-color);
-    font-size: 44px;
-    border: 3px solid var(--card-background);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* Se usi un tag <img> dentro, non uscirà dai bordi */
-    position: relative;
-    z-index: 1;
-  }
-
-  .change-avatar-btn {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    margin: 0;
-
-    /* Definiamo le dimensioni reali del pulsante */
-    width: 34px;
-    height: 34px;
-    z-index: 2;
-
-    /* 1. AZZERIAMO LO SHADOW DOM DI IONIC */
-    --background: transparent !important;
-    --background-activated: transparent !important;
-    --background-focused: transparent !important;
-    --background-hover: transparent !important;
-    --padding-start: 0px !important;
-    --padding-end: 0px !important;
-    --padding-top: 0px !important;
-    --padding-bottom: 0px !important;
-    --box-shadow: none !important;
-
-    /* 2. CREIAMO IL CERCHIO BLU CON IL BORDO BIANCO */
-    background: var(--primary-color) !important;
-    border-radius: 50% !important;
-    border: 3px solid var(--card-background) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-
-    /* 3. CENTRIAMO L'ICONA DELLA FOTOCAMERA */
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    ion-icon {
-      font-size: 14px;
-      color: var(--card-background);
-      margin: 0;
-      padding: 0;
-    }
-  }
-}
-
-.tutor-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin: 0 0 4px 0;
-  font-family: var(--font-family-inter);
-}
-.tutor-role {
-  font-size: 13px;
-  color: var(--neutral-color);
-  margin: 0 0 14px 0;
-}
-.tutor-stats-display {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-.stat-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  .stat-number {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-main);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    .star-gold {
-      color: #f59e0b;
-      font-size: 16px;
-    }
-  }
-  .stat-label {
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--neutral-color);
-    margin-left: 2px;
-  }
-}
-
-/* Chip Tag (Materie e Lingue) */
 .tag-selector-container {
   position: relative;
-  width: 100%;
 }
 .selected-tags-box {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 4px;
 }
+
 .tag-chip {
   background: rgba(30, 64, 175, 0.08);
   color: var(--primary-color);
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 13px;
-  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -334,14 +200,6 @@
     background: rgba(3, 105, 161, 0.08);
     color: var(--tertiary-color);
     border: 1px solid rgba(var(--tertiary-color), 0.2);
-  }
-  ion-icon {
-    font-size: 15px;
-    color: var(--neutral-color);
-    cursor: pointer;
-    &:hover {
-      color: #ef4444;
-    }
   }
 }
 
@@ -354,27 +212,18 @@
   padding: 0 12px;
   height: 40px;
   margin-top: 10px;
-  .search-inline-icon {
-    color: var(--neutral-color);
-    font-size: 16px;
-    margin-right: 6px;
-  }
   input {
     width: 100%;
     border: none;
     background: transparent;
-    font-size: 13px;
-    color: var(--text-main);
     outline: none;
+    color: var(--text-main);
   }
 }
 
-/* ==========================================
-   DROPDOWN TENDINA DI RICERCA (SOPRA TUTTO)
-   ========================================== */
 .search-dropdown-list {
   position: absolute;
-  top: auto;
+  top: 100%;
   left: 0;
   right: 0;
   background: var(--card-background);
@@ -382,29 +231,76 @@
   border-radius: 12px;
   max-height: 150px;
   overflow-y: auto;
-  z-index: 999; /* Passa sopra linee e testi sottostanti */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  margin-top: 4px;
-
+  z-index: 999;
   .dropdown-item {
-    padding: 12px 14px;
+    padding: 12px;
     font-size: 13px;
-    color: var(--text-main);
     cursor: pointer;
     border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
-    &:hover {
-      background: var(--input-background);
-    }
     &.close-trigger {
       color: #ef4444;
       text-align: center;
       font-weight: 600;
-      background: rgba(239, 68, 68, 0.05);
     }
   }
 }
 
-/* Sezione Destra: Disponibilità */
+/* AVATAR GESTIONE */
+.avatar-container {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin-bottom: 12px;
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--input-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    border: 3px solid var(--card-background);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .avatar-img-render {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .change-avatar-btn {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    margin: 0;
+    width: 34px;
+    height: 34px;
+    background: var(--primary-color) !important;
+    border-radius: 50%;
+    border: 3px solid var(--card-background) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    ion-icon {
+      color: white;
+      font-size: 14px;
+    }
+  }
+}
+
+.tutor-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+.tutor-role {
+  font-size: 13px;
+  color: var(--neutral-color);
+  margin-top: 4px;
+}
+
+/* DISPONIBILITÀ & PREZZO */
 .right-actions-mix {
   display: flex;
   align-items: center;
@@ -414,45 +310,22 @@
   display: flex;
   align-items: baseline;
   gap: 2px;
-  color: var(--text-main);
   .price-val {
     font-size: 20px;
     font-weight: 700;
   }
-  span {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--neutral-color);
-  }
 }
-.price-edit-box {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--input-background);
-  padding: 4px 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--neutral-color), 0.2);
-  input {
-    width: 38px;
-    border: none;
-    background: transparent;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--primary-color);
-    text-align: right;
-    outline: none;
-  }
-  span {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-main);
-  }
+.price-edit-box input {
+  width: 40px;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  text-align: right;
+  outline: none;
 }
 
 .placeholder-calendar-setup {
-  height: 140px;
-  background: var(--input-background);
+  height: 130px;
   border: 1px dashed rgba(var(--neutral-color), 0.3);
   border-radius: 14px;
   display: flex;
@@ -461,32 +334,51 @@
   justify-content: center;
   color: var(--neutral-color);
   gap: 6px;
-  ion-icon {
-    font-size: 28px;
-  }
-  p {
-    margin: 0;
-    font-size: 13px;
-  }
 }
 
-/* Sezione Destra: Dispense */
+/* STRUTTURA BLOCCO FORM CARICAMENTO DISPENSE */
 .dispensa-upload-form {
-  background: rgba(var(--neutral-color), 0.01);
   border: 1px dashed rgba(var(--neutral-color), 0.25);
   border-radius: 14px;
   padding: 16px;
-  margin-bottom: 20px;
+}
+.custom-textarea-box-upload {
+  background: var(--input-background);
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    resize: none;
+    outline: none;
+    color: var(--text-main);
+  }
+}
+.custom-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--input-background);
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 48px;
+  margin-bottom: 12px;
+  &.compact-input {
+    margin-bottom: 0;
+  }
 }
 .form-row-double {
   display: flex;
   gap: 12px;
   margin-bottom: 12px;
-  align-items: center;
   .custom-input-box {
     flex: 1;
   }
 }
+
 .file-mock-btn {
   display: flex;
   align-items: center;
@@ -497,21 +389,38 @@
   border-radius: 12px;
   height: 48px;
   padding: 0 16px;
-  color: var(--text-main);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
   cursor: pointer;
-  &:hover {
-    opacity: 0.8;
+
+  &.upload-preview-file {
+    width: 100%;
+    margin-bottom: 12px;
+    border: 1px dashed var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(var(--primary-color), 0.02);
   }
   &.upload-main-file {
     width: 100%;
     margin-bottom: 12px;
     border: 1px dashed var(--tertiary-color);
     color: var(--tertiary-color);
-    background: rgba(var(--tertiary-color), 0.05);
+    background: rgba(var(--tertiary-color), 0.04);
   }
 }
+.add-dispensa-btn {
+  margin-top: 4px;
+  --background: var(--primary-color);
+}
+
+/* CONTENITORE INFO METADATI (DISTANZIAMENTO PREZZO-BADGE CORRETTO) */
+.dispensa-meta-inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
 .uploaded-dispense-list {
   margin-top: 20px;
   border-top: 1px solid rgba(var(--neutral-color), 0.15);
@@ -519,46 +428,54 @@
   h3 {
     font-size: 14px;
     font-weight: 700;
-    color: var(--text-main);
     margin-bottom: 12px;
   }
 }
+
 .dispensa-item-card {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 14px;
   background: var(--input-background);
   padding: 12px;
   border-radius: 12px;
   margin-bottom: 10px;
+
+  .dispensa-main-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+  }
   .dispensa-cover-preview {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     background: var(--card-background);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary-color);
-    font-size: 22px;
+    overflow: hidden;
     border: 1px solid rgba(var(--neutral-color), 0.15);
+  }
+  .cover-img-inside-card {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .dispensa-info-preview {
     flex: 1;
     h4 {
-      margin: 0 0 2px 0;
+      margin: 0;
       font-size: 13px;
       font-weight: 600;
       color: var(--text-main);
     }
     p {
-      margin: 0;
+      margin: 2px 0 0 0;
       font-size: 12px;
       color: var(--neutral-color);
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
   }
   .dispensa-price-tag {
@@ -568,14 +485,131 @@
   }
 }
 
-.section-subtitle {
-  font-size: 13px;
-  color: var(--neutral-color);
-  margin: -10px 0 16px 0;
+.dispensa-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.add-dispensa-btn {
-  --background: var(--primary-color);
-  --color: var(--card-background);
-  --border-radius: 10px;
-  margin-top: 4px;
+.preview-badge {
+  font-size: 11px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* STRUTTURA DELLE MODALI (BIOGRAFIA E ANTEPRIMA SOLIDA) */
+.bio-modal,
+.preview-modal {
+  --width: 100%;
+  --max-width: 540px;
+  --height: auto;
+  align-items: center;
+  &::part(content) {
+    background: var(--card-background);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+.preview-modal {
+  --max-width: 640px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
+  .title-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 0;
+    }
+  }
+}
+.modal-content {
+  padding: 24px;
+  &.preview-scroll-box {
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+}
+.modal-footer {
+  padding: 0 24px 24px 24px;
+  .save-modal-btn {
+    --background: var(--primary-color);
+    height: 46px;
+    margin: 0;
+  }
+}
+
+.custom-textarea-box {
+  background: var(--input-background);
+  border: 1px solid rgba(var(--neutral-color), 0.15);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    resize: none;
+    outline: none;
+    color: var(--text-main);
+  }
+}
+
+/* DETTAGLI ANTEPRIMA SOLIDA (SENZA TASTO SCARICA) */
+.preview-top-bar {
+  display: block;
+  margin-bottom: 18px;
+  .preview-doc-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-main);
+  }
+  .preview-doc-desc {
+    font-size: 13px;
+    color: var(--neutral-color);
+    margin: 4px 0 0 0;
+  }
+}
+
+.document-preview-render.structural-clean {
+  background: #ffffff;
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.pdf-frame-container {
+  width: 100%;
+  height: 500px;
+  background: #525659;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.image-preview-clean-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px;
+  .real-preview-img-solid {
+    width: 100%;
+    max-height: 550px;
+    object-fit: contain;
+    filter: none !important;
+    opacity: 1 !important;
+  }
 }

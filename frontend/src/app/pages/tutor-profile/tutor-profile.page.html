@@ -7,14 +7,30 @@
 
           <div class="profile-identity-block">
             <div class="avatar-container">
-              <div class="avatar-placeholder">
+              <input
+                type="file"
+                #avatarInput
+                accept="image/*"
+                style="display: none"
+                (change)="onAvatarSelected($event)"
+              />
+
+              <div class="avatar-placeholder" (click)="avatarInput.click()">
+                @if (avatarUrl) {
+                <img
+                  [src]="avatarUrl"
+                  alt="Avatar Tutor"
+                  class="avatar-img-render"
+                />
+                } @else {
                 <ion-icon name="person-outline"></ion-icon>
+                }
               </div>
               <ion-button
                 size="small"
                 fill="clear"
                 class="change-avatar-btn"
-                (click)="selezionaAvatar()"
+                (click)="avatarInput.click()"
               >
                 <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
               </ion-button>
@@ -25,69 +41,26 @@
 
             <div class="tutor-stats-display">
               <div class="stat-block">
-                <span class="stat-number">
-                  <ion-icon name="star" class="star-gold"></ion-icon> {{
-                  mediaRecensioni }}
-                  <span class="stat-label">({{ numeroRecensioni }})</span>
-                </span>
+                <ion-icon name="star" class="star-gold"></ion-icon>
+                <span class="stat-number">{{ mediaRecensioni }}</span>
+                <span class="stat-label">({{ numeroRecensioni }})</span>
               </div>
             </div>
           </div>
 
-          <div class="card-divider-line"></div>
-
-          <div class="inner-profile-section">
-            <div class="section-header-inline">
-              <div class="section-title-box">
-                <ion-icon name="document-text-outline"></ion-icon>
-                <h3>Biografia</h3>
-              </div>
-
-              @if (!isEditingBiografia) {
-              <ion-button
-                fill="clear"
-                size="small"
-                class="edit-icon-btn"
-                (click)="isEditingBiografia = true"
-              >
-                <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-              </ion-button>
-              } @else {
-              <div class="action-buttons-group">
-                <ion-button
-                  fill="clear"
-                  size="small"
-                  color="medium"
-                  (click)="annullaModifica('biografia')"
-                  >Annulla</ion-button
-                >
-                <ion-button
-                  fill="clear"
-                  size="small"
-                  class="save-card-btn"
-                  (click)="salvaSezione('biografia')"
-                  >Salva</ion-button
-                >
-              </div>
-              }
-            </div>
-
-            @if (!isEditingBiografia) {
+          <div class="bio-section">
+            <h3>Biografia</h3>
             <p class="static-text-display">
               {{ biografia || 'Racconta qualcosa di te...' }}
             </p>
-            } @else {
-            <div class="custom-textarea-box">
-              <textarea
-                rows="4"
-                placeholder="Il tuo metodo di insegnamento..."
-                [(ngModel)]="biografiaTmp"
-              ></textarea>
-            </div>
-            }
+            <button
+              class="edit-bio-btn"
+              (click)="isEditingBiografia = true; biografiaTmp = biografia"
+            >
+              <ion-icon name="create-outline"></ion-icon>
+              Modifica biografia
+            </button>
           </div>
-
-          <div class="card-divider-line"></div>
 
           <div class="inner-profile-section">
             <div class="section-header-inline">
@@ -277,7 +250,7 @@
                 fill="clear"
                 size="small"
                 class="edit-icon-btn"
-                (click)="isEditingDisponibilita = true"
+                (click)="isEditingDisponibilita = true; prezzoOrarioTmp = prezzoOrario"
               >
                 <ion-icon slot="icon-only" name="create-outline"></ion-icon>
               </ion-button>
@@ -331,6 +304,28 @@
           </p>
 
           <div class="dispensa-upload-form">
+            <input
+              type="file"
+              #copertinaInput
+              accept="image/*"
+              style="display: none"
+              (change)="onCopertinaSelected($event)"
+            />
+            <input
+              type="file"
+              #anteprimaInput
+              accept="image/*,application/pdf"
+              style="display: none"
+              (change)="onAnteprimaSelected($event)"
+            />
+            <input
+              type="file"
+              #fileCompletoInput
+              accept=".pdf,.zip,.rar,.rar5"
+              style="display: none"
+              (change)="onFileCompletoSelected($event)"
+            />
+
             <div class="custom-input-box">
               <ion-input
                 mode="ios"
@@ -353,32 +348,71 @@
                   name="cash-outline"
                   class="input-inline-icon-cash"
                 ></ion-icon>
-                <ion-input
+                <input
                   type="number"
-                  mode="ios"
                   placeholder="Prezzo (€)"
                   [(ngModel)]="nuovaDispensa.prezzo"
-                ></ion-input>
+                  style="
+                    border: none;
+                    background: transparent;
+                    width: 100%;
+                    outline: none;
+                    color: var(--text-main);
+                    font-size: 14px;
+                  "
+                />
               </div>
 
-              <button class="file-mock-btn" (click)="selezionaCopertina()">
-                <ion-icon name="image-outline"></ion-icon>
-                <span>Copertina</span>
+              <button
+                class="file-mock-btn"
+                (click)="copertinaInput.click()"
+                [style.border-color]="nuovaDispensa.copertinaUrl ? 'var(--primary-color)' : ''"
+              >
+                <ion-icon
+                  [name]="nuovaDispensa.copertinaUrl ? 'checkmark-circle-outline' : 'image-outline'"
+                ></ion-icon>
+                <span
+                  >{{ nuovaDispensa.copertinaUrl ? 'Copertina OK' : 'Copertina'
+                  }}</span
+                >
               </button>
             </div>
 
             <button
-              class="file-mock-btn upload-main-file"
-              (click)="selezionaFile()"
+              class="file-mock-btn upload-preview-file"
+              (click)="anteprimaInput.click()"
+              [style.border-color]="nuovaDispensa.haAnteprima ? '#10b981' : ''"
+              [style.color]="nuovaDispensa.haAnteprima ? '#10b981' : ''"
             >
-              <ion-icon name="cloud-upload-outline"></ion-icon>
-              <span>Carica il File (PDF, ZIP)</span>
+              <ion-icon
+                [name]="nuovaDispensa.haAnteprima ? 'checkmark-circle-outline' : 'document-text-outline'"
+              ></ion-icon>
+              <span
+                >{{ nuovaDispensa.haAnteprima ? 'Anteprima Caricata' : 'Carica
+                Pagine di Anteprima (PDF/Img)' }}</span
+              >
+            </button>
+
+            <button
+              class="file-mock-btn upload-main-file"
+              (click)="fileCompletoInput.click()"
+              [style.border-color]="nuovaDispensa.haFileCompleto ? 'var(--tertiary-color)' : ''"
+              [style.background]="nuovaDispensa.haFileCompleto ? 'rgba(var(--tertiary-color), 0.1)' : ''"
+            >
+              <ion-icon
+                [name]="nuovaDispensa.haFileCompleto ? 'checkmark-circle-outline' : 'cloud-upload-outline'"
+              ></ion-icon>
+              <span
+                >{{ nuovaDispensa.haFileCompleto ? 'File Completo Caricato (' +
+                nuovaDispensa.fileCompleto?.name + ')' : 'Carica il File
+                Completo (PDF, ZIP)' }}</span
+              >
             </button>
 
             <ion-button
               expand="block"
               class="add-dispensa-btn"
-              (click)="aggiungiDispensa()"
+              (click)="aggiungiDispensa(copertinaInput, anteprimaInput, fileCompletoInput)"
             >
               Pubblica Dispensa
               <ion-icon slot="end" name="add-circle-outline"></ion-icon>
@@ -389,14 +423,56 @@
           <div class="uploaded-dispense-list">
             <h3>Dispense Pubblicate ({{ listaDispense.length }})</h3>
             @for (dispensa of listaDispense; track dispensa.titolo) {
-            <div class="dispensa-item-card">
-              <div class="dispensa-cover-preview">
-                <ion-icon name="document-outline"></ion-icon>
+            <div class="dispensa-item-card layout-between">
+              <div class="dispensa-main-info">
+                <div class="dispensa-cover-preview">
+                  @if (dispensa.copertinaUrl) {
+                  <img
+                    [src]="dispensa.copertinaUrl"
+                    alt="Copertina Dispensa"
+                    class="cover-img-inside-card"
+                  />
+                  } @else {
+                  <ion-icon name="document-outline"></ion-icon>
+                  }
+                </div>
+                <div class="dispensa-info-preview">
+                  <h4>{{ dispensa.titolo }}</h4>
+                  <p>{{ dispensa.descrizione || 'Nessuna descrizione.' }}</p>
+
+                  <div class="dispensa-meta-inline">
+                    <span class="dispensa-price-tag"
+                      >€{{ dispensa.prezzo }}</span
+                    >
+                    @if (dispensa.haAnteprima) {
+                    <span class="preview-badge">Anteprima disponibile</span>
+                    }
+                  </div>
+                </div>
               </div>
-              <div class="dispensa-info-preview">
-                <h4>{{ dispensa.titolo }}</h4>
-                <p>{{ dispensa.descrizione || 'Nessuna descrizione.' }}</p>
-                <span class="dispensa-price-tag">€{{ dispensa.prezzo }}</span>
+
+              <div class="dispensa-actions-group">
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  color="primary"
+                  title="Scarica File Originale"
+                  (click)="scaricaFileCompleto(dispensa)"
+                >
+                  <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+                </ion-button>
+
+                @if (dispensa.haAnteprima) {
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  class="view-preview-action-btn"
+                  title="Vedi Anteprima"
+                  (click)="apriAnteprimaStudente(dispensa)"
+                >
+                  <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+                </ion-button>
+                }
               </div>
             </div>
             }
@@ -406,4 +482,116 @@
       </div>
     </div>
   </div>
+
+  <ion-modal
+    [isOpen]="isEditingBiografia"
+    class="bio-modal"
+    (didDismiss)="isEditingBiografia = false"
+  >
+    <ng-template>
+      <div class="modal-wrapper">
+        <div class="modal-header">
+          <div class="title-left">
+            <ion-icon name="create-outline" class="header-icon"></ion-icon>
+            <h2>Modifica biografia</h2>
+          </div>
+          <ion-button
+            fill="clear"
+            color="medium"
+            class="close-modal-btn"
+            (click)="annullaModifica('biografia')"
+          >
+            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="modal-content">
+          <div class="custom-textarea-box">
+            <textarea
+              rows="6"
+              placeholder="Racconta il tuo metodo di insegnamento..."
+              [(ngModel)]="biografiaTmp"
+              maxlength="200"
+            ></textarea>
+            <div class="char-counter">{{ biografiaTmp?.length || 0 }}/200</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <ion-button
+            expand="block"
+            class="save-modal-btn"
+            (click)="salvaSezione('biografia')"
+          >
+            Salva Biografia
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal
+    [isOpen]="isViewingAnteprima"
+    class="preview-modal"
+    (didDismiss)="chiudiAnteprimaStudente()"
+  >
+    <ng-template>
+      <div class="modal-wrapper">
+        <div class="modal-header">
+          <div class="title-left">
+            <ion-icon name="eye-outline" class="header-icon"></ion-icon>
+            <h2>Anteprima materiale</h2>
+          </div>
+          <ion-button
+            fill="clear"
+            color="medium"
+            class="close-modal-btn"
+            (click)="chiudiAnteprimaStudente()"
+          >
+            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="modal-content preview-scroll-box">
+          <div class="preview-top-bar">
+            <div>
+              <h3 class="preview-doc-title">
+                {{ dispensaInEvidenza?.titolo }}
+              </h3>
+              <p class="preview-doc-desc">
+                {{ dispensaInEvidenza?.descrizione }}
+              </p>
+            </div>
+          </div>
+
+          <div class="document-preview-render structural-clean">
+            @if (dispensaInEvidenza?.isPdfPreview) {
+            <div class="pdf-frame-container">
+              <iframe
+                [src]="dispensaInEvidenza?.anteprimaUrl"
+                width="100%"
+                height="500px"
+                style="border: none; border-radius: 8px"
+              ></iframe>
+            </div>
+            } @else if (dispensaInEvidenza?.anteprimaUrl) {
+            <div class="image-preview-clean-container">
+              <img
+                [src]="dispensaInEvidenza?.anteprimaUrl"
+                alt="Anteprima Immagine"
+                class="real-preview-img-solid"
+              />
+            </div>
+            } @else {
+            <div class="mock-page-sheet">
+              <p style="text-align: center; color: var(--neutral-color)">
+                Nessuna anteprima disponibile.
+              </p>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>
