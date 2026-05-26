@@ -1,13 +1,186 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>tutor-profile</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="register-content">
+  <div class="responsive-container">
+    <div class="profile-grid-layout">
+      <div class="left-column">
+        <div class="profile-card-edit">
+          <div class="avatar-container">
+            <div class="avatar-placeholder">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <button class="change-avatar-btn">
+              <ion-icon name="camera-outline"></ion-icon>
+            </button>
+          </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">tutor-profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+          <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
+          <p class="tutor-role">Tutor SkillUp</p>
+
+          <div class="rating-summary-box">
+            <div class="stars-row">
+              <ion-icon name="star"></ion-icon>
+              <span class="rating-value">{{ mediaRecensioni }}</span>
+            </div>
+            <span class="reviews-count"
+              >({{ totaleRecensioni }} recensioni degli studenti)</span
+            >
+          </div>
+
+          <div class="custom-input-box">
+            <ion-icon name="briefcase-outline" class="input-icon"></ion-icon>
+            <ion-input
+              type="text"
+              mode="ios"
+              placeholder="Specializzazione (es. Matematica & Fisica)"
+              [(ngModel)]="specializzazione"
+            ></ion-input>
+          </div>
+        </div>
+
+        <div class="info-section-card">
+          <div class="section-title-box">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <h3>Su di me</h3>
+          </div>
+          <div class="custom-textarea-box">
+            <textarea
+              rows="5"
+              placeholder="Racconta la tua esperienza e il tuo metodo di insegnamento..."
+              [(ngModel)]="biografia"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="info-section-card">
+          <div class="section-title-box">
+            <ion-icon name="globe-outline"></ion-icon>
+            <h3>Dettagli</h3>
+          </div>
+          <div class="custom-input-box">
+            <ion-input
+              mode="ios"
+              placeholder="Lingue parlate"
+              [(ngModel)]="lingue"
+            ></ion-input>
+          </div>
+          <div class="custom-input-box">
+            <ion-icon name="location-outline" class="input-icon"></ion-icon>
+            <ion-input
+              mode="ios"
+              placeholder="Città (es. Milano, Italia)"
+              [(ngModel)]="posizione"
+            ></ion-input>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-column">
+        <div class="management-card">
+          <div class="header-inline">
+            <h2>Imposta Disponibilità</h2>
+            <div class="price-edit-box">
+              <input type="number" [(ngModel)]="prezzoOrario" />
+              <span>€ / ora</span>
+            </div>
+          </div>
+          <p class="section-subtitle">
+            Seleziona i giorni e le fasce orarie in cui sei disponibile per le
+            lezioni.
+          </p>
+
+          <div class="placeholder-calendar-setup">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <p>Configurazione Orari Settimanali</p>
+          </div>
+        </div>
+
+        <div class="management-card">
+          <h2>Le tue Dispense dello Studente</h2>
+          <p class="section-subtitle">
+            Carica dispense, appunti o eserciziari da mettere in vendita per gli
+            studenti.
+          </p>
+
+          <div class="dispensa-upload-form">
+            <div class="custom-input-box">
+              <ion-input
+                mode="ios"
+                placeholder="Titolo della dispensa"
+                [(ngModel)]="nuovaDispensa.titolo"
+              ></ion-input>
+            </div>
+
+            <div class="custom-textarea-box">
+              <textarea
+                rows="3"
+                placeholder="Descrizione del contenuto della dispensa..."
+                [(ngModel)]="nuovaDispensa.descrizione"
+              ></textarea>
+            </div>
+
+            <div class="form-row-double">
+              <div class="custom-input-box">
+                <ion-icon name="cash-outline" class="input-icon"></ion-icon>
+                <ion-input
+                  type="number"
+                  mode="ios"
+                  placeholder="Prezzo (€)"
+                  [(ngModel)]="nuovaDispensa.prezzo"
+                ></ion-input>
+              </div>
+
+              <button class="file-mock-btn" (click)="selezionaCopertina()">
+                <ion-icon name="image-outline"></ion-icon>
+                <span>Copertina</span>
+              </button>
+            </div>
+
+            <button
+              class="file-mock-btn upload-main-file"
+              (click)="selezionaFile()"
+            >
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              <span>Carica il File (PDF, ZIP)</span>
+            </button>
+
+            <ion-button
+              expand="block"
+              class="add-dispensa-btn"
+              (click)="aggiungiDispensa()"
+            >
+              Pubblica Dispensa
+              <ion-icon slot="end" name="add-circle-outline"></ion-icon>
+            </ion-button>
+          </div>
+
+          @if (listaDispense.length > 0) {
+          <div class="uploaded-dispense-list">
+            <h3>Dispense Pubblicate ({{ listaDispense.length }})</h3>
+
+            @for (dispensa of listaDispense; track dispensa.titolo) {
+            <div class="dispensa-item-card">
+              <div class="dispensa-cover-preview">
+                <ion-icon name="document-outline"></ion-icon>
+              </div>
+              <div class="dispensa-info-preview">
+                <h4>{{ dispensa.titolo }}</h4>
+                <p>{{ dispensa.descrizione }}</p>
+                <span class="dispensa-price-tag">€{{ dispensa.prezzo }}</span>
+              </div>
+            </div>
+            }
+          </div>
+          }
+        </div>
+
+        <ion-button
+          expand="block"
+          class="save-profile-btn"
+          (click)="salvaProfilo()"
+        >
+          Salva Tutte le Modifiche
+          <ion-icon slot="end" name="save-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
 </ion-content>
