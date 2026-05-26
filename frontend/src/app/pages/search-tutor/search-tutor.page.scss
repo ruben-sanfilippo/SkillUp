@@ -1,5 +1,5 @@
 .search-page-content {
-  --background: var(--app-background, #f8fafc);
+  --background: var(--app-background);
 }
 
 .page-container {
@@ -8,26 +8,26 @@
   padding: 24px 16px;
 }
 
-/* SIDEBAR FILTRI */
 .filters-panel {
-  background: var(--card-background, #fff);
+  background: var(--card-background);
   border-radius: 16px;
-  padding: 24px;
-
+  padding: 30px 24px;
+  border: 1px solid rgba(128, 128, 128, 0.2);
   margin-bottom: 24px;
 
   .filters-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 
     h2 {
       margin: 0;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       color: var(--primary-color);
     }
+
     .clear-btn {
       background: none;
       border: none;
@@ -38,45 +38,61 @@
   }
 
   .filter-group {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 
     label {
       display: block;
       font-size: 14px;
       font-weight: 600;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      color: var(--text-main);
     }
 
     .search-input-box {
       display: flex;
       align-items: center;
-      background: #f1f5f9;
+      background: var(--input-background);
       border-radius: 8px;
       padding: 0 12px;
       height: 44px;
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 14px;
+        color: var(--text-main);
+      }
+      .custom-searchbar {
+        padding: 0;
+        --background: var(--input-background);
+        --box-shadow: none;
+        --border-radius: 8px;
+        --color: var(--text-main);
+        --placeholder-color: var(--neutral-color);
+        --icon-color: var(--neutral-color);
+        --clear-button-color: var(--neutral-color);
+
+        height: 44px;
+
+        &::part(search-icon) {
+          margin-left: 4px;
+        }
+      }
 
       ion-icon {
         color: var(--neutral-color);
         margin-right: 8px;
       }
+
       input {
         background: transparent;
         border: none;
         outline: none;
         width: 100%;
         font-size: 14px;
+        color: var(--text-main);
       }
-    }
-
-    .custom-select {
-      width: 100%;
-      height: 44px;
-      background: #f1f5f9;
-      border: none;
-      border-radius: 8px;
-      padding: 0 12px;
-      font-size: 14px;
-      outline: none;
     }
 
     .range-labels {
@@ -87,23 +103,45 @@
       margin-top: -8px;
     }
 
-    .checkbox-group {
+    .date-range-group {
       display: flex;
       flex-direction: column;
       gap: 12px;
 
-      .checkbox-container {
+      .date-input-box {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-weight: 400;
-        cursor: pointer;
+        background: var(--input-background);
+        border-radius: 8px;
+        padding: 0 12px;
+        height: 44px;
 
-        input[type="checkbox"] {
-          width: 18px;
-          height: 18px;
-          accent-color: var(--primary-color);
-          color: white;
+        .date-label {
+          font-size: 14px;
+          color: var(--neutral-color);
+          margin-right: 8px;
+          min-width: 25px;
+          font-weight: 500;
+        }
+
+        input[type="date"] {
+          background: transparent;
+          border: none;
+          outline: none;
+          width: 100%;
+          font-size: 14px;
+          color: var(--text-main);
+          font-family: inherit;
+          cursor: pointer;
+
+          &::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s;
+            &:hover {
+              opacity: 1;
+            }
+          }
         }
       }
     }
@@ -122,12 +160,11 @@
     transition: background 0.2s;
 
     &:hover {
-      background: var(--secondary-color);
+      filter: brightness(0.9);
     }
   }
 }
 
-/* AREA PRINCIPALE */
 .main-content-col {
   padding-left: 24px;
 }
@@ -142,6 +179,7 @@
     margin: 0 0 8px 0;
     letter-spacing: -1px;
   }
+
   p {
     font-size: 16px;
     color: var(--neutral-color);
@@ -151,23 +189,25 @@
   .main-search-bar {
     display: flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--card-background);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 12px;
     padding: 8px 8px 8px 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     ion-icon {
       color: var(--neutral-color);
       font-size: 20px;
       margin-right: 12px;
     }
+
     input {
       flex: 1;
       border: none;
       outline: none;
       font-size: 16px;
       background: transparent;
+      color: var(--text-main);
     }
 
     .search-btn {
@@ -178,43 +218,170 @@
       padding: 12px 24px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.3s ease-out;
+      transition: background 0.2s;
 
-      &:focus {
-        transform: translateY(-2px);
+      &:hover {
+        filter: brightness(0.9);
       }
     }
   }
 }
 
-.load-more-container {
-  text-align: center;
-  margin-top: 32px;
-  padding-bottom: 32px;
+.mobile-filters-section {
+  margin-bottom: 32px;
+  margin-top: -12px;
 
-  .load-more-btn {
-    background: transparent;
-    border: 1px solid #cbd5e1;
+  .toggle-filters-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: var(--card-background);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     color: var(--text-main);
-    padding: 12px 24px;
-    border-radius: 8px;
+    padding: 14px 16px;
+    border-radius: 12px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 15px;
     cursor: pointer;
-    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: background 0.2s;
 
+    &:active {
+      background: var(--input-background);
+    }
+
+    ion-icon {
+      font-size: 20px;
+      margin-right: 12px;
+    }
+
+    .chevron-icon {
+      margin-left: auto;
+      margin-right: 0;
+    }
+  }
+
+  .mobile-filters-wrapper {
+    margin-top: 16px;
+    animation: slideDown 0.3s ease-out;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tag-selector-container {
+  position: relative;
+  width: 100%;
+}
+
+.selected-tags-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-bottom: 8px;
+
+  &:empty {
+    margin-bottom: 0;
+  }
+}
+
+.tag-chip {
+  background: rgba(30, 64, 175, 0.08);
+  color: var(--primary-color);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(var(--primary-color), 0.2);
+
+  &.lang-chip {
+    background: rgba(3, 105, 161, 0.08);
+    color: var(--tertiary-color);
+    border: 1px solid rgba(var(--tertiary-color), 0.2);
+  }
+
+  ion-icon {
+    font-size: 15px;
+    color: var(--neutral-color);
+    cursor: pointer;
     &:hover {
-      background: #f1f5f9;
+      color: #ef4444;
     }
   }
 }
 
-/* Responsive: Rimuove il padding extra su schermi piccoli */
+.custom-profile-searchbar {
+  padding: 0;
+
+  --background: var(--input-background);
+  --box-shadow: none;
+  --border-radius: 12px;
+  --color: var(--text-main);
+  --placeholder-color: var(--neutral-color);
+  --icon-color: var(--neutral-color);
+  --clear-button-color: var(--neutral-color);
+
+  height: 44px;
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  border-radius: 12px;
+
+  &::part(search-icon) {
+    margin-left: 4px;
+  }
+}
+
+.search-dropdown-list {
+  position: absolute;
+  top: auto;
+  left: 0;
+  right: 0;
+  background: var(--card-background);
+  border: 1px solid rgba(var(--neutral-color), 0.25);
+  border-radius: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+
+  .dropdown-item {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-main);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
+
+    &:hover {
+      background: var(--input-background);
+    }
+    &.close-trigger {
+      color: #ef4444;
+      text-align: center;
+      font-weight: 600;
+      background: rgba(239, 68, 68, 0.05);
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .main-content-col {
     padding-left: 0;
     margin-top: 24px;
   }
+
   .header-section h1 {
     font-size: 28px;
     color: var(--primary-color);

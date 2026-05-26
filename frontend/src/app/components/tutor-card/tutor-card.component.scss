@@ -1,16 +1,28 @@
 .tutor-card {
-  background: var(--card-background, #f1f5f9);
+  background: var(--card-background, #fff);
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: transform 0.3s ease-out;
+
+  /* Indica visivamente che l'elemento è interattivo e cliccabile */
+  cursor: pointer;
+
+  /* Transizione fluida e pulita per l'effetto 3D */
+  transition:
+    transform 0.3s ease-out,
+    box-shadow 0.3s ease-out;
 
   &:hover {
     transform: translateY(-4px);
+    box-shadow:
+      0 12px 20px -3px rgba(0, 0, 0, 0.15),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 
   .card-header {
@@ -21,6 +33,7 @@
 
     .avatar-container {
       position: relative;
+      flex-shrink: 0; /* Impedisce all'immagine di schiacciarsi */
       img {
         width: 64px;
         height: 64px;
@@ -29,13 +42,43 @@
       }
     }
 
+    /* AGGIUNTA: Contenitore flessibile per i badge delle materie */
+    .subjects-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end; /* Allinea i badge a destra */
+      max-width: 65%; /* Lascia spazio all'avatar */
+    }
+
     .subject-badge {
       background: var(--primary-color);
       color: white;
-      padding: 6px 12px;
+      padding: 4px 10px; /* Leggermente ridotto per farne entrare di più */
       border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap; /* Evita che il testo della materia vada a capo a metà parola */
+    }
+
+    .languages-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .card-lang-badge {
+      background: rgba(3, 105, 161, 0.08); /* Sfondo azzurro trasparente */
+      color: var(
+        --tertiary-color
+      ); /* Testo azzurro dinamico che si adatta al tema */
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid rgba(var(--tertiary-color), 0.15);
     }
   }
 
@@ -43,6 +86,7 @@
     margin: 0 0 8px 0;
     font-size: 18px;
     font-weight: 700;
+    color: var(--text-main);
   }
 
   .tutor-bio {
@@ -53,48 +97,35 @@
     flex-grow: 1;
   }
 
+  /* Gestione allineamento: Rating a sinistra, Prezzo a destra */
   .card-footer {
     border-top: 1px solid #e2e8f0;
     padding-top: 16px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Spinge i due figli ai lati opposti */
     align-items: center;
 
-    .stats {
-      .rating {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 14px;
-        margin-bottom: 4px;
-        ion-icon {
-          color: #fbbc05;
-        }
-        .reviews {
-          color: var(--neutral-color);
-        }
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+
+      ion-icon {
+        color: #fbbc05;
       }
-      .price {
-        font-size: 14px;
+      .reviews {
         color: var(--neutral-color);
-        strong {
-          font-size: 18px;
-          color: var(--text-main);
-        }
       }
     }
 
-    .view-btn {
-      background-color: var(--secondary-color);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+    .price {
+      font-size: 14px;
+      color: var(--neutral-color);
 
-      &:hover {
-        background: #f1f5f9;
+      strong {
+        font-size: 18px;
+        color: var(--text-main);
       }
     }
   }
