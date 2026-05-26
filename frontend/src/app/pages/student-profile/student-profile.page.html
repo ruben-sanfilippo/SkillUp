@@ -1,13 +1,260 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>student-profile</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="main-bg">
+  <div class="content-wrapper">
+    <div class="dashboard-layout">
+        
+      <aside class="profile-sidebar">
+        <div class="card profile-card">
+          <div class="banner"></div>
+          <div class="profile-details">
+            <div class="profile-center-group">
+              
+              <div class="avatar-container">
+                <div class="avatar-holder">
+                  @if (student.avatar) {
+                    <img [src]="student.avatar" alt="Avatar Studente" />
+                  } @else {
+                    <div class="avatar-placeholder">
+                      {{ student.firstName[0] }}{{ student.lastName[0] }}
+                    </div>
+                  }
+                </div>
+                <button class="avatar-edit-badge" (click)="apriMenuAvatar()" title="Gestisci foto profilo">
+                  <ion-icon name="camera-outline"></ion-icon>
+                </button>
+                <input 
+                  type="file" 
+                  id="avatarFileInput" 
+                  (change)="onAvatarSelected($event)" 
+                  accept="image/*" 
+                  style="display: none;" />
+              </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">student-profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+              <h2 class="name">{{ student.firstName }} {{ student.lastName }}</h2>
+            </div>
+            <div class="hr"></div>
+            <div class="bio">
+              <h3>Biografia</h3>
+              <p>{{ student.about }}</p>
+              <button class="edit-bio-btn" (click)="apriModalBio()">
+                <ion-icon name="create-outline"></ion-icon>
+                Modifica biografia
+              </button>
+            </div>
+            <div class="hr"></div>
+            <div class="stats-container">
+              <div class="stat-box">
+                <span class="label">Sessioni</span>
+                <span class="val">{{ student.sessionsCompleted }}</span>
+              </div>
+              <div class="stat-box">
+                <span class="label">Ore Studio</span>
+                <span class="val">{{ student.studyHours }}h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="row-header">
+          <h3>Le tue Prenotazioni</h3>
+          <button class="link-btn" (click)="apriModalPrenotazioni()">Vedi tutto</button>
+        </div>
+
+        <div class="bookings-grid">
+          @for (booking of recentBookings; track booking.id) {
+            <div class="card booking-card">
+              <div class="booking-top">
+                <div class="tutor">
+                  <img [src]="booking.tutorAvatar" alt="Tutor" />
+                  <div class="tutor-info">
+                    <h4>{{ booking.tutorName }}</h4>
+                    <p>{{ booking.subject }}</p>
+                  </div>
+                </div>
+                <div class="status-chip" [class.upcoming]="booking.status === 'IN PROGRAMMA'">
+                  {{ booking.status }}
+                </div>
+              </div>
+              <div class="booking-mid">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ booking.dataItaliana }} • {{ booking.startTime }} - {{ booking.endTime }}</span>
+              </div>
+              <div class="booking-bottom">
+                @if (booking.status === 'COMPLETATA' && !booking.hasReviewed) {
+                  <ion-button fill="outline" class="btn-outline full-width" (click)="apriModalRecensione(booking)">
+                    Lascia una recensione
+                  </ion-button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="card material-section">
+          <div class="row-header">
+            <h3>Materiali Acquistati</h3>
+          </div>
+          <div class="material-scroll-container">
+            <div class="material-list">
+              @for (item of purchasedMaterials; track item.id) {
+                <div class="material-row">
+                  <div class="icon-box" [class.notes]="item.type === 'notes'">
+                    <ion-icon [name]="item.type === 'pdf' ? 'document-text-outline' : 'book-outline'"></ion-icon>
+                  </div>
+                  <div class="info">
+                    <h4>{{ item.title }}</h4>
+                    <p class="author-name">{{ item.author }}</p>
+                    <p class="file-spec">{{ item.fileLabel }} • {{ item.sizeInMb }}</p>
+                  </div>
+                  <ion-button fill="clear" class="btn-download" (click)="scaricaMateriale(item)">
+                    <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false" class="bookings-modal">
+    <ng-template>
+      <ion-header class="ion-no-border modal-header">
+        <ion-toolbar>
+          <ion-title>Storico Prenotazioni</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isModalOpen = false" class="close-modal-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-bg">
+        <div class="modal-list-container">
+          @for (booking of allBookingsSorted; track booking.id) {
+            <div class="modal-booking-row">
+              <div class="modal-left-layout">
+                <div class="modal-tutor-group">
+                  <img [src]="booking.tutorAvatar" alt="Tutor" />
+                  <div class="modal-tutor-details">
+                    <h4>{{ booking.tutorName }}</h4>
+                    <p>{{ booking.subject }}</p>
+                    <div class="modal-time-info">
+                      <ion-icon name="calendar-outline"></ion-icon>
+                      <span>{{ booking.dataItaliana }} • {{ booking.startTime }} - {{ booking.endTime }}</span>
+                    </div>
+                  </div>
+                </div>
+                @if (booking.status === 'COMPLETATA' && !booking.hasReviewed) {
+                  <div class="modal-action-wrapper">
+                    <ion-button fill="outline" class="btn-outline btn-small" (click)="apriModalRecensione(booking)">
+                      Lascia una recensione
+                    </ion-button>
+                  </div>
+                }
+              </div>
+              <div class="status-chip" [class.upcoming]="booking.status === 'IN PROGRAMMA'">
+                {{ booking.status }}
+              </div>
+            </div>
+          }
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="isReviewModalOpen" (didDismiss)="chiudiModalRecensione()" class="review-modal">
+    <ng-template>
+      <ion-header class="ion-no-border modal-header">
+        <ion-toolbar>
+          <ion-title>Valuta il Tutor</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="chiudiModalRecensione()" class="close-modal-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-bg">
+        <div class="review-modal-body">
+          @if (selectedBookingForReview) {
+            <div class="target-tutor">
+              <img [src]="selectedBookingForReview.tutorAvatar" alt="Tutor Avatar" />
+              <h3>{{ selectedBookingForReview.tutorName }}</h3>
+              <p>{{ selectedBookingForReview.subject }}</p>
+            </div>
+
+            <div class="stars-rating-container">
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <span 
+                  class="star-clickable-item" 
+                  [class.star-selected]="star <= currentRating"
+                  (click)="setRating(star); $event.stopPropagation();">
+                  ★
+                </span>
+              }
+            </div>
+
+            <div class="review-actions">
+              <ion-button 
+                expand="block" 
+                class="btn-submit-review"
+                [disabled]="currentRating === 0" 
+                (click)="inviaRecensione()">
+                Invia Recensione
+              </ion-button>
+            </div>
+          }
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="isBioModalOpen" (didDismiss)="chiudiModalBio()" class="bio-modal">
+    <ng-template>
+      <ion-header class="ion-no-border modal-header">
+        <ion-toolbar>
+          <ion-title>Modifica Biografia</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="chiudiModalBio()" class="close-modal-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-bg" scroll-y="false">
+        <div class="bio-modal-body">
+          <textarea 
+            [(ngModel)]="tempBio" 
+            class="bio-textarea" 
+            placeholder="Racconta qualcosa di te, dei tuoi studi o dei tuoi obiettivi...">
+          </textarea>
+          
+          <div class="bio-actions">
+            <ion-button 
+              expand="block" 
+              class="btn-submit-bio" 
+              [disabled]="!tempBio || !tempBio.trim()" 
+              (click)="salvaBio()">
+              Salva Modifiche
+            </ion-button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-action-sheet 
+    [isOpen]="isAvatarActionSheetOpen" 
+    header="Gestisci Foto Profilo"
+    [buttons]="avatarActionSheetButtons" 
+    (didDismiss)="isAvatarActionSheetOpen = false">
+  </ion-action-sheet>
+
 </ion-content>
