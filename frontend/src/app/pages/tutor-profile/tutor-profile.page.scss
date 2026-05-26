@@ -25,7 +25,8 @@
   }
 }
 
-.left-column, .right-column {
+.left-column,
+.right-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -74,7 +75,7 @@
 .inner-profile-section {
   padding: 20px 24px;
   /* Crea un contesto locale per ancorare la tendina in modo assoluto */
-  position: relative; 
+  position: relative;
 }
 
 .card-divider-line {
@@ -97,7 +98,7 @@
   align-items: center;
   gap: 10px;
   color: var(--text-main);
-  
+
   ion-icon {
     font-size: 20px;
     color: var(--primary-color);
@@ -114,30 +115,42 @@
   --color: var(--neutral-color);
   margin: 0;
   font-size: 18px;
-  &:hover { --color: var(--primary-color); }
+  &:hover {
+    --color: var(--primary-color);
+  }
 }
 
 .action-buttons-group {
   display: flex;
   gap: 4px;
-  ion-button { 
-    font-weight: 600; 
-    font-size: 13px; 
-    margin: 0; 
+  ion-button {
+    font-weight: 600;
+    font-size: 13px;
+    margin: 0;
   }
 }
 
-.save-card-btn { --color: var(--primary-color); }
-.static-text-display { font-size: 14px; line-height: 1.6; color: var(--text-main); opacity: 0.85; margin: 0; white-space: pre-wrap; }
+.save-card-btn {
+  --color: var(--primary-color);
+}
+.static-text-display {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main);
+  opacity: 0.85;
+  margin: 0;
+  white-space: pre-wrap;
+}
 
 /* Textarea & Inputs standard */
-.custom-textarea-box, .custom-textarea-box-upload {
+.custom-textarea-box,
+.custom-textarea-box-upload {
   background: var(--input-background);
   border: 1px solid rgba(var(--neutral-color), 0.2);
   border-radius: 12px;
   padding: 12px;
   width: 100%;
-  
+
   textarea {
     width: 100%;
     border: none;
@@ -147,10 +160,14 @@
     font-family: var(--font-family-inter);
     resize: none;
     outline: none;
-    &::placeholder { color: var(--neutral-color); }
+    &::placeholder {
+      color: var(--neutral-color);
+    }
   }
 }
-.custom-textarea-box-upload { margin-bottom: 12px; }
+.custom-textarea-box-upload {
+  margin-bottom: 12px;
+}
 
 .custom-input-box {
   display: flex;
@@ -163,14 +180,22 @@
   margin-bottom: 12px;
   width: 100%;
 
-  &.compact-input { margin-bottom: 0; }
-  .input-inline-icon-cash { color: var(--neutral-color); font-size: 18px; margin-right: 8px; }
+  &.compact-input {
+    margin-bottom: 0;
+  }
+  .input-inline-icon-cash {
+    color: var(--neutral-color);
+    font-size: 18px;
+    margin-right: 8px;
+  }
 
   ion-input {
     --background: transparent !important;
     --color: var(--text-main);
     font-size: 14px;
-    &::part(native) { padding: 0 !important; }
+    &::part(native) {
+      padding: 0 !important;
+    }
   }
 }
 
@@ -204,7 +229,7 @@
     bottom: -2px;
     right: -2px;
     margin: 0;
-    
+
     /* Definiamo le dimensioni reali del pulsante */
     width: 34px;
     height: 34px;
@@ -220,11 +245,11 @@
     --padding-top: 0px !important;
     --padding-bottom: 0px !important;
     --box-shadow: none !important;
-    
+
     /* 2. CREIAMO IL CERCHIO BLU CON IL BORDO BIANCO */
-    background: var(--primary-color) !important; 
+    background: var(--primary-color) !important;
     border-radius: 50% !important;
-    border: 3px solid var(--card-background) !important; 
+    border: 3px solid var(--card-background) !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
     /* 3. CENTRIAMO L'ICONA DELLA FOTOCAMERA */
@@ -241,9 +266,23 @@
   }
 }
 
-.tutor-name { font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0; font-family: var(--font-family-inter); }
-.tutor-role { font-size: 13px; color: var(--neutral-color); margin: 0 0 14px 0; }
-.tutor-stats-display { display: flex; justify-content: center; width: 100%; }
+.tutor-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+  font-family: var(--font-family-inter);
+}
+.tutor-role {
+  font-size: 13px;
+  color: var(--neutral-color);
+  margin: 0 0 14px 0;
+}
+.tutor-stats-display {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
 .stat-block {
   display: flex;
   flex-direction: column;
@@ -255,14 +294,30 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    .star-gold { color: #f59e0b; font-size: 16px; }
+    .star-gold {
+      color: #f59e0b;
+      font-size: 16px;
+    }
   }
-  .stat-label { font-size: 12px; color: var(--neutral-color);}
+  .stat-label {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--neutral-color);
+    margin-left: 2px;
+  }
 }
 
 /* Chip Tag (Materie e Lingue) */
-.tag-selector-container { position: relative; width: 100%; }
-.selected-tags-box { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.tag-selector-container {
+  position: relative;
+  width: 100%;
+}
+.selected-tags-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
 .tag-chip {
   background: rgba(30, 64, 175, 0.08);
   color: var(--primary-color);
@@ -280,7 +335,14 @@
     color: var(--tertiary-color);
     border: 1px solid rgba(var(--tertiary-color), 0.2);
   }
-  ion-icon { font-size: 15px; color: var(--neutral-color); cursor: pointer; &:hover { color: #ef4444; } }
+  ion-icon {
+    font-size: 15px;
+    color: var(--neutral-color);
+    cursor: pointer;
+    &:hover {
+      color: #ef4444;
+    }
+  }
 }
 
 .search-input-wrapper {
@@ -292,8 +354,19 @@
   padding: 0 12px;
   height: 40px;
   margin-top: 10px;
-  .search-inline-icon { color: var(--neutral-color); font-size: 16px; margin-right: 6px; }
-  input { width: 100%; border: none; background: transparent; font-size: 13px; color: var(--text-main); outline: none; }
+  .search-inline-icon {
+    color: var(--neutral-color);
+    font-size: 16px;
+    margin-right: 6px;
+  }
+  input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: var(--text-main);
+    outline: none;
+  }
 }
 
 /* ==========================================
@@ -301,7 +374,7 @@
    ========================================== */
 .search-dropdown-list {
   position: absolute;
-  top: auto; 
+  top: auto;
   left: 0;
   right: 0;
   background: var(--card-background);
@@ -319,20 +392,38 @@
     color: var(--text-main);
     cursor: pointer;
     border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
-    &:hover { background: var(--input-background); }
-    &.close-trigger { color: #ef4444; text-align: center; font-weight: 600; background: rgba(239, 68, 68, 0.05); }
+    &:hover {
+      background: var(--input-background);
+    }
+    &.close-trigger {
+      color: #ef4444;
+      text-align: center;
+      font-weight: 600;
+      background: rgba(239, 68, 68, 0.05);
+    }
   }
 }
 
 /* Sezione Destra: Disponibilità */
-.right-actions-mix { display: flex; align-items: center; gap: 12px; }
+.right-actions-mix {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .price-display-box {
   display: flex;
   align-items: baseline;
   gap: 2px;
   color: var(--text-main);
-  .price-val { font-size: 20px; font-weight: 700; }
-  span { font-size: 13px; font-weight: 500; color: var(--neutral-color); }
+  .price-val {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--neutral-color);
+  }
 }
 .price-edit-box {
   display: flex;
@@ -342,8 +433,21 @@
   padding: 4px 8px;
   border-radius: 8px;
   border: 1px solid rgba(var(--neutral-color), 0.2);
-  input { width: 38px; border: none; background: transparent; font-size: 15px; font-weight: 700; color: var(--primary-color); text-align: right; outline: none; }
-  span { font-size: 12px; font-weight: 600; color: var(--text-main); }
+  input {
+    width: 38px;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: right;
+    outline: none;
+  }
+  span {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
 }
 
 .placeholder-calendar-setup {
@@ -357,13 +461,32 @@
   justify-content: center;
   color: var(--neutral-color);
   gap: 6px;
-  ion-icon { font-size: 28px; }
-  p { margin: 0; font-size: 13px; }
+  ion-icon {
+    font-size: 28px;
+  }
+  p {
+    margin: 0;
+    font-size: 13px;
+  }
 }
 
 /* Sezione Destra: Dispense */
-.dispensa-upload-form { background: rgba(var(--neutral-color), 0.01); border: 1px dashed rgba(var(--neutral-color), 0.25); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
-.form-row-double { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; .custom-input-box { flex: 1; } }
+.dispensa-upload-form {
+  background: rgba(var(--neutral-color), 0.01);
+  border: 1px dashed rgba(var(--neutral-color), 0.25);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.form-row-double {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+  .custom-input-box {
+    flex: 1;
+  }
+}
 .file-mock-btn {
   display: flex;
   align-items: center;
@@ -378,10 +501,28 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  &:hover { opacity: 0.8; }
-  &.upload-main-file { width: 100%; margin-bottom: 12px; border: 1px dashed var(--tertiary-color); color: var(--tertiary-color); background: rgba(var(--tertiary-color), 0.05); }
+  &:hover {
+    opacity: 0.8;
+  }
+  &.upload-main-file {
+    width: 100%;
+    margin-bottom: 12px;
+    border: 1px dashed var(--tertiary-color);
+    color: var(--tertiary-color);
+    background: rgba(var(--tertiary-color), 0.05);
+  }
 }
-.uploaded-dispense-list { margin-top: 20px; border-top: 1px solid rgba(var(--neutral-color), 0.15); padding-top: 16px; h3 { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; } }
+.uploaded-dispense-list {
+  margin-top: 20px;
+  border-top: 1px solid rgba(var(--neutral-color), 0.15);
+  padding-top: 16px;
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+}
 .dispensa-item-card {
   display: flex;
   align-items: center;
@@ -390,10 +531,51 @@
   padding: 12px;
   border-radius: 12px;
   margin-bottom: 10px;
-  .dispensa-cover-preview { width: 44px; height: 44px; background: var(--card-background); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 22px; border: 1px solid rgba(var(--neutral-color), 0.15); }
-  .dispensa-info-preview { flex: 1; h4 { margin: 0 0 2px 0; font-size: 13px; font-weight: 600; color: var(--text-main); } p { margin: 0; font-size: 12px; color: var(--neutral-color); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; } }
-  .dispensa-price-tag { font-size: 13px; font-weight: 700; color: var(--primary-color); }
+  .dispensa-cover-preview {
+    width: 44px;
+    height: 44px;
+    background: var(--card-background);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 22px;
+    border: 1px solid rgba(var(--neutral-color), 0.15);
+  }
+  .dispensa-info-preview {
+    flex: 1;
+    h4 {
+      margin: 0 0 2px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--neutral-color);
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+  .dispensa-price-tag {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
 }
 
-.section-subtitle { font-size: 13px; color: var(--neutral-color); margin: -10px 0 16px 0; }
-.add-dispensa-btn { --background: var(--primary-color); --color: var(--card-background); --border-radius: 10px; margin-top: 4px; }
+.section-subtitle {
+  font-size: 13px;
+  color: var(--neutral-color);
+  margin: -10px 0 16px 0;
+}
+.add-dispensa-btn {
+  --background: var(--primary-color);
+  --color: var(--card-background);
+  --border-radius: 10px;
+  margin-top: 4px;
+}
