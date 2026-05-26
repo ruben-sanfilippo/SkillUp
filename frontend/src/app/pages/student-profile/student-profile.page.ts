@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; 
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { 
@@ -11,13 +12,16 @@ import {
   downloadOutline, 
   chevronForwardOutline,
   createOutline,
-  closeOutline
+  closeOutline,
+  cameraOutline,
+  imageOutline,
+  trashOutline
 } from 'ionicons/icons';
 
 interface StudentData {
   firstName: string;
   lastName: string;
-  avatar: string;
+  avatar: string; 
   about: string;
   sessionsCompleted: number;
   studyHours: number;
@@ -50,24 +54,53 @@ interface Material {
   templateUrl: './student-profile.page.html',
   styleUrls: ['./student-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule] 
 })
 export class StudentProfilePage implements OnInit {
   
   isModalOpen = false;       
   isReviewModalOpen = false; 
+  isBioModalOpen = false;    
+  isAvatarActionSheetOpen = false; // Stato per l'apertura del foglio d'azione dell'avatar
 
   selectedBookingForReview: Booking | null = null;
   currentRating: number = 0; 
+  tempBio: string = '';      
 
   student: StudentData = {
     firstName: 'Alessandro',
     lastName: 'Rossi',
-    avatar: 'https://i.pravatar.cc/150?u=alessandro',
+    avatar: 'https://i.pravatar.cc/150?u=alessandro', // Può essere svuotata ('') per testare il placeholder con le iniziali
     about: 'Appassionato di intelligenza artificiale e machine learning. Attualmente concentrato sullo sviluppo di algoritmi efficienti per l\'analisi dei dati e integrazioni backend.',
     sessionsCompleted: 24,
     studyHours: 112
   };
+
+  // Configurazione dei bottoni dell'Action Sheet per la gestione foto
+  public avatarActionSheetButtons = [
+    {
+      text: 'Carica / Modifica foto',
+      icon: 'image-outline',
+      handler: () => {
+        this.triggerFileInput();
+      }
+    },
+    {
+      text: 'Rimuovi foto',
+      role: 'destructive',
+      icon: 'trash-outline',
+      handler: () => {
+        this.rimuoviAvatar();
+      }
+    },
+    {
+      text: 'Annulla',
+      role: 'cancel',
+      data: {
+        action: 'cancel',
+      },
+    },
+  ];
 
   recentBookings: Booking[] = [
     {
@@ -200,7 +233,10 @@ export class StudentProfilePage implements OnInit {
       downloadOutline,
       chevronForwardOutline,
       createOutline,
-      closeOutline
+      closeOutline,
+      cameraOutline,
+      imageOutline,
+      trashOutline
     });
   }
 
@@ -247,6 +283,78 @@ export class StudentProfilePage implements OnInit {
     }
 
     this.chiudiModalRecensione();
+  }
+
+  /* --- GESTIONE FOTO PROFILO (ADD / MODIFY / DELETE) --- */
+  apriMenuAvatar() {
+    this.isAvatarActionSheetOpen = true;
+  }
+
+  triggerFileInput() {
+    const fileInput = document.getElementById('avatarFileInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  onAvatarSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Aggiorna l'avatar convertendolo in una stringa Base64 per la visualizzazione immediata
+        this.student.avatar = reader.result as string;
+        console.log('Nuova foto profilo caricata con successo!');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  rimuoviAvatar() {
+    this.student.avatar = ''; // Svuotando la stringa, l'HTML mostrerà il segnaposto con le iniziali
+    console.log('Foto profilo rimossa.');
+  }
+
+  /* --- LOGICA MODIFICA BIOGRAFIA --- */
+  apriModalBio() {
+    this.tempBio = this.student.about; 
+    this.isBioModalOpen = true;
+  }
+
+  chiudiModalBio() {
+    this.isBioModalOpen = false;
+    this.tempBio = '';
+  }
+
+  salvaBio() {
+    if (this.tempBio && this.tempBio.trim()) {
+      this.student.about = this.tempBio.trim(); 
+      console.log('Biografia aggiornata con successo!');
+      this.chiudiModalBio();
+    }
+  }
+
+  /* --- LOGICA DOWNLOAD FILE --- */
+  scaricaMateriale(item: Material) {
+    console.log(`Inizio download: ${item.title}`);
+
+    const contenutoMock = `STUDY HUB - FILE ACQUISTATO\n\nTitolo: ${item.title}\nAutore: ${item.author}\nFormato: ${item.fileLabel}\nDimensione: ${item.sizeInMb}\nID Transazione: SEC-${Math.random().toString(36).substr(2, 9).toUpperCase()}\n\nContenuto protetto da licenza utente.`;
+    
+    const estensione = item.type === 'pdf' ? 'pdf' : 'txt';
+    const nomeFile = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
+
+    const blob = new Blob([contenutoMock], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const ancoraDownload = document.createElement('a');
+    ancoraDownload.href = url;
+    ancoraDownload.download = nomeFile;
+    
+    document.body.appendChild(ancoraDownload);
+    ancoraDownload.click();
+    
+    document.body.removeChild(ancoraDownload);
+    window.URL.revokeObjectURL(url);
   }
 
   eseguiAzione(azione: string, id?: string) {

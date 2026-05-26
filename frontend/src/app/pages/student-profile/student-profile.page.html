@@ -7,16 +7,35 @@
           <div class="banner"></div>
           <div class="profile-details">
             <div class="profile-center-group">
-              <div class="avatar-holder">
-                <img [src]="student.avatar" alt="Avatar Studente" />
+              
+              <div class="avatar-container">
+                <div class="avatar-holder">
+                  @if (student.avatar) {
+                    <img [src]="student.avatar" alt="Avatar Studente" />
+                  } @else {
+                    <div class="avatar-placeholder">
+                      {{ student.firstName[0] }}{{ student.lastName[0] }}
+                    </div>
+                  }
+                </div>
+                <button class="avatar-edit-badge" (click)="apriMenuAvatar()" title="Gestisci foto profilo">
+                  <ion-icon name="camera-outline"></ion-icon>
+                </button>
+                <input 
+                  type="file" 
+                  id="avatarFileInput" 
+                  (change)="onAvatarSelected($event)" 
+                  accept="image/*" 
+                  style="display: none;" />
               </div>
+
               <h2 class="name">{{ student.firstName }} {{ student.lastName }}</h2>
             </div>
             <div class="hr"></div>
             <div class="bio">
               <h3>Biografia</h3>
               <p>{{ student.about }}</p>
-              <button class="edit-bio-btn" (click)="eseguiAzione('MODIFICA_BIO')">
+              <button class="edit-bio-btn" (click)="apriModalBio()">
                 <ion-icon name="create-outline"></ion-icon>
                 Modifica biografia
               </button>
@@ -88,7 +107,7 @@
                     <p class="author-name">{{ item.author }}</p>
                     <p class="file-spec">{{ item.fileLabel }} • {{ item.sizeInMb }}</p>
                   </div>
-                  <ion-button fill="clear" class="btn-download" (click)="eseguiAzione('SCARICA_MATERIALE', item.id)">
+                  <ion-button fill="clear" class="btn-download" (click)="scaricaMateriale(item)">
                     <ion-icon name="download-outline" slot="icon-only"></ion-icon>
                   </ion-button>
                 </div>
@@ -195,5 +214,47 @@
       </ion-content>
     </ng-template>
   </ion-modal>
+
+  <ion-modal [isOpen]="isBioModalOpen" (didDismiss)="chiudiModalBio()" class="bio-modal">
+    <ng-template>
+      <ion-header class="ion-no-border modal-header">
+        <ion-toolbar>
+          <ion-title>Modifica Biografia</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="chiudiModalBio()" class="close-modal-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-bg" scroll-y="false">
+        <div class="bio-modal-body">
+          <textarea 
+            [(ngModel)]="tempBio" 
+            class="bio-textarea" 
+            placeholder="Racconta qualcosa di te, dei tuoi studi o dei tuoi obiettivi...">
+          </textarea>
+          
+          <div class="bio-actions">
+            <ion-button 
+              expand="block" 
+              class="btn-submit-bio" 
+              [disabled]="!tempBio || !tempBio.trim()" 
+              (click)="salvaBio()">
+              Salva Modifiche
+            </ion-button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-action-sheet 
+    [isOpen]="isAvatarActionSheetOpen" 
+    header="Gestisci Foto Profilo"
+    [buttons]="avatarActionSheetButtons" 
+    (didDismiss)="isAvatarActionSheetOpen = false">
+  </ion-action-sheet>
 
 </ion-content>

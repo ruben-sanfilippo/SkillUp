@@ -62,7 +62,7 @@
   margin: 28px 0;
 }
 
-/* --- CARD PROFILO --- */
+/* --- CARD PROFILO & AVATAR EDITING --- */
 .profile-card {
   height: 100%;
   position: relative; 
@@ -89,14 +89,21 @@
       text-align: center;
     }
 
-    .avatar-holder {
+    /* Struttura contenitore dell'avatar per posizionare il badge di modifica */
+    .avatar-container {
+      position: relative;
       width: 124px;
       height: 124px;
+      margin-top: -62px; 
+      margin-bottom: 20px;
+    }
+
+    .avatar-holder {
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
       border: 5px solid var(--card-background);
-      margin-top: -62px; 
       overflow: hidden;
-      margin-bottom: 20px;
       background: var(--input-background);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
 
@@ -105,6 +112,51 @@
         height: 100%;
         object-fit: cover;
         display: block;
+      }
+
+      /* Segnaposto grafico quando non è presente nessuna immagine utente */
+      .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
+        color: #FFFFFF;
+        font-family: var(--font-headline);
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+    }
+
+    /* Bottone/badge fluttuante per attivare l'Action Sheet dell'immagine */
+    .avatar-edit-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #FFFFFF;
+      border: 3px solid var(--card-background);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+      padding: 0;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+        background: var(--tertiary-color);
+      }
+
+      ion-icon {
+        font-size: 18px;
       }
     }
 
@@ -147,6 +199,7 @@
         gap: 8px;
         padding: 6px 0;
         cursor: pointer;
+        border: none;
 
         &:hover {
           text-decoration: underline;
@@ -211,6 +264,7 @@
     cursor: pointer;
     padding: 6px 10px;
     border-radius: 8px;
+    border: none;
 
     &:hover {
       background: rgba(30, 64, 175, 0.05);
@@ -535,24 +589,19 @@
   }
 }
 
-/* --- POPUP 2: RECENSIONE (LUMINOSA E PROTETTA DA AUTO-SCURIMENTO) --- */
+/* --- POPUP 2: RECENSIONE --- */
 .review-modal {
   --width: 480px;
   --height: 440px; 
   --border-radius: 24px;
   --box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
 
-  /* Spiegazione tecnica: impostando lo sfondo del backdrop a una tinta semitrasparente 
-     senza forzare il filtro nativo sul web component di Ionic, otteniamo l'effetto desiderato.
-     Scurisce lo storico dietro in modo naturale, ma la modale stessa rimane al 100% della sua luminosità.
-  */
   &::part(backdrop) {
     background: rgba(0, 0, 0, 0.4) !important;
     opacity: 1.0 !important;
-    backdrop-filter: none !important; // Impedisce che il filtro influisca sulla card stessa
+    backdrop-filter: none !important;
   }
 
-  // Garantisce che il contenitore interno mantenga la massima brillantezza cromatica
   &::part(content) {
     background: var(--card-background) !important;
     filter: brightness(1) !important; 
@@ -657,7 +706,75 @@
   }
 }
 
-/* --- REGOLE CONFIGURAZIONE BOTTONI --- */
+/* --- POPUP 3: MODIFICA BIOGRAFIA --- */
+.bio-modal {
+  --width: 540px;
+  --height: 340px; 
+  --border-radius: 24px;
+  --box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+
+  &::part(backdrop) {
+    background-color: #000000 !important;
+    opacity: 0.45 !important;
+  }
+
+  @media (max-width: 560px) {
+    --width: 100%;
+    --height: 100%;
+    --border-radius: 0px;
+  }
+
+  .bio-modal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+    height: 100%;
+
+    .bio-textarea {
+      width: 100%;
+      height: 160px; 
+      border: 1.5px solid var(--input-background);
+      background: var(--app-background);
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 16px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: var(--primary-color);
+      }
+    }
+
+    .bio-actions {
+      width: 100%;
+
+      .btn-submit-bio {
+        --background: var(--primary-color);
+        --color: #FFFFFF;
+        --border-radius: 14px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        height: 50px;
+        font-size: 1rem;
+        margin: 0;
+        width: 100%;
+
+        &[disabled] {
+          opacity: 0.4;
+        }
+      }
+    }
+  }
+}
+
+/* --- CONFIGURAZIONI AGGIUNTIVE BOTTONI --- */
 ion-button {
   text-transform: none;
   font-family: var(--font-body);
