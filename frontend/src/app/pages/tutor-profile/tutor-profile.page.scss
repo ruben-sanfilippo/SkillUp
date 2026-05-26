@@ -11,7 +11,6 @@
   justify-content: center;
 }
 
-/* Layout Grid responsivo: 1 colonna su mobile, 2 colonne da Desktop (min-width: 992px) */
 .profile-grid-layout {
   display: grid;
   grid-template-columns: 1fr;
@@ -22,321 +21,367 @@
 
 @media (min-width: 992px) {
   .profile-grid-layout {
-    grid-template-columns: 380px 1fr; /* Rispetta le proporzioni dell'immagine caricata */
+    grid-template-columns: 380px 1fr;
   }
 }
 
-/* Stili contenitori generici delle sezioni */
-.left-column,
-.right-column {
+.left-column, .right-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.profile-card-edit,
-.info-section-card,
+/* Card Standard Colonna Destra */
 .management-card {
-  background: var(--card-background, #ffffff);
+  background: var(--card-background);
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(var(--neutral-color), 0.15);
 }
 
-.profile-card-edit {
+/* ==========================================
+   CARD UNIFICATA (FOTO + BIO + MATERIE + LINGUE)
+   ========================================== */
+.main-profile-card {
+  background: var(--card-background);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(var(--neutral-color), 0.15);
+  display: flex;
+  flex-direction: column;
+  /* Rimossa l'altezza massima o l'overflow hidden per far evadere la tendina */
+}
+
+.profile-banner-top {
+  height: 100px;
+  background: var(--primary-color);
+  width: 100%;
+  /* L'arrotondamento viene gestito qui per mantenere gli angoli superiori puliti */
+  border-top-left-radius: 19px;
+  border-top-right-radius: 19px;
+}
+
+.profile-identity-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding: 0 24px 20px 24px;
+  margin-top: -55px;
 }
 
-/* Avatar circolare con overlay per scattare/cambiare foto */
-.avatar-container {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin-bottom: 16px;
-
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: var(--input-background);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--neutral-color);
-    font-size: 48px;
-    border: 2px solid var(--primary-color);
-  }
-
-  .change-avatar-btn {
-    position: absolute;
-    bottom: -4px;
-    right: -4px;
-    background: var(--primary-color);
-    color: #ffffff;
-    border-radius: 50%;
-    margin: 0;
-    height: 36px;
-    width: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-  }
+.inner-profile-section {
+  padding: 20px 24px;
+  /* Crea un contesto locale per ancorare la tendina in modo assoluto */
+  position: relative; 
 }
 
-.tutor-name {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin: 0 0 4px 0;
+.card-divider-line {
+  height: 1px;
+  background: rgba(var(--neutral-color), 0.12);
+  margin: 0 24px;
 }
 
-.tutor-role {
-  font-size: 14px;
-  color: var(--neutral-color);
-  margin: 0 0 12px 0;
-}
-
-/* Box della media recensioni in sola lettura */
-.rating-summary-box {
+/* Allineamento Header Elementi Interni */
+.section-header-inline {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 20px;
-  padding: 10px 16px;
-  background: rgba(var(--primary-color-rgb, 0), 0.03);
-  border-radius: 12px;
+  justify-content: space-between;
   width: 100%;
-  box-sizing: border-box;
-
-  .stars-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #f59e0b; /* Colore oro per la stella */
-    font-size: 20px;
-
-    ion-icon {
-      font-size: 22px;
-    }
-  }
-
-  .rating-value {
-    font-weight: 700;
-    color: var(--text-main);
-    font-size: 18px;
-  }
-
-  .reviews-count {
-    font-size: 13px;
-    color: var(--neutral-color);
-    font-weight: 500;
-  }
+  margin-bottom: 14px;
 }
 
-/* Intestazioni delle sezioni */
 .section-title-box {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: var(--text-main);
-  margin-bottom: 16px;
-
+  
   ion-icon {
     font-size: 20px;
     color: var(--primary-color);
   }
   h3 {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     margin: 0;
+    font-family: var(--font-family-inter);
   }
 }
 
-.header-inline {
+.edit-icon-btn {
+  --color: var(--neutral-color);
+  margin: 0;
+  font-size: 18px;
+  &:hover { --color: var(--primary-color); }
+}
+
+.action-buttons-group {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  h2 {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-main);
-    margin: 0;
+  gap: 4px;
+  ion-button { 
+    font-weight: 600; 
+    font-size: 13px; 
+    margin: 0; 
   }
 }
 
-.section-subtitle {
-  font-size: 14px;
-  color: var(--neutral-color);
-  margin: 0 0 20px 0;
-}
+.save-card-btn { --color: var(--primary-color); }
+.static-text-display { font-size: 14px; line-height: 1.6; color: var(--text-main); opacity: 0.85; margin: 0; white-space: pre-wrap; }
 
-/* Modifica del prezzo orario */
-.price-edit-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* Textarea & Inputs standard */
+.custom-textarea-box, .custom-textarea-box-upload {
   background: var(--input-background);
-  padding: 8px 12px;
-  border-radius: 10px;
-
-  input {
-    width: 50px;
-    border: none;
-    background: transparent;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--primary-color);
-    text-align: right;
-    outline: none;
-  }
-  span {
-    font-size: 14px;
-    color: var(--text-main);
-    font-weight: 500;
-  }
-}
-
-/* Box di Input e Textarea personalizzati riutilizzabili */
-.custom-input-box {
-  display: flex;
-  align-items: center;
-  background: var(--input-background);
+  border: 1px solid rgba(var(--neutral-color), 0.2);
   border-radius: 12px;
-  padding: 0 16px;
-  height: 50px;
+  padding: 12px;
   width: 100%;
-  margin-bottom: 12px;
-  box-sizing: border-box;
-
-  .input-icon {
-    color: var(--neutral-color);
-    font-size: 20px;
-    margin-right: 10px;
-    flex-shrink: 0;
-  }
-  ion-input {
-    --background: transparent !important;
-    --color: var(--text-main);
-    --placeholder-color: var(--neutral-color);
-    font-size: 14px;
-    height: 100%;
-    &::part(native) {
-      background: transparent !important;
-      border: none !important;
-      outline: none !important;
-      padding: 0 !important;
-    }
-  }
-}
-
-.custom-textarea-box {
-  background: var(--input-background);
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  box-sizing: border-box;
-
+  
   textarea {
     width: 100%;
     border: none;
     background: transparent;
     color: var(--text-main);
     font-size: 14px;
-    font-family: inherit;
+    font-family: var(--font-family-inter);
     resize: none;
     outline: none;
-    &::placeholder {
-      color: var(--neutral-color);
+    &::placeholder { color: var(--neutral-color); }
+  }
+}
+.custom-textarea-box-upload { margin-bottom: 12px; }
+
+.custom-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--input-background);
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 48px;
+  margin-bottom: 12px;
+  width: 100%;
+
+  &.compact-input { margin-bottom: 0; }
+  .input-inline-icon-cash { color: var(--neutral-color); font-size: 18px; margin-right: 8px; }
+
+  ion-input {
+    --background: transparent !important;
+    --color: var(--text-main);
+    font-size: 14px;
+    &::part(native) { padding: 0 !important; }
+  }
+}
+
+/* Avatar e placeholder */
+/* Avatar e pulsante fotocamera */
+.avatar-container {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin-bottom: 12px;
+
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--card-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-color);
+    font-size: 44px;
+    border: 3px solid var(--card-background);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Se usi un tag <img> dentro, non uscirà dai bordi */
+    position: relative;
+    z-index: 1;
+  }
+
+  .change-avatar-btn {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    margin: 0;
+    
+    /* Definiamo le dimensioni reali del pulsante */
+    width: 34px;
+    height: 34px;
+    z-index: 2;
+
+    /* 1. AZZERIAMO LO SHADOW DOM DI IONIC */
+    --background: transparent !important;
+    --background-activated: transparent !important;
+    --background-focused: transparent !important;
+    --background-hover: transparent !important;
+    --padding-start: 0px !important;
+    --padding-end: 0px !important;
+    --padding-top: 0px !important;
+    --padding-bottom: 0px !important;
+    --box-shadow: none !important;
+    
+    /* 2. CREIAMO IL CERCHIO BLU CON IL BORDO BIANCO */
+    background: var(--primary-color) !important; 
+    border-radius: 50% !important;
+    border: 3px solid var(--card-background) !important; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    /* 3. CENTRIAMO L'ICONA DELLA FOTOCAMERA */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    ion-icon {
+      font-size: 14px;
+      color: var(--card-background);
+      margin: 0;
+      padding: 0;
     }
   }
 }
 
-/* Sottosezione per il caricamento delle dispense */
-.dispensa-upload-form {
-  background: rgba(0, 0, 0, 0.01);
-  border: 1px dashed rgba(0, 0, 0, 0.08);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 24px;
-}
-
-.form-row-double {
+.tutor-name { font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0; font-family: var(--font-family-inter); }
+.tutor-role { font-size: 13px; color: var(--neutral-color); margin: 0 0 14px 0; }
+.tutor-stats-display { display: flex; justify-content: center; width: 100%; }
+.stat-block {
   display: flex;
-  gap: 12px;
-  .custom-input-box {
-    flex: 1;
+  flex-direction: column;
+  align-items: center;
+  .stat-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    .star-gold { color: #f59e0b; font-size: 16px; }
   }
+  .stat-label { font-size: 12px; color: var(--neutral-color);}
 }
 
-/* Pulsanti per caricamento File */
-.file-mock-btn {
+/* Chip Tag (Materie e Lingue) */
+.tag-selector-container { position: relative; width: 100%; }
+.selected-tags-box { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.tag-chip {
+  background: rgba(30, 64, 175, 0.08);
+  color: var(--primary-color);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  border: 1px solid rgba(var(--primary-color), 0.2);
+
+  &.lang-chip {
+    background: rgba(3, 105, 161, 0.08);
+    color: var(--tertiary-color);
+    border: 1px solid rgba(var(--tertiary-color), 0.2);
+  }
+  ion-icon { font-size: 15px; color: var(--neutral-color); cursor: pointer; &:hover { color: #ef4444; } }
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
   background: var(--input-background);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(var(--neutral-color), 0.2);
   border-radius: 12px;
-  height: 50px;
-  padding: 0 16px;
+  padding: 0 12px;
+  height: 40px;
+  margin-top: 10px;
+  .search-inline-icon { color: var(--neutral-color); font-size: 16px; margin-right: 6px; }
+  input { width: 100%; border: none; background: transparent; font-size: 13px; color: var(--text-main); outline: none; }
+}
+
+/* ==========================================
+   DROPDOWN TENDINA DI RICERCA (SOPRA TUTTO)
+   ========================================== */
+.search-dropdown-list {
+  position: absolute;
+  top: auto; 
+  left: 0;
+  right: 0;
+  background: var(--card-background);
+  border: 1px solid rgba(var(--neutral-color), 0.25);
+  border-radius: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 999; /* Passa sopra linee e testi sottostanti */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+
+  .dropdown-item {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-main);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
+    &:hover { background: var(--input-background); }
+    &.close-trigger { color: #ef4444; text-align: center; font-weight: 600; background: rgba(239, 68, 68, 0.05); }
+  }
+}
+
+/* Sezione Destra: Disponibilità */
+.right-actions-mix { display: flex; align-items: center; gap: 12px; }
+.price-display-box {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
   color: var(--text-main);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.04);
-  }
-
-  &.upload-main-file {
-    width: 100%;
-    margin-bottom: 12px;
-    border: 1px dashed var(--secondary-color);
-    color: var(--secondary-color);
-    background: rgba(var(--secondary-color-rgb), 0.05);
-  }
+  .price-val { font-size: 20px; font-weight: 700; }
+  span { font-size: 13px; font-weight: 500; color: var(--neutral-color); }
+}
+.price-edit-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--input-background);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  input { width: 38px; border: none; background: transparent; font-size: 15px; font-weight: 700; color: var(--primary-color); text-align: right; outline: none; }
+  span { font-size: 12px; font-weight: 600; color: var(--text-main); }
 }
 
 .placeholder-calendar-setup {
-  height: 180px;
+  height: 140px;
   background: var(--input-background);
+  border: 1px dashed rgba(var(--neutral-color), 0.3);
   border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: var(--neutral-color);
+  gap: 6px;
+  ion-icon { font-size: 28px; }
+  p { margin: 0; font-size: 13px; }
+}
+
+/* Sezione Destra: Dispense */
+.dispensa-upload-form { background: rgba(var(--neutral-color), 0.01); border: 1px dashed rgba(var(--neutral-color), 0.25); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
+.form-row-double { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; .custom-input-box { flex: 1; } }
+.file-mock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
-  ion-icon {
-    font-size: 32px;
-  }
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
+  background: var(--input-background);
+  border: 1px solid rgba(var(--neutral-color), 0.15);
+  border-radius: 12px;
+  height: 48px;
+  padding: 0 16px;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  &:hover { opacity: 0.8; }
+  &.upload-main-file { width: 100%; margin-bottom: 12px; border: 1px dashed var(--tertiary-color); color: var(--tertiary-color); background: rgba(var(--tertiary-color), 0.05); }
 }
-
-/* Lista delle dispense caricate */
-.uploaded-dispense-list {
-  margin-top: 20px;
-  h3 {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-main);
-    margin-bottom: 12px;
-  }
-}
-
+.uploaded-dispense-list { margin-top: 20px; border-top: 1px solid rgba(var(--neutral-color), 0.15); padding-top: 16px; h3 { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; } }
 .dispensa-item-card {
   display: flex;
   align-items: center;
@@ -345,58 +390,10 @@
   padding: 12px;
   border-radius: 12px;
   margin-bottom: 10px;
-
-  .dispensa-cover-preview {
-    width: 48px;
-    height: 48px;
-    background: var(--card-background);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-color);
-    font-size: 24px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  .dispensa-info-preview {
-    flex: 1;
-    h4 {
-      margin: 0 0 2px 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-    p {
-      margin: 0;
-      font-size: 12px;
-      color: var(--neutral-color);
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  }
-
-  .dispensa-price-tag {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--success-color, #10b981);
-  }
+  .dispensa-cover-preview { width: 44px; height: 44px; background: var(--card-background); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 22px; border: 1px solid rgba(var(--neutral-color), 0.15); }
+  .dispensa-info-preview { flex: 1; h4 { margin: 0 0 2px 0; font-size: 13px; font-weight: 600; color: var(--text-main); } p { margin: 0; font-size: 12px; color: var(--neutral-color); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; } }
+  .dispensa-price-tag { font-size: 13px; font-weight: 700; color: var(--primary-color); }
 }
 
-/* Pulsanti principali azione */
-.add-dispensa-btn {
-  --background: var(--secondary-color);
-  --border-radius: 10px;
-  margin: 8px 0 0 0;
-}
-
-.save-profile-btn {
-  --background: var(--primary-color);
-  --border-radius: 12px;
-  height: 52px;
-  font-size: 16px;
-  font-weight: 600;
-  margin-top: 10px;
-}
+.section-subtitle { font-size: 13px; color: var(--neutral-color); margin: -10px 0 16px 0; }
+.add-dispensa-btn { --background: var(--primary-color); --color: var(--card-background); --border-radius: 10px; margin-top: 4px; }

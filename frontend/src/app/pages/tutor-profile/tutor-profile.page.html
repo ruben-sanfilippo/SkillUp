@@ -1,92 +1,203 @@
 <ion-content class="register-content">
   <div class="responsive-container">
     <div class="profile-grid-layout">
+      
       <div class="left-column">
-        <div class="profile-card-edit">
-          <div class="avatar-container">
-            <div class="avatar-placeholder">
-              <ion-icon name="person-outline"></ion-icon>
+        
+        <div class="main-profile-card">
+          <div class="profile-banner-top"></div>
+
+          <div class="profile-identity-block">
+            <div class="avatar-container">
+              <div class="avatar-placeholder">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+              <ion-button size="small" fill="clear" class="change-avatar-btn" (click)="selezionaAvatar()">
+                <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+              </ion-button>
             </div>
-            <button class="change-avatar-btn">
-              <ion-icon name="camera-outline"></ion-icon>
-            </button>
-          </div>
 
-          <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
-          <p class="tutor-role">Tutor SkillUp</p>
+            <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
+            <p class="tutor-role">Tutor</p>
 
-          <div class="rating-summary-box">
-            <div class="stars-row">
-              <ion-icon name="star"></ion-icon>
-              <span class="rating-value">{{ mediaRecensioni }}</span>
+            <div class="tutor-stats-display">
+              <div class="stat-block">
+                <span class="stat-number">
+                  <ion-icon name="star" class="star-gold"></ion-icon> {{ mediaRecensioni }} <span class="stat-label">({{ numeroRecensioni }})</span>
+                </span>
+              </div>
             </div>
-            <span class="reviews-count"
-              >({{ totaleRecensioni }} recensioni degli studenti)</span
-            >
           </div>
 
-          <div class="custom-input-box">
-            <ion-icon name="briefcase-outline" class="input-icon"></ion-icon>
-            <ion-input
-              type="text"
-              mode="ios"
-              placeholder="Specializzazione (es. Matematica & Fisica)"
-              [(ngModel)]="specializzazione"
-            ></ion-input>
+          <div class="card-divider-line"></div>
+
+          <div class="inner-profile-section">
+            <div class="section-header-inline">
+              <div class="section-title-box">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <h3>Biografia</h3>
+              </div>
+              
+              @if (!isEditingBiografia) {
+                <ion-button fill="clear" size="small" class="edit-icon-btn" (click)="isEditingBiografia = true">
+                  <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                </ion-button>
+              } @else {
+                <div class="action-buttons-group">
+                  <ion-button fill="clear" size="small" color="medium" (click)="annullaModifica('biografia')">Annulla</ion-button>
+                  <ion-button fill="clear" size="small" class="save-card-btn" (click)="salvaSezione('biografia')">Salva</ion-button>
+                </div>
+              }
+            </div>
+
+            @if (!isEditingBiografia) {
+              <p class="static-text-display">{{ biografia || 'Racconta qualcosa di te...' }}</p>
+            } @else {
+              <div class="custom-textarea-box">
+                <textarea rows="4" placeholder="Il tuo metodo di insegnamento..." [(ngModel)]="biografiaTmp"></textarea>
+              </div>
+            }
           </div>
+
+          <div class="card-divider-line"></div>
+
+          <div class="inner-profile-section">
+            <div class="section-header-inline">
+              <div class="section-title-box">
+                <ion-icon name="library-outline"></ion-icon>
+                <h3>Materie insegnate</h3>
+              </div>
+              
+              @if (!isEditingMaterie) {
+                <ion-button fill="clear" size="small" class="edit-icon-btn" (click)="attivaModificaMaterie()">
+                  <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                </ion-button>
+              } @else {
+                <div class="action-buttons-group">
+                  <ion-button fill="clear" size="small" color="medium" (click)="annullaModifica('materie')">Annulla</ion-button>
+                  <ion-button fill="clear" size="small" class="save-card-btn" (click)="salvaSezione('materie')">Salva</ion-button>
+                </div>
+              }
+            </div>
+
+            <div class="tag-selector-container">
+              <div class="selected-tags-box">
+                @for (m of (isEditingMaterie ? materieSelezionateTmp : materieSelezionate); track m) {
+                  <span class="tag-chip">
+                    {{ m }} 
+                    @if (isEditingMaterie) {
+                      <ion-icon name="close-circle" (click)="rimuoviMateria(m)"></ion-icon>
+                    }
+                  </span>
+                }
+              </div>
+              
+              @if (isEditingMaterie) {
+                <div class="search-input-wrapper">
+                  <ion-icon name="search-outline" class="search-inline-icon"></ion-icon>
+                  <input type="text" placeholder="Cerca o aggiungi materia..." (input)="filtraMaterie($event)" (focus)="mostraListaMaterie = true" />
+                </div>
+
+                @if (mostraListaMaterie) {
+                  <div class="search-dropdown-list">
+                    @for (materia of materieFiltrate; track materia) {
+                      <div class="dropdown-item" (click)="aggiungiMateria(materia)">{{ materia }}</div>
+                    }
+                    <div class="dropdown-item close-trigger" (click)="mostraListaMaterie = false">Chiudi elenco ×</div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <div class="card-divider-line"></div>
+
+          <div class="inner-profile-section">
+            <div class="section-header-inline">
+              <div class="section-title-box">
+                <ion-icon name="globe-outline"></ion-icon>
+                <h3>Lingue Parlate</h3>
+              </div>
+              
+              @if (!isEditingLingue) {
+                <ion-button fill="clear" size="small" class="edit-icon-btn" (click)="attivaModificaLingue()">
+                  <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                </ion-button>
+              } @else {
+                <div class="action-buttons-group">
+                  <ion-button fill="clear" size="small" color="medium" (click)="annullaModifica('lingue')">Annulla</ion-button>
+                  <ion-button fill="clear" size="small" class="save-card-btn" (click)="salvaSezione('lingue')">Salva</ion-button>
+                </div>
+              }
+            </div>
+
+            <div class="tag-selector-container">
+              <div class="selected-tags-box">
+                @for (l of (isEditingLingue ? lingueSelezionateTmp : lingueSelezionate); track l) {
+                  <span class="tag-chip lang-chip">
+                    {{ l }} 
+                    @if (isEditingLingue) {
+                      <ion-icon name="close-circle" (click)="rimuoviLingua(l)"></ion-icon>
+                    }
+                  </span>
+                }
+              </div>
+
+              @if (isEditingLingue) {
+                <div class="search-input-wrapper">
+                  <ion-icon name="search-outline" class="search-inline-icon"></ion-icon>
+                  <input type="text" placeholder="Cerca o aggiungi lingua..." (input)="filtraLingue($event)" (focus)="mostraListaLingue = true" />
+                </div>
+
+                @if (mostraListaLingue) {
+                  <div class="search-dropdown-list">
+                    @for (lingua of lingueFiltrate; track lingua) {
+                      <div class="dropdown-item" (click)="aggiungiLingua(lingua)">{{ lingua }}</div>
+                    }
+                    <div class="dropdown-item close-trigger" (click)="mostraListaLingue = false">Chiudi elenco ×</div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
         </div>
 
-        <div class="info-section-card">
-          <div class="section-title-box">
-            <ion-icon name="document-text-outline"></ion-icon>
-            <h3>Su di me</h3>
-          </div>
-          <div class="custom-textarea-box">
-            <textarea
-              rows="5"
-              placeholder="Racconta la tua esperienza e il tuo metodo di insegnamento..."
-              [(ngModel)]="biografia"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="info-section-card">
-          <div class="section-title-box">
-            <ion-icon name="globe-outline"></ion-icon>
-            <h3>Dettagli</h3>
-          </div>
-          <div class="custom-input-box">
-            <ion-input
-              mode="ios"
-              placeholder="Lingue parlate"
-              [(ngModel)]="lingue"
-            ></ion-input>
-          </div>
-          <div class="custom-input-box">
-            <ion-icon name="location-outline" class="input-icon"></ion-icon>
-            <ion-input
-              mode="ios"
-              placeholder="Città (es. Milano, Italia)"
-              [(ngModel)]="posizione"
-            ></ion-input>
-          </div>
-        </div>
       </div>
 
       <div class="right-column">
+        
         <div class="management-card">
-          <div class="header-inline">
-            <h2>Imposta Disponibilità</h2>
-            <div class="price-edit-box">
-              <input type="number" [(ngModel)]="prezzoOrario" />
-              <span>€ / ora</span>
+          <div class="section-header-inline">
+            <div class="section-title-box">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <h3>Disponibilità</h3>
             </div>
+            
+            @if (!isEditingDisponibilita) {
+              <div class="right-actions-mix">
+                <div class="price-display-box">
+                  <span class="price-val">{{ prezzoOrario }}</span> <span>€/h</span>
+                </div>
+                <ion-button fill="clear" size="small" class="edit-icon-btn" (click)="isEditingDisponibilita = true">
+                  <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                </ion-button>
+              </div>
+            } @else {
+              <div class="right-actions-mix">
+                <div class="price-edit-box">
+                  <input type="number" [(ngModel)]="prezzoOrarioTmp" />
+                  <span>€/h</span>
+                </div>
+                <div class="action-buttons-group">
+                  <ion-button fill="clear" size="small" color="medium" (click)="annullaModifica('disponibilita')">Annulla</ion-button>
+                  <ion-button fill="clear" size="small" class="save-card-btn" (click)="salvaSezione('disponibilita')">Salva</ion-button>
+                </div>
+              </div>
+            }
           </div>
-          <p class="section-subtitle">
-            Seleziona i giorni e le fasce orarie in cui sei disponibile per le
-            lezioni.
-          </p>
-
+          <p class="section-subtitle">Seleziona i giorni e le fasce orarie in cui sei disponibile per le lezioni.</p>
+          
           <div class="placeholder-calendar-setup">
             <ion-icon name="calendar-outline"></ion-icon>
             <p>Configurazione Orari Settimanali</p>
@@ -94,93 +205,67 @@
         </div>
 
         <div class="management-card">
-          <h2>Le tue Dispense dello Studente</h2>
-          <p class="section-subtitle">
-            Carica dispense, appunti o eserciziari da mettere in vendita per gli
-            studenti.
-          </p>
+          <div class="section-header-inline">
+            <div class="section-title-box">
+              <ion-icon name="folder-open-outline"></ion-icon>
+              <h3>Le tue dispense</h3>
+            </div>
+          </div>
+          <p class="section-subtitle">Carica dispense, appunti o eserciziari da mettere in vendita per gli studenti.</p>
 
           <div class="dispensa-upload-form">
             <div class="custom-input-box">
-              <ion-input
-                mode="ios"
-                placeholder="Titolo della dispensa"
-                [(ngModel)]="nuovaDispensa.titolo"
-              ></ion-input>
+              <ion-input mode="ios" placeholder="Titolo della dispensa" [(ngModel)]="nuovaDispensa.titolo"></ion-input>
             </div>
 
-            <div class="custom-textarea-box">
-              <textarea
-                rows="3"
-                placeholder="Descrizione del contenuto della dispensa..."
-                [(ngModel)]="nuovaDispensa.descrizione"
-              ></textarea>
+            <div class="custom-textarea-box-upload">
+              <textarea rows="3" placeholder="Descrizione del contenuto della dispensa..." [(ngModel)]="nuovaDispensa.descrizione"></textarea>
             </div>
 
             <div class="form-row-double">
-              <div class="custom-input-box">
-                <ion-icon name="cash-outline" class="input-icon"></ion-icon>
-                <ion-input
-                  type="number"
-                  mode="ios"
-                  placeholder="Prezzo (€)"
-                  [(ngModel)]="nuovaDispensa.prezzo"
-                ></ion-input>
+              <div class="custom-input-box compact-input">
+                <ion-icon name="cash-outline" class="input-inline-icon-cash"></ion-icon>
+                <ion-input type="number" mode="ios" placeholder="Prezzo (€)" [(ngModel)]="nuovaDispensa.prezzo"></ion-input>
               </div>
-
+              
               <button class="file-mock-btn" (click)="selezionaCopertina()">
                 <ion-icon name="image-outline"></ion-icon>
                 <span>Copertina</span>
               </button>
             </div>
 
-            <button
-              class="file-mock-btn upload-main-file"
-              (click)="selezionaFile()"
-            >
+            <button class="file-mock-btn upload-main-file" (click)="selezionaFile()">
               <ion-icon name="cloud-upload-outline"></ion-icon>
               <span>Carica il File (PDF, ZIP)</span>
             </button>
 
-            <ion-button
-              expand="block"
-              class="add-dispensa-btn"
-              (click)="aggiungiDispensa()"
-            >
+            <ion-button expand="block" class="add-dispensa-btn" (click)="aggiungiDispensa()">
               Pubblica Dispensa
               <ion-icon slot="end" name="add-circle-outline"></ion-icon>
             </ion-button>
           </div>
 
           @if (listaDispense.length > 0) {
-          <div class="uploaded-dispense-list">
-            <h3>Dispense Pubblicate ({{ listaDispense.length }})</h3>
-
-            @for (dispensa of listaDispense; track dispensa.titolo) {
-            <div class="dispensa-item-card">
-              <div class="dispensa-cover-preview">
-                <ion-icon name="document-outline"></ion-icon>
-              </div>
-              <div class="dispensa-info-preview">
-                <h4>{{ dispensa.titolo }}</h4>
-                <p>{{ dispensa.descrizione }}</p>
-                <span class="dispensa-price-tag">€{{ dispensa.prezzo }}</span>
-              </div>
+            <div class="uploaded-dispense-list">
+              <h3>Dispense Pubblicate ({{ listaDispense.length }})</h3>
+              @for (dispensa of listaDispense; track dispensa.titolo) {
+                <div class="dispensa-item-card">
+                  <div class="dispensa-cover-preview">
+                    <ion-icon name="document-outline"></ion-icon>
+                  </div>
+                  <div class="dispensa-info-preview">
+                    <h4>{{ dispensa.titolo }}</h4>
+                    <p>{{ dispensa.descrizione || 'Nessuna descrizione.' }}</p>
+                    <span class="dispensa-price-tag">€{{ dispensa.prezzo }}</span>
+                  </div>
+                </div>
+              }
             </div>
-            }
-          </div>
           }
         </div>
 
-        <ion-button
-          expand="block"
-          class="save-profile-btn"
-          (click)="salvaProfilo()"
-        >
-          Salva Tutte le Modifiche
-          <ion-icon slot="end" name="save-outline"></ion-icon>
-        </ion-button>
       </div>
+
     </div>
   </div>
 </ion-content>
