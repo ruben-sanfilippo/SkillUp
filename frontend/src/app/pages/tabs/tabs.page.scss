@@ -2,7 +2,6 @@
   --background: var(--app-background);
   --color: var(--neutral-color);
   --color-selected: var(--primary-color);
-
   display: flex;
   width: 100%;
 }
@@ -34,7 +33,6 @@
     align-items: center;
     border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
 
-    // Assicuriamoci che non occupi tutto lo spazio in verticale se non serve
     --min-height: 64px;
   }
 
@@ -55,7 +53,6 @@
     gap: 40px;
     height: 100%;
 
-    // --- Forziamo l'allineamento dentro Ionic solo su desktop ---
     ::ng-deep ion-tab-button {
       flex: 0 1 auto; // Impedisce ai bottoni di stirarsi
       min-width: auto;
@@ -98,5 +95,17 @@
   display: none;
   @media (min-width: 1025px) {
     display: flex;
+  }
+}
+
+@media (min-width: 1025px) {
+  /*mi serve per non permettere alla pagina dentro le tabs di sovrapporsi alle tabs*/
+  :host ::ng-deep ion-tabs ion-router-outlet > .ion-page {
+    top: 64px !important;
+    height: calc(100% - 64px) !important;
+  }
+
+  .responsive-tab-bar {
+    border-bottom: 1px solid var(--neutral-color) !important;
   }
 }
