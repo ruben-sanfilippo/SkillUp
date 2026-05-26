@@ -10,10 +10,8 @@
   flex-direction: column;
   height: 100%;
 
-  /* Indica visivamente che l'elemento è interattivo e cliccabile */
   cursor: pointer;
 
-  /* Transizione fluida e pulita per l'effetto 3D */
   transition:
     transform 0.3s ease-out,
     box-shadow 0.3s ease-out;
@@ -33,7 +31,7 @@
 
     .avatar-container {
       position: relative;
-      flex-shrink: 0; /* Impedisce all'immagine di schiacciarsi */
+      flex-shrink: 0;
       img {
         width: 64px;
         height: 64px;
@@ -42,43 +40,23 @@
       }
     }
 
-    /* AGGIUNTA: Contenitore flessibile per i badge delle materie */
     .subjects-container {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      justify-content: flex-end; /* Allinea i badge a destra */
-      max-width: 65%; /* Lascia spazio all'avatar */
+      justify-content: flex-end;
+      max-width: 65%;
     }
 
     .subject-badge {
       background: var(--primary-color);
       color: white;
-      padding: 4px 10px; /* Leggermente ridotto per farne entrare di più */
+      padding: 4px 10px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
       text-align: center;
-      white-space: nowrap; /* Evita che il testo della materia vada a capo a metà parola */
-    }
-
-    .languages-box {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-
-    .card-lang-badge {
-      background: rgba(3, 105, 161, 0.08); /* Sfondo azzurro trasparente */
-      color: var(
-        --tertiary-color
-      ); /* Testo azzurro dinamico che si adatta al tema */
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      border: 1px solid rgba(var(--tertiary-color), 0.15);
+      white-space: nowrap;
     }
   }
 
@@ -87,6 +65,23 @@
     font-size: 18px;
     font-weight: 700;
     color: var(--text-main);
+  }
+
+  .languages-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .card-lang-badge {
+    background: rgba(3, 105, 161, 0.08);
+    color: var(--tertiary-color);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(var(--tertiary-color), 0.15);
   }
 
   .tutor-bio {
@@ -102,7 +97,7 @@
     border-top: 1px solid #e2e8f0;
     padding-top: 16px;
     display: flex;
-    justify-content: space-between; /* Spinge i due figli ai lati opposti */
+    justify-content: space-between;
     align-items: center;
 
     .rating {

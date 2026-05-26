@@ -2,53 +2,155 @@
   --background: var(--app-background);
 }
 
-.page-container {
-  max-width: 1400px;
+.content-wrapper {
+  max-width: 1560px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 50px 40px;
+  @media (max-width: 1024px) {
+    padding: 30px 20px;
+  }
 }
 
-.filters-panel {
-  background: var(--card-background);
-  border-radius: 16px;
-  padding: 30px 24px;
-  border: 1px solid rgba(128, 128, 128, 0.2);
-  margin-bottom: 24px;
+.dashboard-layout {
+  display: flex;
+  gap: 44px;
+  align-items: stretch;
+  width: 100%;
 
-  .filters-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    gap: 32px;
+  }
+}
 
-    h2 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--primary-color);
-    }
+.profile-sidebar {
+  flex: 0 0 440px;
+  width: 440px;
 
-    .clear-btn {
-      background: none;
-      border: none;
-      color: var(--tertiary-color);
-      font-weight: 600;
-      cursor: pointer;
-    }
+  @media (max-width: 1300px) {
+    flex: 0 0 380px;
+    width: 380px;
   }
 
-  .filter-group {
-    margin-bottom: 28px;
+  @media (max-width: 1024px) {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
 
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 14px;
-      color: var(--text-main);
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+/* Regole per sincronizzare la vista mobile/desktop a 1024px esatti */
+.desktop-only {
+  display: block;
+  @media (max-width: 1024px) {
+    display: none !important;
+  }
+}
+
+.mobile-only {
+  display: none;
+  @media (max-width: 1024px) {
+    display: block !important;
+  }
+}
+
+/* ==========================================
+   IL NUOVO PANNELLO FILTRI
+   ========================================== */
+.filters-panel {
+  background: var(--card-background);
+  border-radius: 20px;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+  position: relative;
+  /* Assicura che la card arrivi fino in fondo come nel profilo */
+  height: 100%;
+}
+
+.filters-banner {
+  width: 100%;
+  height: 140px; /* Portato a 140px per matchare perfettamente il banner profilo */
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--tertiary-color)
+  );
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 36px 24px 0 24px;
+  color: #ffffff;
+
+  h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+  }
+
+  .clear-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    margin-top: 4px;
+
+    &:hover {
+      color: #ffffff;
+      text-decoration: underline;
     }
+  }
+}
 
-    .search-input-box {
+.filters-body {
+  padding: 36px 24px;
+  /* Posizionamento per far sormontare leggermente il contenuto al banner, stile avatar */
+  position: relative;
+  z-index: 2;
+  margin-top: -45px;
+  background: var(--card-background);
+  border-radius: 20px 20px 0 0;
+}
+
+.filter-group {
+  margin-bottom: 28px;
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--neutral-color);
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--neutral-color);
+    margin-top: -8px;
+  }
+
+  .date-range-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .date-input-box {
       display: flex;
       align-items: center;
       background: var(--input-background);
@@ -56,132 +158,74 @@
       padding: 0 12px;
       height: 44px;
 
-      label {
-        display: block;
+      .date-label {
         font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 14px;
-        color: var(--text-main);
-      }
-      .custom-searchbar {
-        padding: 0;
-        --background: var(--input-background);
-        --box-shadow: none;
-        --border-radius: 8px;
-        --color: var(--text-main);
-        --placeholder-color: var(--neutral-color);
-        --icon-color: var(--neutral-color);
-        --clear-button-color: var(--neutral-color);
-
-        height: 44px;
-
-        &::part(search-icon) {
-          margin-left: 4px;
-        }
-      }
-
-      ion-icon {
         color: var(--neutral-color);
         margin-right: 8px;
+        min-width: 25px;
+        font-weight: 500;
       }
 
-      input {
+      input[type="date"] {
         background: transparent;
         border: none;
         outline: none;
         width: 100%;
         font-size: 14px;
         color: var(--text-main);
-      }
-    }
+        font-family: inherit;
+        cursor: pointer;
 
-    .range-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--neutral-color);
-      margin-top: -8px;
-    }
-
-    .date-range-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-
-      .date-input-box {
-        display: flex;
-        align-items: center;
-        background: var(--input-background);
-        border-radius: 8px;
-        padding: 0 12px;
-        height: 44px;
-
-        .date-label {
-          font-size: 14px;
-          color: var(--neutral-color);
-          margin-right: 8px;
-          min-width: 25px;
-          font-weight: 500;
-        }
-
-        input[type="date"] {
-          background: transparent;
-          border: none;
-          outline: none;
-          width: 100%;
-          font-size: 14px;
-          color: var(--text-main);
-          font-family: inherit;
+        &::-webkit-calendar-picker-indicator {
           cursor: pointer;
-
-          &::-webkit-calendar-picker-indicator {
-            cursor: pointer;
-            opacity: 0.6;
-            transition: 0.2s;
-            &:hover {
-              opacity: 1;
-            }
+          opacity: 0.6;
+          transition: 0.2s;
+          &:hover {
+            opacity: 1;
           }
         }
       }
     }
   }
+}
 
-  .apply-filters-btn {
-    width: 100%;
-    background: var(--secondary-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 14px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.2s;
+.apply-filters-btn {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  height: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
 
-    &:hover {
-      filter: brightness(0.9);
-    }
+  &:hover {
+    background: var(--tertiary-color);
   }
 }
 
-.main-content-col {
-  padding-left: 24px;
-}
-
+/* ==========================================
+   AREA CONTENUTO PRINCIPALE E STRUTTURA
+   ========================================== */
 .header-section {
   margin-bottom: 32px;
 
   h1 {
-    font-size: 36px;
+    font-size: 2rem;
     font-weight: 800;
-    color: var(--primary-color);
+    color: var(--text-main);
     margin: 0 0 8px 0;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
   }
 
   p {
-    font-size: 16px;
+    font-size: 1.05rem;
     color: var(--neutral-color);
     margin: 0 0 24px 0;
   }
@@ -190,22 +234,22 @@
     display: flex;
     align-items: center;
     background: var(--card-background);
-    border: 1px solid rgba(128, 128, 128, 0.2);
-    border-radius: 12px;
-    padding: 8px 8px 8px 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: 16px;
+    padding: 10px 10px 10px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 
     ion-icon {
       color: var(--neutral-color);
-      font-size: 20px;
-      margin-right: 12px;
+      font-size: 22px;
+      margin-right: 14px;
     }
 
     input {
       flex: 1;
       border: none;
       outline: none;
-      font-size: 16px;
+      font-size: 17px;
       background: transparent;
       color: var(--text-main);
     }
@@ -214,9 +258,10 @@
       background: var(--primary-color);
       color: white;
       border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-weight: 600;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-weight: 700;
+      font-size: 15px;
       cursor: pointer;
       transition: background 0.2s;
 
@@ -236,14 +281,14 @@
     display: flex;
     align-items: center;
     background: var(--card-background);
-    border: 1px solid rgba(128, 128, 128, 0.2);
+    border: none;
     color: var(--text-main);
-    padding: 14px 16px;
-    border-radius: 12px;
-    font-weight: 600;
+    padding: 16px 20px;
+    border-radius: 14px;
+    font-weight: 700;
     font-size: 15px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     transition: background 0.2s;
 
     &:active {
@@ -278,6 +323,9 @@
   }
 }
 
+/* ==========================================
+   ELEMENTI SEARCHBAR INTEGRATA E CHIPS
+   ========================================== */
 .tag-selector-container {
   position: relative;
   width: 100%;
@@ -287,9 +335,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-
   margin-bottom: 8px;
-
   &:empty {
     margin-bottom: 0;
   }
@@ -298,10 +344,10 @@
 .tag-chip {
   background: rgba(30, 64, 175, 0.08);
   color: var(--primary-color);
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -314,7 +360,7 @@
   }
 
   ion-icon {
-    font-size: 15px;
+    font-size: 16px;
     color: var(--neutral-color);
     cursor: pointer;
     &:hover {
@@ -325,7 +371,6 @@
 
 .custom-profile-searchbar {
   padding: 0;
-
   --background: var(--input-background);
   --box-shadow: none;
   --border-radius: 12px;
@@ -334,7 +379,7 @@
   --icon-color: var(--neutral-color);
   --clear-button-color: var(--neutral-color);
 
-  height: 44px;
+  height: 48px;
   border: 1px solid rgba(var(--neutral-color), 0.2);
   border-radius: 12px;
 
@@ -363,7 +408,6 @@
     color: var(--text-main);
     cursor: pointer;
     border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
-
     &:hover {
       background: var(--input-background);
     }
@@ -376,14 +420,27 @@
   }
 }
 
-@media (max-width: 768px) {
-  .main-content-col {
-    padding-left: 0;
-    margin-top: 24px;
-  }
+.tutors-css-grid {
+  display: grid;
+  /* MAGIA: Le card saranno larghe minimo 320px. 
+     Se c'è spazio le affianca, altrimenti le manda sotto in automatico! */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px; /* Spazio perfettamente uniforme sia in orizzontale che in verticale */
+  width: 100%;
+  padding-bottom: 30px;
+}
 
+.no-results-msg {
+  width: 100%;
+  text-align: center;
+  padding: 40px;
+  color: var(--neutral-color);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
   .header-section h1 {
     font-size: 28px;
-    color: var(--primary-color);
   }
 }

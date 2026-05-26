@@ -49,7 +49,7 @@ export class TutorService {
       id: 3,
       name: 'Sara Jenkins',
       subjects: ['Letteratura', 'Inglese'],
-      bio: 'Appassionata di scrittura.',
+      bio: 'Appassionata di scrittura.dj',
       rating: 4.8,
       reviews: 210,
       price: 35,
