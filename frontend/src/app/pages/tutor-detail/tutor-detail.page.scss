@@ -1,0 +1,649 @@
+/* ====================================
+   IMPOSTAZIONI GENERALI E LAYOUT
+   ==================================== */
+.register-content {
+  --background: var(--app-background);
+}
+
+.custom-header ion-toolbar {
+  --background: var(--app-background);
+  --color: var(--text-main);
+}
+
+.responsive-container {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+.profile-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  width: 100%;
+  max-width: 1340px;
+}
+
+@media (min-width: 992px) {
+  .responsive-container {
+    padding: 32px 24px;
+  }
+  .profile-grid-layout {
+    grid-template-columns: minmax(340px, 440px) 1fr;
+    gap: 32px;
+  }
+}
+
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.management-card,
+.main-profile-card {
+  background: var(--card-background);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(var(--neutral-color), 0.15);
+  width: 100%;
+  position: relative;
+}
+.management-card {
+  padding: 24px;
+}
+
+/* ====================================
+   PROFILO E INFO PERSONALI
+   ==================================== */
+.profile-banner-top {
+  height: 110px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+  width: 100%;
+  border-top-left-radius: 19px;
+  border-top-right-radius: 19px;
+}
+
+.profile-identity-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px 24px 24px;
+  margin-top: -55px;
+}
+
+.avatar-container.detail-avatar {
+  width: 110px;
+  height: 110px;
+  margin-bottom: 12px;
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--input-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    border: 3px solid var(--card-background);
+    overflow: hidden;
+  }
+  .avatar-img-render {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.tutor-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+.tutor-role {
+  font-size: 13px;
+  color: var(--neutral-color);
+  margin-top: 4px;
+}
+
+.tutor-stats-display {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  .stat-block {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    .star-gold {
+      color: #f59e0b;
+      font-size: 22px;
+    }
+    .stat-number {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .stat-label {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--neutral-color);
+    }
+  }
+}
+
+.contact-tutor-btn {
+  --background: var(--primary-color);
+  --border-radius: 12px;
+  width: 100%;
+  margin: 8px 0 0 0;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.bio-section {
+  padding: 24px;
+  border-top: 1px solid rgba(var(--neutral-color), 0.15);
+  border-bottom: 1px solid rgba(var(--neutral-color), 0.15);
+  h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--neutral-color);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .static-text-display {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--neutral-color);
+    margin: 0;
+    white-space: pre-wrap;
+    text-align: left;
+  }
+}
+
+.inner-profile-section {
+  padding: 20px 24px;
+}
+.card-divider-line {
+  height: 1px;
+  background: rgba(var(--neutral-color), 0.12);
+  margin: 0 24px;
+}
+
+.section-header-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  .section-title-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0;
+    }
+    ion-icon {
+      font-size: 20px;
+      color: var(--primary-color);
+    }
+  }
+}
+
+.tag-selector-container {
+  position: relative;
+}
+.selected-tags-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag-chip {
+  background: rgba(30, 64, 175, 0.08);
+  color: var(--primary-color);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(var(--primary-color), 0.2);
+  &.lang-chip {
+    background: rgba(3, 105, 161, 0.08);
+    color: var(--tertiary-color);
+    border: 1px solid rgba(var(--tertiary-color), 0.2);
+  }
+}
+
+.right-actions-mix {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.price-display-box {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  .price-val {
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+/* ====================================
+   CALENDARIO E PRENOTAZIONE
+   ==================================== */
+.monthly-calendar-wrapper.compact-calendar {
+  margin-top: 10px;
+  background: var(--input-background);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--neutral-color), 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+.calendar-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  .nav-month-btn {
+    background: var(--card-background);
+    border: 1px solid rgba(var(--neutral-color), 0.15);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-main);
+  }
+  .current-month-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+}
+.calendar-weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 6px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--neutral-color);
+  }
+}
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.calendar-day-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+.calendar-day-circle {
+  width: 100%;
+  height: 100%;
+  max-width: 32px;
+  max-height: 32px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+  &:hover {
+    background: rgba(var(--neutral-color), 0.08);
+  }
+  &.is-available {
+    background: rgba(30, 64, 175, 0.08);
+    color: var(--primary-color);
+    font-weight: 700;
+    .time-dot-indicator {
+      width: 3.5px;
+      height: 3.5px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 2px;
+    }
+  }
+  &.is-selected {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(var(--primary-color), 0.3);
+  }
+}
+
+.day-config-panel {
+  margin-top: 10px;
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--neutral-color), 0.12);
+  .panel-header-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(var(--neutral-color), 0.06);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+    h4 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+  }
+}
+.badge-status-open {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.badge-status-closed {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* SELEZIONE ORARI */
+.select-time-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neutral-color);
+  margin: 0 0 10px 0;
+}
+.time-selectors-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+.time-select-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--neutral-color);
+  }
+
+  .custom-time-picker {
+    background: var(--input-background);
+    border: 1px solid rgba(var(--neutral-color), 0.2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    width: 100%;
+    min-height: 42px;
+    &::part(icon) {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.book-lesson-btn {
+  --background: var(--primary-color);
+  --border-radius: 8px;
+  margin: 0;
+  text-transform: none;
+  font-weight: 600;
+  height: 40px;
+}
+.no-day-selected-placeholder {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  text-align: center;
+  background: var(--card-background);
+  border-radius: 12px;
+  border: 1px dashed rgba(var(--neutral-color), 0.2);
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--neutral-color);
+  }
+}
+
+/* ====================================
+   DISPENSE, BADGE E AZIONI
+   ==================================== */
+.uploaded-dispense-list {
+  margin-top: 20px;
+  border-top: 1px solid rgba(var(--neutral-color), 0.15);
+  padding-top: 16px;
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+}
+
+.dispensa-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--input-background);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(var(--neutral-color), 0.1);
+
+  .dispensa-main-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+  }
+  .dispensa-cover-preview {
+    width: 46px;
+    height: 46px;
+    background: var(--card-background);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(var(--neutral-color), 0.15);
+    ion-icon {
+      font-size: 24px;
+      color: var(--neutral-color);
+    }
+  }
+  .dispensa-info-preview {
+    flex: 1;
+    h4 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    p {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      color: var(--neutral-color);
+    }
+  }
+  .dispensa-price-tag {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+}
+
+.dispensa-meta-inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.preview-badge {
+  font-size: 11px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  &.disabled {
+    background: rgba(var(--neutral-color), 0.08);
+    color: var(--neutral-color);
+  }
+}
+
+.dispensa-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-preview-action-btn {
+  --color: var(--primary-color);
+  margin: 0;
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.buy-dispensa-btn {
+  --background: rgba(30, 64, 175, 0.08);
+  --color: var(--primary-color);
+  --box-shadow: none;
+  --border-radius: 8px;
+  font-weight: 700;
+  text-transform: none;
+  font-size: 13px;
+  border: 1px solid rgba(var(--primary-color), 0.2);
+  margin: 0;
+}
+
+/* ====================================
+   MODALE ANTEPRIMA (Identico a tutor-profile)
+   ==================================== */
+.preview-modal {
+  --width: 100%;
+  --max-width: 640px;
+  --height: auto;
+  align-items: center;
+  &::part(content) {
+    background: var(--card-background);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
+  .title-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 0;
+    }
+  }
+}
+
+.modal-content {
+  padding: 24px;
+  &.preview-scroll-box {
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+}
+
+.preview-top-bar {
+  display: block;
+  margin-bottom: 18px;
+  .preview-doc-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-main);
+  }
+  .preview-doc-desc {
+    font-size: 13px;
+    color: var(--neutral-color);
+    margin: 4px 0 0 0;
+  }
+}
+
+.document-preview-render.structural-clean {
+  background: #ffffff;
+  border: 1px solid rgba(var(--neutral-color), 0.2);
+  border-radius: 12px;
+  padding: 12px;
+}
+.pdf-frame-container {
+  width: 100%;
+  height: 500px;
+  background: #525659;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.image-preview-clean-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px;
+  .real-preview-img-solid {
+    width: 100%;
+    max-height: 550px;
+    object-fit: contain;
+  }
+}

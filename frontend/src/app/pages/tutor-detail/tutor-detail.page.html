@@ -1,13 +1,386 @@
-<ion-header [translucent]="true">
+<ion-header class="ion-no-border custom-header">
   <ion-toolbar>
-    <ion-title>tutorDetail</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/tabs/search-tutor"
+        text=""
+      ></ion-back-button>
+    </ion-buttons>
+    <ion-title>Profilo Tutor</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">tutorDetail</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="register-content">
+  <div class="responsive-container">
+    <div class="profile-grid-layout">
+      <div class="left-column">
+        <div class="main-profile-card">
+          <div class="profile-banner-top"></div>
+
+          <div class="profile-identity-block">
+            <div class="avatar-container detail-avatar">
+              <div class="avatar-placeholder">
+                <img
+                  *ngIf="avatarUrl"
+                  [src]="avatarUrl"
+                  alt="Avatar"
+                  class="avatar-img-render"
+                />
+                <ion-icon *ngIf="!avatarUrl" name="person-outline"></ion-icon>
+              </div>
+            </div>
+
+            <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
+            <p class="tutor-role">Tutor Universitario</p>
+
+            <div class="tutor-stats-display">
+              <div class="stat-block">
+                <ion-icon name="star" class="star-gold"></ion-icon>
+                <span class="stat-number">{{ mediaRecensioni }}</span>
+                <span class="stat-label">({{ numeroRecensioni }})</span>
+              </div>
+            </div>
+
+            <ion-button
+              expand="block"
+              class="contact-tutor-btn"
+              (click)="contattaTutor()"
+            >
+              <ion-icon
+                slot="start"
+                name="chatbubble-ellipses-outline"
+              ></ion-icon>
+              Contatta Tutor
+            </ion-button>
+          </div>
+
+          <div class="bio-section">
+            <h3>Biografia</h3>
+            <p class="static-text-display">{{ biografia }}</p>
+          </div>
+
+          <div class="inner-profile-section">
+            <div class="section-header-inline">
+              <div class="section-title-box">
+                <ion-icon name="library-outline"></ion-icon>
+                <h3>Materie insegnate</h3>
+              </div>
+            </div>
+            <div class="tag-selector-container">
+              <div class="selected-tags-box">
+                <span *ngFor="let m of materie" class="tag-chip">{{ m }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-divider-line"></div>
+
+          <div class="inner-profile-section">
+            <div class="section-header-inline">
+              <div class="section-title-box">
+                <ion-icon name="globe-outline"></ion-icon>
+                <h3>Lingue Parlate</h3>
+              </div>
+            </div>
+            <div class="tag-selector-container">
+              <div class="selected-tags-box">
+                <span *ngFor="let l of lingue" class="tag-chip lang-chip"
+                  >{{ l }}</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-column">
+        <div class="management-card">
+          <div class="section-header-inline">
+            <div class="section-title-box">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <h3>Disponibilità e Prenotazione</h3>
+            </div>
+            <div class="right-actions-mix">
+              <div class="price-display-box">
+                <span class="price-val">{{ prezzoOrario }}</span>
+                <span>€/h</span>
+              </div>
+            </div>
+          </div>
+          <p class="section-subtitle">
+            Seleziona un giorno blu dal calendario per vedere gli orari
+            disponibili e prenotare.
+          </p>
+
+          <div class="monthly-calendar-wrapper compact-calendar">
+            <div class="calendar-month-header">
+              <button class="nav-month-btn" (click)="cambiaMese(-1)">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+              <span class="current-month-label"
+                >{{ nomeMeseCorrente }} {{ annoCorrente }}</span
+              >
+              <button class="nav-month-btn" (click)="cambiaMese(1)">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </div>
+
+            <div class="calendar-weekdays-grid">
+              <span>L</span><span>M</span><span>M</span><span>G</span
+              ><span>V</span><span>S</span><span>D</span>
+            </div>
+
+            <div class="calendar-days-grid">
+              <div
+                *ngFor="let vuoto of spaziVuotiIniziali"
+                class="calendar-day-wrapper empty-cell"
+              ></div>
+              <div
+                *ngFor="let giorno of giorniDelMese"
+                class="calendar-day-wrapper"
+              >
+                <div
+                  class="calendar-day-circle"
+                  [class.is-available]="giorno.info?.attivo"
+                  [class.is-selected]="giorno.dataString === giornoSelezionato?.dataString"
+                  (click)="selezionaGiorno(giorno)"
+                >
+                  <span class="day-number-text">{{ giorno.giorno }}</span>
+                  <span
+                    *ngIf="giorno.info?.attivo && giorno.dataString !== giornoSelezionato?.dataString"
+                    class="time-dot-indicator"
+                  ></span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              *ngIf="giornoSelezionato"
+              class="day-config-panel animate-fade-in"
+            >
+              <div class="panel-header-inline">
+                <h4>{{ dataFormattataPannello }}</h4>
+                <span
+                  *ngIf="!giornoSelezionato.info?.attivo"
+                  class="badge-status-closed"
+                  >Non disponibile</span
+                >
+                <span
+                  *ngIf="giornoSelezionato.info?.attivo"
+                  class="badge-status-open"
+                  >Fascia: {{ giornoSelezionato.info?.dalle }} - {{
+                  giornoSelezionato.info?.alle }}</span
+                >
+              </div>
+
+              <div class="static-day-info-display">
+                <div *ngIf="giornoSelezionato.info?.attivo">
+                  <p class="select-time-label">
+                    Scegli la durata della tua lezione:
+                  </p>
+
+                  <div class="time-selectors-group">
+                    <div class="time-select-item">
+                      <label>Dalle ore</label>
+                      <ion-select
+                        [(ngModel)]="oraInizioSelezionata"
+                        interface="popover"
+                        class="custom-time-picker"
+                      >
+                        <ion-select-option
+                          *ngFor="let ora of orariGenerati"
+                          [value]="ora"
+                          >{{ ora }}</ion-select-option
+                        >
+                      </ion-select>
+                    </div>
+                    <div class="time-select-item">
+                      <label>Alle ore</label>
+                      <ion-select
+                        [(ngModel)]="oraFineSelezionata"
+                        interface="popover"
+                        class="custom-time-picker"
+                      >
+                        <ion-select-option
+                          *ngFor="let ora of orariGenerati"
+                          [value]="ora"
+                          >{{ ora }}</ion-select-option
+                        >
+                      </ion-select>
+                    </div>
+                  </div>
+
+                  <ion-button
+                    expand="block"
+                    class="book-lesson-btn"
+                    (click)="prenotaLezione()"
+                  >
+                    Prenota questo orario
+                  </ion-button>
+                </div>
+
+                <div
+                  *ngIf="!giornoSelezionato.info?.attivo"
+                  class="no-day-selected-placeholder"
+                >
+                  <p>Il tutor non ha inserito disponibilità per questa data.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="management-card">
+          <div class="section-header-inline">
+            <div class="section-title-box">
+              <ion-icon name="folder-open-outline"></ion-icon>
+              <h3>Materiale didattico in vendita</h3>
+            </div>
+          </div>
+          <div
+            class="uploaded-dispense-list"
+            style="margin-top: 0; border-top: none; padding-top: 0"
+          >
+            <p *ngIf="dispense.length === 0" class="section-subtitle">
+              Nessuna dispensa caricata al momento.
+            </p>
+
+            <div
+              *ngFor="let dispensa of dispense"
+              class="dispensa-item-card layout-between"
+            >
+              <div class="dispensa-main-info">
+                <div class="dispensa-cover-preview">
+                  <ion-icon name="document-outline"></ion-icon>
+                </div>
+                <div class="dispensa-info-preview">
+                  <h4>{{ dispensa.titolo }}</h4>
+                  <p>{{ dispensa.descrizione }}</p>
+
+                  <div class="dispensa-meta-inline">
+                    <span class="dispensa-price-tag"
+                      >€{{ dispensa.prezzo | number:'1.2-2' }}</span
+                    >
+                    <span class="preview-badge" *ngIf="dispensa.haAnteprima"
+                      >Anteprima disponibile</span
+                    >
+                    <span
+                      class="preview-badge disabled"
+                      *ngIf="!dispensa.haAnteprima"
+                      >Anteprima non disponibile</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="dispensa-actions-group">
+                <ion-button
+                  class="buy-dispensa-btn"
+                  (click)="acquistaDispensa(dispensa)"
+                >
+                  <ion-icon slot="start" name="cart-outline"></ion-icon>
+                  Acquista
+                </ion-button>
+
+                <ion-button
+                  *ngIf="dispensa.haAnteprima"
+                  fill="clear"
+                  size="small"
+                  class="view-preview-action-btn"
+                  title="Vedi Anteprima"
+                  (click)="apriAnteprimaStudente(dispensa)"
+                >
+                  <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ion-modal
+    [isOpen]="isViewingAnteprima"
+    class="preview-modal"
+    (didDismiss)="chiudiAnteprimaStudente()"
+  >
+    <ng-template>
+      <div class="modal-wrapper">
+        <div class="modal-header">
+          <div class="title-left">
+            <ion-icon name="eye-outline" class="header-icon"></ion-icon>
+            <h2>Anteprima materiale</h2>
+          </div>
+          <ion-button
+            fill="clear"
+            color="medium"
+            class="close-modal-btn"
+            (click)="chiudiAnteprimaStudente()"
+          >
+            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="modal-content preview-scroll-box">
+          <div class="preview-top-bar">
+            <div>
+              <h3 class="preview-doc-title">
+                {{ dispensaInEvidenza?.titolo }}
+              </h3>
+              <p class="preview-doc-desc">
+                {{ dispensaInEvidenza?.descrizione }}
+              </p>
+            </div>
+          </div>
+
+          <div class="document-preview-render structural-clean">
+            <div
+              class="pdf-frame-container"
+              *ngIf="dispensaInEvidenza?.isPdfPreview"
+            >
+              <iframe
+                [src]="dispensaInEvidenza?.anteprimaUrl"
+                width="100%"
+                height="500px"
+                style="border: none; border-radius: 8px"
+              ></iframe>
+            </div>
+
+            <div
+              class="image-preview-clean-container"
+              *ngIf="!dispensaInEvidenza?.isPdfPreview && dispensaInEvidenza?.anteprimaUrl"
+            >
+              <img
+                [src]="dispensaInEvidenza?.anteprimaUrl"
+                alt="Anteprima Immagine"
+                class="real-preview-img-solid"
+              />
+            </div>
+
+            <div
+              class="mock-page-sheet"
+              *ngIf="!dispensaInEvidenza?.anteprimaUrl"
+            >
+              <p style="text-align: center; color: var(--neutral-color)">
+                Nessuna anteprima disponibile.
+              </p>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px">
+            <ion-button
+              expand="block"
+              class="buy-dispensa-btn"
+              style="width: 100%; height: 50px"
+              (click)="acquistaDispensa(dispensaInEvidenza); chiudiAnteprimaStudente()"
+            >
+              <ion-icon slot="start" name="cart-outline"></ion-icon>
+              Acquista a {{ dispensaInEvidenza?.prezzo | number:'1.2-2' }}€
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>
