@@ -176,6 +176,14 @@
             }
           </div>
 
+          @if (isCaricamento) {
+          <div style="text-align: center; padding: 40px">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p style="color: var(--neutral-color); font-size: 14px">
+              Ricerca in corso...
+            </p>
+          </div>
+          } @else {
           <ion-grid class="ion-no-padding">
             <ion-row>
               @for (tutor of tutorsFiltrati; track tutor.id) {
@@ -187,9 +195,21 @@
               >
                 <app-tutor-card [tutor]="tutor"></app-tutor-card>
               </ion-col>
+              } @if (tutorsFiltrati.length === 0) {
+              <div
+                style="
+                  width: 100%;
+                  text-align: center;
+                  padding: 40px;
+                  color: var(--neutral-color);
+                "
+              >
+                Nessun tutor trovato con questi filtri.
+              </div>
               }
             </ion-row>
           </ion-grid>
+          }
         </ion-col>
       </ion-row>
     </ion-grid>

@@ -11,7 +11,6 @@ import {
   closeCircle,
 } from 'ionicons/icons';
 import { TutorCardComponent } from '../../components/tutor-card/tutor-card.component';
-
 import {
   IonContent,
   IonGrid,
@@ -20,7 +19,11 @@ import {
   IonIcon,
   IonRange,
   IonSearchbar,
+  IonSpinner,
 } from '@ionic/angular/standalone';
+
+// IMPORTIAMO IL SERVIZIO
+import { TutorService, FiltriRicerca } from '../../services/tutorService';
 
 @Component({
   selector: 'app-search-tutor',
@@ -38,11 +41,16 @@ import {
     IonIcon,
     IonRange,
     IonSearchbar,
+    IonSpinner,
   ],
 })
 export class SearchTutorPage implements OnInit {
   mostraFiltriMobile = false;
 
+  // Aggiungiamo uno stato di caricamento per l'UI
+  isCaricamento = false;
+
+  // Variabili dei filtri
   testoRicerca = '';
   rangePrezzo = { lower: 10, upper: 100 };
   dataDa = '';
@@ -71,51 +79,11 @@ export class SearchTutorPage implements OnInit {
   lingueFiltrate = [...this.lingueDisponibili];
   linguaFiltro: string[] = [];
 
-  tutorsOriginali = [
-    {
-      id: 1,
-      name: 'Dr.ssa Elena Rostova',
-      subjects: ['Matematica', 'Fisica'],
-      bio: 'Dottorato in Matematica Applicata.',
-      rating: 4.9,
-      reviews: 124,
-      price: 45,
-      image: 'https://i.pravatar.cc/150?img=1',
-      disponibileDal: '2026-05-01',
-      disponibileAl: '2026-07-31',
-      languages: ['Italiano', 'Inglese'],
-    },
-    {
-      id: 2,
-      name: 'Marco Chen',
-      subjects: ['Fisica', 'Informatica'],
-      bio: 'Ex ingegnere aerospaziale diventato tutor.',
-      rating: 5.0,
-      reviews: 89,
-      price: 60,
-      image: 'https://i.pravatar.cc/150?img=11',
-      disponibileDal: '2026-06-15',
-      disponibileAl: '2026-12-31',
-      languages: ['Italiano', 'Francese'],
-    },
-    {
-      id: 3,
-      name: 'Sara Jenkins',
-      subjects: ['Letteratura', 'Inglese'],
-      bio: 'Appassionata di scrittura e poesia.',
-      rating: 4.8,
-      reviews: 210,
-      price: 35,
-      image: 'https://i.pravatar.cc/150?img=5',
-      disponibileDal: '2026-01-01',
-      disponibileAl: '2026-06-10',
-      languages: ['Inglese', 'Spagnolo'],
-    },
-  ];
+  // L'array che mostriamo a schermo (all'inizio è vuoto o null)
+  tutorsFiltrati: any[] = [];
 
-  tutorsFiltrati = [...this.tutorsOriginali];
-
-  constructor() {
+  // INIETTIAMO IL SERVIZIO NEL COSTRUTTORE
+  constructor(private tutorService: TutorService) {
     addIcons({
       searchOutline,
       optionsOutline,
@@ -126,69 +94,68 @@ export class SearchTutorPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Al caricamento della pagina, facciamo subito una prima ricerca a vuoto per mostrare tutti i tutor
+    this.applicaFiltri();
+  }
 
-  // --- METODI MATERIE ---
+  // --- I METODI DELLE MATERIE E LINGUE RIMANGONO IDENTICI ---
   filtraMaterie(event: any) {
-    const query = event.target.value.toLowerCase();
+    const q = event.target.value.toLowerCase();
     this.materieFiltrate = this.materieDisponibili.filter((m) =>
-      m.toLowerCase().includes(query),
+      m.toLowerCase().includes(q),
     );
   }
   aggiungiMateria(materia: string) {
-    if (!this.materiaFiltro.includes(materia)) {
-      this.materiaFiltro.push(materia);
-    }
+    if (!this.materiaFiltro.includes(materia)) this.materiaFiltro.push(materia);
     this.mostraListaMaterie = false;
   }
   rimuoviMateria(materia: string) {
     this.materiaFiltro = this.materiaFiltro.filter((m) => m !== materia);
   }
 
-  // --- METODI LINGUE ---
   filtraLingue(event: any) {
-    const query = event.target.value.toLowerCase();
+    const q = event.target.value.toLowerCase();
     this.lingueFiltrate = this.lingueDisponibili.filter((l) =>
-      l.toLowerCase().includes(query),
+      l.toLowerCase().includes(q),
     );
   }
   aggiungiLingua(lingua: string) {
-    if (!this.linguaFiltro.includes(lingua)) {
-      this.linguaFiltro.push(lingua);
-    }
+    if (!this.linguaFiltro.includes(lingua)) this.linguaFiltro.push(lingua);
     this.mostraListaLingue = false;
   }
   rimuoviLingua(lingua: string) {
     this.linguaFiltro = this.linguaFiltro.filter((l) => l !== lingua);
   }
 
-  applicaFiltri() {
-    this.tutorsFiltrati = this.tutorsOriginali.filter((tutor) => {
-      const termine = this.testoRicerca.toLowerCase();
-      const matchTesto = tutor.name.toLowerCase().includes(termine);
-
-      const matchMateria =
-        this.materiaFiltro.length === 0 ||
-        this.materiaFiltro.some((m) => tutor.subjects.includes(m));
-
-      const matchLingua =
-        this.linguaFiltro.length === 0 ||
-        this.linguaFiltro.some((l) => tutor.languages.includes(l));
-
-      const matchPrezzo =
-        tutor.price >= this.rangePrezzo.lower &&
-        tutor.price <= this.rangePrezzo.upper;
-
-      let matchData = true;
-      if (this.dataDa && tutor.disponibileAl < this.dataDa) matchData = false;
-      if (this.dataA && tutor.disponibileDal > this.dataA) matchData = false;
-
-      return (
-        matchTesto && matchMateria && matchLingua && matchPrezzo && matchData
-      );
-    });
-
+  // ==========================================
+  // MOTORE DI RICERCA: ORA USA IL SERVIZIO!
+  // ==========================================
+  async applicaFiltri() {
     this.mostraFiltriMobile = false;
+    this.isCaricamento = true; // Mostra lo spinner
+
+    // 1. Prepariamo l'oggetto (il "pacchetto" da inviare al backend)
+    const payloadFiltri: FiltriRicerca = {
+      testo: this.testoRicerca,
+      materie: this.materiaFiltro,
+      lingue: this.linguaFiltro,
+      prezzoMin: this.rangePrezzo.lower,
+      prezzoMax: this.rangePrezzo.upper,
+      dataDa: this.dataDa,
+      dataA: this.dataA,
+    };
+
+    try {
+      // 2. Facciamo la chiamata al Servizio (aspettando la Promise)
+      this.tutorsFiltrati =
+        await this.tutorService.ricercaTutors(payloadFiltri);
+    } catch (error) {
+      console.error('Errore durante la ricerca:', error);
+    } finally {
+      // 3. Nascondiamo lo spinner sia in caso di successo che di errore
+      this.isCaricamento = false;
+    }
   }
 
   cancellaFiltri() {
@@ -198,7 +165,7 @@ export class SearchTutorPage implements OnInit {
     this.rangePrezzo = { lower: 10, upper: 100 };
     this.dataDa = '';
     this.dataA = '';
-
-    this.tutorsFiltrati = [...this.tutorsOriginali];
+    // Rifacciamo la chiamata con i filtri azzerati
+    this.applicaFiltri();
   }
 }
