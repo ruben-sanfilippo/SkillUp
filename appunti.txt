@@ -8,8 +8,12 @@ aggiustare l'ordine di visualizzazione delle mie prenotazioni, mi devono spuntar
 quando carico un materiale didattico con copertina e anteprima quando aggiorno la pagina mi scompaiono
 non posso caricare determinati tipi di file come anteprima con errore payload troppo grande
 non devo poter aggiungere la disponibilità per giorni già passati
-aggiungi un messaggio di conferma quando aggiungo una disponibilità
-non 
+aggiungi un messaggio di conferma quando aggiungo una disponibilità ed escimi dalla modalità modifica
+errore 500 col metodo put per inserire una nuova disponibilità
+aggiungi un pulsante di "esci" nella dashboard dell'amministratore con le stesse funzionalità del pulsante esci nel profilo tutor e studente
+nella chat i messaggi si devono aggiornare in tempo reale tramite le web socket utilizzando socket.io e devo avere un messaggio di notifica come su whatsapp ovvere nelle chat a sinistra un cerchio blu
+nella schermata della chat devo avere solo le chat con tutor/studente con cui effetuo una conversazione
+non aggiungere immagini profilo a profili appena creati
 Account demo:
 
 Studente

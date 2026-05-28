@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
+import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { 
-  schoolOutline, 
-  searchOutline, 
-  calendarOutline, 
-  documentTextOutline, 
-  bookOutline, 
-  downloadOutline, 
+import {
+  schoolOutline,
+  searchOutline,
+  calendarOutline,
+  documentTextOutline,
+  bookOutline,
+  downloadOutline,
   chevronForwardOutline,
   createOutline,
   closeOutline,
@@ -18,14 +18,14 @@ import {
   imageOutline,
   trashOutline,
   checkmarkCircleOutline,
-  logOutOutline
+  logOutOutline,
 } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
 
 interface StudentData {
   firstName: string;
   lastName: string;
-  avatar: string; 
+  avatar: string;
   about: string;
   sessionsCompleted: number;
   studyHours: number;
@@ -37,11 +37,11 @@ interface Booking {
   tutorAvatar: string;
   subject: string;
   date: Date;
-  dataItaliana: string; 
+  dataItaliana: string;
   startTime: string;
   endTime: string;
   status: 'IN PROGRAMMA' | 'COMPLETATA';
-  hasReviewed: boolean; 
+  hasReviewed: boolean;
 }
 
 interface Material {
@@ -49,7 +49,7 @@ interface Material {
   title: string;
   author: string;
   type: 'pdf' | 'notes';
-  fileLabel: string; 
+  fileLabel: string;
   sizeInMb: string;
   fileUrl?: string;
 }
@@ -59,30 +59,26 @@ interface Material {
   templateUrl: './student-profile.page.html',
   styleUrls: ['./student-profile.page.scss'],
   standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule, 
-    IonicModule
-  ] 
+  imports: [CommonModule, FormsModule, IonicModule],
 })
 export class StudentProfilePage implements OnInit {
-  
-  isModalOpen = false;       
-  isReviewModalOpen = false; 
-  isBioModalOpen = false;    
-  isAvatarActionSheetOpen = false; 
+  isModalOpen = false;
+  isReviewModalOpen = false;
+  isBioModalOpen = false;
+  isAvatarActionSheetOpen = false;
 
   selectedBookingForReview: Booking | null = null;
-  currentRating: number = 0; 
-  tempBio: string = '';      
+  currentRating: number = 0;
+  tempBio: string = '';
 
   student: StudentData = {
     firstName: 'Alessandro',
     lastName: 'Rossi',
-    avatar: 'https://i.pravatar.cc/150?u=alessandro', 
-    about: 'Appassionato di intelligenza artificiale e machine learning. Sviluppo algoritmi efficienti per l\'analisi dati.', 
+    avatar: 'https://i.pravatar.cc/150?u=alessandro',
+    about:
+      "Appassionato di intelligenza artificiale e machine learning. Sviluppo algoritmi efficienti per l'analisi dati.",
     sessionsCompleted: 24,
-    studyHours: 112
+    studyHours: 112,
   };
 
   public avatarActionSheetButtons = [
@@ -91,7 +87,7 @@ export class StudentProfilePage implements OnInit {
       icon: 'image-outline',
       handler: () => {
         this.triggerFileInput();
-      }
+      },
     },
     {
       text: 'Rimuovi foto',
@@ -99,7 +95,7 @@ export class StudentProfilePage implements OnInit {
       icon: 'trash-outline',
       handler: () => {
         this.rimuoviAvatar();
-      }
+      },
     },
     {
       text: 'Annulla',
@@ -132,7 +128,7 @@ export class StudentProfilePage implements OnInit {
       imageOutline,
       trashOutline,
       checkmarkCircleOutline,
-      logOutOutline
+      logOutOutline,
     });
   }
 
@@ -156,7 +152,9 @@ export class StudentProfilePage implements OnInit {
       studyHours: prenotazioni.length,
     };
 
-    this.allBookings = prenotazioni.map((booking) => this.mappaPrenotazione(booking));
+    this.allBookings = prenotazioni.map((booking) =>
+      this.mappaPrenotazione(booking),
+    );
     this.recentBookings = this.allBookingsSorted.slice(0, 2);
     this.purchasedMaterials = materiali.map((materiale) => ({
       id: materiale.id,
@@ -164,13 +162,15 @@ export class StudentProfilePage implements OnInit {
       author: materiale.autore,
       type: 'pdf',
       fileLabel: 'PDF',
-      sizeInMb: 'Backend',
+      sizeInMb: materiale.sizeInMb,
       fileUrl: materiale.file_url,
     }));
   }
 
   get allBookingsSorted(): Booking[] {
-    return [...this.allBookings].sort((a, b) => b.date.getTime() - a.date.getTime());
+    return [...this.allBookings].sort(
+      (a, b) => b.date.getTime() - a.date.getTime(),
+    );
   }
 
   apriModalPrenotazioni() {
@@ -179,7 +179,7 @@ export class StudentProfilePage implements OnInit {
 
   apriModalRecensione(booking: Booking) {
     this.selectedBookingForReview = booking;
-    this.currentRating = 0; 
+    this.currentRating = 0;
     this.isReviewModalOpen = true;
   }
 
@@ -190,29 +190,32 @@ export class StudentProfilePage implements OnInit {
   }
 
   setRating(rating: number) {
-    this.currentRating = rating; 
+    this.currentRating = rating;
   }
 
   async inviaRecensione() {
     if (!this.selectedBookingForReview) return;
-    
+
     const targetId = this.selectedBookingForReview.id;
     await this.platformService.createReview({
       prenotazione_id: targetId,
       voto: this.currentRating,
     });
 
-    const bookingInAll = this.allBookings.find(b => b.id === targetId);
+    const bookingInAll = this.allBookings.find((b) => b.id === targetId);
     if (bookingInAll) {
       bookingInAll.hasReviewed = true;
     }
 
-    const bookingInRecent = this.recentBookings.find(b => b.id === targetId);
+    const bookingInRecent = this.recentBookings.find((b) => b.id === targetId);
     if (bookingInRecent) {
       bookingInRecent.hasReviewed = true;
     }
 
-    localStorage.setItem('skillup_recensioni_aggiornate', Date.now().toString());
+    localStorage.setItem(
+      'skillup_recensioni_aggiornate',
+      Date.now().toString(),
+    );
 
     this.chiudiModalRecensione();
   }
@@ -222,7 +225,9 @@ export class StudentProfilePage implements OnInit {
   }
 
   triggerFileInput() {
-    const fileInput = document.getElementById('avatarFileInput') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      'avatarFileInput',
+    ) as HTMLInputElement;
     if (fileInput) {
       fileInput.click();
     }
@@ -234,19 +239,23 @@ export class StudentProfilePage implements OnInit {
       const reader = new FileReader();
       reader.onload = () => {
         this.student.avatar = reader.result as string;
-        this.platformService.updateMe({ immagine_profilo: this.student.avatar });
+        this.platformService.updateMe({
+          immagine_profilo: this.student.avatar,
+        });
       };
       reader.readAsDataURL(file);
     }
   }
 
   rimuoviAvatar() {
-    this.student.avatar = ''; 
+    this.student.avatar = '';
     this.platformService.updateMe({ immagine_profilo: '' });
   }
 
   apriModalBio() {
-    this.tempBio = this.student.about ? this.student.about.substring(0, 200) : ''; 
+    this.tempBio = this.student.about
+      ? this.student.about.substring(0, 200)
+      : '';
     this.isBioModalOpen = true;
   }
 
@@ -257,27 +266,30 @@ export class StudentProfilePage implements OnInit {
 
   async salvaBio() {
     if (this.tempBio && this.tempBio.trim() && this.tempBio.length <= 200) {
-      this.student.about = this.tempBio.trim(); 
+      this.student.about = this.tempBio.trim();
       await this.platformService.updateMe({ bio: this.student.about });
       this.chiudiModalBio();
     }
   }
 
   scaricaMateriale(item: Material) {
-    const contenutoMock = item.fileUrl || `Titolo: ${item.title}\nAutore: ${item.author}`;
+    const contenutoMock =
+      item.fileUrl || `Titolo: ${item.title}\nAutore: ${item.author}`;
     const estensione = item.type === 'pdf' ? 'pdf' : 'txt';
     const nomeFile = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
 
-    const blob = new Blob([contenutoMock], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([contenutoMock], {
+      type: 'text/plain;charset=utf-8',
+    });
     const url = window.URL.createObjectURL(blob);
-    
+
     const ancoraDownload = document.createElement('a');
     ancoraDownload.href = url;
     ancoraDownload.download = nomeFile;
-    
+
     document.body.appendChild(ancoraDownload);
     ancoraDownload.click();
-    
+
     document.body.removeChild(ancoraDownload);
     window.URL.revokeObjectURL(url);
   }
@@ -299,7 +311,8 @@ export class StudentProfilePage implements OnInit {
       id: booking.id,
       tutorName: booking.tutorName,
       tutorAvatar:
-        booking.tutorAvatar || `https://i.pravatar.cc/150?u=${booking.tutor_id}`,
+        booking.tutorAvatar ||
+        `https://i.pravatar.cc/150?u=${booking.tutor_id}`,
       subject: booking.materia,
       date: data,
       dataItaliana: data.toLocaleDateString('it-IT', {
