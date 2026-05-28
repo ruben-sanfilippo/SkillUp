@@ -165,9 +165,11 @@
                           <label>Materia</label>
                           <ion-select
                             [(ngModel)]="materiaSelezionataId"
-                            (ionChange)="cambiaMateriaPrenotazione()"
+                            (ionChange)="cambiaMateriaPrenotazione($event)"
                             interface="popover"
                             class="custom-time-picker"
+                            placeholder="Seleziona materia"
+                            [disabled]="materiePrenotabili.length === 0"
                           >
                             @for (materia of materiePrenotabili; track materia.id) {
                               <ion-select-option [value]="materia.id">{{ materia.nome }}</ion-select-option>
@@ -175,7 +177,11 @@
                           </ion-select>
                         </div>
 
-                        <p class="select-time-label">Scegli la durata della tua lezione:</p>
+                        @if (materiePrenotabili.length === 0) {
+                          <p class="select-time-label">Il tutor non ha ancora inserito materie nel profilo.</p>
+                        } @else {
+                          <p class="select-time-label">Scegli la durata della tua lezione:</p>
+                        }
 
                         <div class="time-selectors-group">
                           <div class="time-select-item">
@@ -208,7 +214,7 @@
                         <ion-button
                           expand="block"
                           class="book-lesson-btn"
-                          [disabled]="!oraInizioSelezionata || !oraFineSelezionata"
+                          [disabled]="!materiaSelezionataId || !oraInizioSelezionata || !oraFineSelezionata"
                           (click)="prenotaLezione()"
                         >
                           Prenota questo orario
@@ -221,7 +227,11 @@
                     </div>
                   } @else {
                     <div class="no-day-selected-placeholder">
-                      <p>Il tutor non ha inserito disponibilita per questa data.</p>
+                      @if (giornoSelezionato.info.dalle) {
+                        <p>Non ci sono fasce orarie disponibili per questa data.</p>
+                      } @else {
+                        <p>Il tutor non ha inserito disponibilita per questa data.</p>
+                      }
                     </div>
                   }
                 </div>

@@ -28,10 +28,32 @@ function all(query, params = []) {
 }
 
 function minuti(orario) {
-  if (!/^\d{2}:\d{2}$/.test(orario || "")) return null;
-  const [ore, minuti] = orario.split(":").map(Number);
-  if (ore < 0 || ore > 23 || minuti < 0 || minuti > 59) return null;
-  return ore * 60 + minuti;
+  const parti = String(orario || "").split(":").slice(0, 2).map(Number);
+  if (parti.length < 2 || parti.some((parte) => Number.isNaN(parte))) {
+    return null;
+  }
+  const [ore, min] = parti;
+  if (ore < 0 || ore > 23 || min < 0 || min > 59) return null;
+  return ore * 60 + min;
+}
+
+function orarioDaMinuti(minutiTotali) {
+  const ore = String(Math.floor(minutiTotali / 60)).padStart(2, "0");
+  const min = String(minutiTotali % 60).padStart(2, "0");
+  return `${ore}:${min}`;
+}
+
+function normalizzaData(data) {
+  return String(data || "").slice(0, 10);
+}
+
+function slotPrenotabilePerData(data, orario) {
+  const dataNorm = normalizzaData(data);
+  const oggi = dataLocale();
+  if (dataNorm < oggi) return false;
+  if (dataNorm > oggi) return true;
+
+  return new Date(`${dataNorm}T${orario}:00`) > new Date();
 }
 
 function dataLocale(data = new Date()) {
@@ -226,9 +248,29 @@ const Platform = {
     });
   },
 
+  async getTutorSubjects(tutorId) {
+    return all(
+      `
+        SELECT m.id, m.nome
+        FROM Tutor_Materie tm
+        JOIN Materie m ON m.id = tm.materia_id
+        WHERE tm.tutor_id = ?
+        ORDER BY m.nome ASC
+      `,
+      [tutorId],
+    );
+  },
+
   async getTutorById(tutorId) {
     const tutors = await this.searchTutors({});
-    return tutors.find((tutor) => Number(tutor.id) === Number(tutorId)) || null;
+    const tutor = tutors.find((item) => Number(item.id) === Number(tutorId));
+    if (!tutor) return null;
+
+    const subjectOptions = await this.getTutorSubjects(tutorId);
+    tutor.subjectOptions = subjectOptions;
+    tutor.subjects = subjectOptions.map((materia) => materia.nome);
+
+    return tutor;
   },
 
   async getAvailability(tutorId) {
@@ -256,6 +298,98 @@ const Platform = {
         ORDER BY data ASC, ora_inizio ASC
       `,
       [tutorId],
+    );
+  },
+
+  async getAvailableSchedule(tutorId) {
+    const [availability, bookedSlots] = await Promise.all([
+      this.getAvailability(tutorId),
+      this.getBookedSlots(tutorId),
+    ]);
+
+    const fasceUniche = new Map();
+    for (const fascia of availability) {
+      const data = normalizzaData(fascia.data);
+      const inizioMinuti = minuti(fascia.ora_inizio);
+      const fineMinuti = minuti(fascia.ora_fine);
+
+      if (!data || inizioMinuti === null || fineMinuti === null) continue;
+      if (inizioMinuti >= fineMinuti) continue;
+
+      const inizio = orarioDaMinuti(inizioMinuti);
+      const fine = orarioDaMinuti(fineMinuti);
+      const chiave = `${data}|${inizio}|${fine}`;
+      if (!fasceUniche.has(chiave)) {
+        fasceUniche.set(chiave, {
+          data,
+          disponibilita_id: fascia.id,
+          ora_inizio: inizio,
+          ora_fine: fine,
+          availableStarts: [],
+          availableEndsByStart: {},
+        });
+      }
+    }
+
+    const prenotazioni = bookedSlots.map((slot) => ({
+      data: normalizzaData(slot.data),
+      inizio: minuti(slot.ora_inizio),
+      fine: minuti(slot.ora_fine),
+    }));
+
+    for (const fascia of fasceUniche.values()) {
+      const inizioFascia = minuti(fascia.ora_inizio);
+      const fineFascia = minuti(fascia.ora_fine);
+      if (inizioFascia === null || fineFascia === null) continue;
+
+      for (let start = inizioFascia; start + 30 <= fineFascia; start += 30) {
+        const oraInizio = orarioDaMinuti(start);
+        const oraFineMinima = orarioDaMinuti(start + 30);
+
+        if (!slotPrenotabilePerData(fascia.data, oraInizio)) continue;
+        if (
+          prenotazioni.some(
+            (slot) =>
+              slot.data === fascia.data &&
+              slot.inizio !== null &&
+              slot.fine !== null &&
+              slot.inizio < start + 30 &&
+              slot.fine > start,
+          )
+        ) {
+          continue;
+        }
+
+        const finiDisponibili = [];
+        for (let end = start + 30; end <= fineFascia; end += 30) {
+          const occupato = prenotazioni.some(
+            (slot) =>
+              slot.data === fascia.data &&
+              slot.inizio !== null &&
+              slot.fine !== null &&
+              slot.inizio < end &&
+              slot.fine > start,
+          );
+
+          if (occupato) break;
+          finiDisponibili.push(orarioDaMinuti(end));
+        }
+
+        if (finiDisponibili.length > 0) {
+          fascia.availableStarts.push(oraInizio);
+          fascia.availableEndsByStart[oraInizio] = finiDisponibili;
+        }
+      }
+
+      if (fascia.availableStarts.length === 0) {
+        fasceUniche.delete(
+          `${fascia.data}|${fascia.ora_inizio}|${fascia.ora_fine}`,
+        );
+      }
+    }
+
+    return Array.from(fasceUniche.values()).sort((a, b) =>
+      `${a.data} ${a.ora_inizio}`.localeCompare(`${b.data} ${b.ora_inizio}`),
     );
   },
 
@@ -447,13 +581,23 @@ const Platform = {
       return { invalidTime: true };
     }
 
-    const materiaId = data.materia_id || disponibilitaRichiesta.materia_id;
+    const materiaId = Number(data.materia_id || disponibilitaRichiesta.materia_id);
+    const materiaTutor = await get(
+      `
+        SELECT 1
+        FROM Tutor_Materie
+        WHERE tutor_id = ? AND materia_id = ?
+      `,
+      [disponibilitaRichiesta.tutor_id, materiaId],
+    );
+
+    if (!materiaTutor) return { invalidSubject: true };
+
     const disponibilita = await get(
       `
         SELECT *
         FROM Disponibilita_Tutor
         WHERE tutor_id = ?
-          AND materia_id = ?
           AND data = ?
           AND ora_inizio <= ?
           AND ora_fine >= ?
@@ -461,7 +605,6 @@ const Platform = {
       `,
       [
         disponibilitaRichiesta.tutor_id,
-        materiaId,
         data.data,
         data.ora_inizio,
         data.ora_fine,
@@ -511,7 +654,7 @@ const Platform = {
         disponibilita.id,
         studenteId,
         disponibilita.tutor_id,
-        disponibilita.materia_id,
+        materiaId,
         data.data,
         data.ora_inizio,
         data.ora_fine,

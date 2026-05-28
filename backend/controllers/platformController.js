@@ -39,13 +39,14 @@ exports.getTutor = async (req, res) => {
     const tutor = await Platform.getTutorById(req.params.id);
     if (!tutor) return res.status(404).json({ message: "Tutor non trovato" });
 
-    const [availability, materials, bookedSlots] = await Promise.all([
+    const [availability, materials, bookedSlots, availableSchedule] = await Promise.all([
       Platform.getAvailability(req.params.id),
       Platform.getTutorMaterials(req.params.id),
       Platform.getBookedSlots(req.params.id),
+      Platform.getAvailableSchedule(req.params.id),
     ]);
 
-    res.json({ ...tutor, availability, materials, bookedSlots });
+    res.json({ ...tutor, availability, materials, bookedSlots, availableSchedule });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -149,6 +150,11 @@ exports.createBooking = async (req, res) => {
     if (booking.invalidSlot) {
       return res.status(400).json({
         message: "La fascia oraria scelta non rientra nella disponibilita del tutor.",
+      });
+    }
+    if (booking.invalidSubject) {
+      return res.status(400).json({
+        message: "La materia scelta non e tra quelle insegnate dal tutor.",
       });
     }
     if (booking.conflict) {
