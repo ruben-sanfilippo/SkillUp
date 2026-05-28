@@ -38,6 +38,8 @@ function creaTabelle() {
       },
     );
 
+    db.run(`ALTER TABLE Utente ADD COLUMN data_iscrizione TEXT`, () => {});
+
     // Tabella Tutor
     db.run(
       `
@@ -90,6 +92,7 @@ function creaTabelle() {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 tutor_id INTEGER NOT NULL,
                 materia_id INTEGER NOT NULL,
+                data TEXT,
                 giorno_settimana TEXT NOT NULL,
                 ora_inizio TEXT NOT NULL,
                 ora_fine TEXT NOT NULL,
@@ -103,6 +106,8 @@ function creaTabelle() {
         else console.log("Tabella Disponibilità OK");
       },
     );
+
+    db.run(`ALTER TABLE Disponibilita_Tutor ADD COLUMN data TEXT`, () => {});
 
     //Tabella Prenotazioni
     db.run(
@@ -177,6 +182,7 @@ function creaTabelle() {
                 titolo TEXT NOT NULL,
                 descrizione TEXT,
                 file_url TEXT NOT NULL,
+                anteprima_url TEXT,
                 importo REAL NOT NULL,
                 FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id),
                 FOREIGN KEY (materia_id) REFERENCES Materie(id)
@@ -187,6 +193,8 @@ function creaTabelle() {
         else console.log("Tabella Materiale Didattico OK");
       },
     );
+
+    db.run(`ALTER TABLE Materiale_Didattico ADD COLUMN anteprima_url TEXT`, () => {});
 
     //Tabella Materiale_Acquistato
     db.run(
@@ -206,6 +214,394 @@ function creaTabelle() {
         else console.log("Tabella Materiale Acquistato OK");
       },
     );
+
+    db.run(
+      `
+            CREATE TABLE IF NOT EXISTS Lingue (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome TEXT NOT NULL UNIQUE
+            )
+        `,
+      (err) => {
+        if (err) console.error("Errore Lingue:", err.message);
+        else console.log("Tabella Lingue OK");
+      },
+    );
+
+    db.run(
+      `
+            CREATE TABLE IF NOT EXISTS Tutor_Materie (
+                tutor_id INTEGER NOT NULL,
+                materia_id INTEGER NOT NULL,
+                PRIMARY KEY (tutor_id, materia_id),
+                FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id) ON DELETE CASCADE,
+                FOREIGN KEY (materia_id) REFERENCES Materie(id) ON DELETE CASCADE
+            )
+        `,
+      (err) => {
+        if (err) console.error("Errore Tutor_Materie:", err.message);
+        else console.log("Tabella Tutor_Materie OK");
+      },
+    );
+
+    db.run(
+      `
+            CREATE TABLE IF NOT EXISTS Tutor_Lingue (
+                tutor_id INTEGER NOT NULL,
+                lingua_id INTEGER NOT NULL,
+                PRIMARY KEY (tutor_id, lingua_id),
+                FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id) ON DELETE CASCADE,
+                FOREIGN KEY (lingua_id) REFERENCES Lingue(id) ON DELETE CASCADE
+            )
+        `,
+      (err) => {
+        if (err) console.error("Errore Tutor_Lingue:", err.message);
+        else console.log("Tabella Tutor_Lingue OK");
+      },
+    );
+
+    popolaDatiIniziali();
+  });
+}
+
+function popolaDatiIniziali() {
+  const passwordDemo =
+    "$2b$10$jjM6q.NjqlVOo.VKovEh8uPMIjJMFg85lqVd1mpqied6vjVn9ok/S";
+  const materie = [
+    "Matematica",
+    "Fisica",
+    "Letteratura",
+    "Informatica",
+    "Inglese",
+    "Scienze",
+    "Analisi Matematica 1",
+    "Chimica",
+    "Geometria",
+  ];
+  const lingue = ["Italiano", "Inglese", "Spagnolo", "Francese", "Tedesco"];
+  const utentiDemo = [
+    {
+      nome: "Mario",
+      cognome: "Admin",
+      email: "admin@skillup.local",
+      tipologia: "amministratore",
+    },
+    {
+      nome: "Elena",
+      cognome: "Rostova",
+      email: "elena.rostova@skillup.local",
+      tipologia: "tutor",
+      bio: "Dottorato in Matematica, specializzata in preparazione esami universitari.",
+      materie: ["Matematica", "Fisica"],
+      lingue: ["Italiano", "Inglese"],
+      tariffa: 45,
+    },
+    {
+      nome: "Marco",
+      cognome: "Chen",
+      email: "marco.chen@skillup.local",
+      tipologia: "tutor",
+      bio: "Ingegnere informatico con esperienza in programmazione e fisica applicata.",
+      materie: ["Fisica", "Informatica"],
+      lingue: ["Italiano", "Francese"],
+      tariffa: 60,
+    },
+    {
+      nome: "Sara",
+      cognome: "Jenkins",
+      email: "sara.jenkins@skillup.local",
+      tipologia: "tutor",
+      bio: "Tutor di inglese e letteratura, appassionata di scrittura accademica.",
+      materie: ["Letteratura", "Inglese"],
+      lingue: ["Inglese", "Spagnolo"],
+      tariffa: 35,
+    },
+    {
+      nome: "Alessandro",
+      cognome: "Rossi",
+      email: "studente@skillup.local",
+      tipologia: "studente",
+      bio: "Studente universitario interessato a informatica e matematica.",
+    },
+  ];
+
+  materie.forEach((nome) => {
+    db.run(`INSERT OR IGNORE INTO Materie (nome) VALUES (?)`, [nome]);
+  });
+
+  lingue.forEach((nome) => {
+    db.run(`INSERT OR IGNORE INTO Lingue (nome) VALUES (?)`, [nome]);
+  });
+
+  utentiDemo.forEach((utente) => {
+    db.run(
+      `
+        INSERT OR IGNORE INTO Utente
+        (nome, cognome, email, password, tipologia_utente, data_iscrizione)
+        VALUES (?, ?, ?, ?, ?, date('now'))
+      `,
+      [
+        utente.nome,
+        utente.cognome,
+        utente.email,
+        passwordDemo,
+        utente.tipologia,
+      ],
+    );
+
+    db.get(`SELECT id FROM Utente WHERE email = ?`, [utente.email], (err, row) => {
+      if (err || !row) return;
+
+      if (utente.tipologia === "tutor") {
+        db.run(`INSERT OR IGNORE INTO Tutor (utente_id, bio_tutor) VALUES (?, ?)`, [
+          row.id,
+          utente.bio,
+        ]);
+        associaTutor(row.id, utente.materie || [], utente.lingue || [], utente.tariffa);
+      } else if (utente.tipologia === "studente") {
+        db.run(
+          `INSERT OR IGNORE INTO Studente (utente_id, bio_studente) VALUES (?, ?)`,
+          [row.id, utente.bio || ""],
+        );
+      }
+    });
+  });
+
+  setTimeout(inserisciPrenotazioniDemoMaggio, 1000);
+}
+
+function inserisciPrenotazioniDemoMaggio() {
+  const slotDemo = [
+    { data: "2026-05-29", giorno: "venerdi", orari: ["09:30", "11:00", "14:30", "16:00"] },
+    { data: "2026-05-30", giorno: "sabato", orari: ["10:00", "12:00", "15:00", "17:00"] },
+    { data: "2026-05-31", giorno: "domenica", orari: ["09:00", "11:00", "15:30", "17:30"] },
+  ];
+
+  db.get(
+    `SELECT id FROM Utente WHERE email = 'studente@skillup.local'`,
+    (errStudente, studente) => {
+      if (errStudente || !studente) return;
+
+      db.all(
+        `
+          SELECT
+            t.utente_id AS tutor_id,
+            COALESCE(MIN(tm.materia_id), (SELECT id FROM Materie WHERE nome = 'Matematica')) AS materia_id,
+            COALESCE(MIN(dt.tariffa_oraria), 35) AS tariffa
+          FROM Tutor t
+          LEFT JOIN Tutor_Materie tm ON tm.tutor_id = t.utente_id
+          LEFT JOIN Disponibilita_Tutor dt ON dt.tutor_id = t.utente_id
+          GROUP BY t.utente_id
+        `,
+        (errTutor, tutorRows) => {
+          if (errTutor || !tutorRows) return;
+
+          tutorRows.forEach((tutor, tutorIndex) => {
+            slotDemo.forEach((slot) => {
+              const inizioPrenotazione =
+                slot.orari[tutorIndex % slot.orari.length];
+              const finePrenotazione = aggiungiOre(inizioPrenotazione, 1);
+              const disponibilitaInizio = aggiungiOre(inizioPrenotazione, -0.5);
+              const disponibilitaFine = aggiungiOre(finePrenotazione, 0.5);
+
+              db.run(
+                `
+                  INSERT INTO Disponibilita_Tutor
+                  (tutor_id, materia_id, data, giorno_settimana, ora_inizio, ora_fine, tariffa_oraria)
+                  SELECT ?, ?, ?, ?, ?, ?, ?
+                  WHERE NOT EXISTS (
+                    SELECT 1 FROM Disponibilita_Tutor
+                    WHERE tutor_id = ?
+                      AND materia_id = ?
+                      AND data = ?
+                      AND ora_inizio = ?
+                      AND ora_fine = ?
+                  )
+                `,
+                [
+                  tutor.tutor_id,
+                  tutor.materia_id,
+                  slot.data,
+                  slot.giorno,
+                  disponibilitaInizio,
+                  disponibilitaFine,
+                  tutor.tariffa,
+                  tutor.tutor_id,
+                  tutor.materia_id,
+                  slot.data,
+                  disponibilitaInizio,
+                  disponibilitaFine,
+                ],
+                () => {
+                  db.get(
+                    `
+                      SELECT id
+                      FROM Disponibilita_Tutor
+                      WHERE tutor_id = ?
+                        AND materia_id = ?
+                        AND data = ?
+                        AND ora_inizio = ?
+                        AND ora_fine = ?
+                      LIMIT 1
+                    `,
+                    [
+                      tutor.tutor_id,
+                      tutor.materia_id,
+                      slot.data,
+                      disponibilitaInizio,
+                      disponibilitaFine,
+                    ],
+                    (errDisponibilita, disponibilita) => {
+                      if (errDisponibilita || !disponibilita) return;
+
+                      db.run(
+                        `
+                          INSERT INTO Prenotazioni
+                          (disponibilita_id, studente_id, tutor_id, materia_id, data, ora_inizio, ora_fine, importo)
+                          SELECT ?, ?, ?, ?, ?, ?, ?, ?
+                          WHERE NOT EXISTS (
+                            SELECT 1 FROM Prenotazioni
+                            WHERE studente_id = ?
+                              AND tutor_id = ?
+                              AND materia_id = ?
+                              AND data = ?
+                              AND ora_inizio = ?
+                          )
+                        `,
+                        [
+                          disponibilita.id,
+                          studente.id,
+                          tutor.tutor_id,
+                          tutor.materia_id,
+                          slot.data,
+                          inizioPrenotazione,
+                          finePrenotazione,
+                          tutor.tariffa,
+                          studente.id,
+                          tutor.tutor_id,
+                          tutor.materia_id,
+                          slot.data,
+                          inizioPrenotazione,
+                        ],
+                      );
+                    },
+                  );
+                },
+              );
+            });
+          });
+        },
+      );
+    },
+  );
+}
+
+function aggiungiOre(orario, oreDaAggiungere) {
+  const [ore, minuti] = orario.split(":").map(Number);
+  const totaleMinuti = ore * 60 + minuti + Math.round(oreDaAggiungere * 60);
+  const oreFinali = Math.floor(totaleMinuti / 60).toString().padStart(2, "0");
+  const minutiFinali = (totaleMinuti % 60).toString().padStart(2, "0");
+  return `${oreFinali}:${minutiFinali}`;
+}
+
+function associaTutor(tutorId, materie, lingue, tariffa) {
+  materie.forEach((materia) => {
+    db.get(`SELECT id FROM Materie WHERE nome = ?`, [materia], (err, row) => {
+      if (err || !row) return;
+
+      db.run(
+        `INSERT OR IGNORE INTO Tutor_Materie (tutor_id, materia_id) VALUES (?, ?)`,
+        [tutorId, row.id],
+      );
+      db.run(
+        `
+          INSERT INTO Disponibilita_Tutor
+          (tutor_id, materia_id, data, giorno_settimana, ora_inizio, ora_fine, tariffa_oraria)
+          SELECT ?, ?, date('now'), 'oggi', '09:00', '18:00', ?
+          WHERE NOT EXISTS (
+            SELECT 1 FROM Disponibilita_Tutor
+            WHERE tutor_id = ? AND materia_id = ? AND data = date('now')
+          )
+        `,
+        [tutorId, row.id, tariffa, tutorId, row.id],
+        () => {
+          db.run(
+            `
+              INSERT INTO Prenotazioni
+              (disponibilita_id, studente_id, tutor_id, materia_id, data, ora_inizio, ora_fine, importo)
+              SELECT dt.id, s.id, ?, ?, dt.data, '09:00', '10:00', ?
+              FROM Disponibilita_Tutor dt
+              JOIN Utente s ON s.email = 'studente@skillup.local'
+              WHERE dt.tutor_id = ?
+                AND dt.materia_id = ?
+                AND dt.data = date('now')
+                AND NOT EXISTS (
+                  SELECT 1 FROM Prenotazioni p
+                  WHERE p.data = dt.data
+                    AND p.ora_inizio = '09:00'
+                    AND (p.studente_id = s.id OR p.tutor_id = ?)
+                )
+              LIMIT 1
+            `,
+            [tutorId, row.id, tariffa, tutorId, row.id, tutorId],
+          );
+        },
+      );
+      db.run(
+        `
+          INSERT INTO Materiale_Didattico
+          (tutor_id, materia_id, titolo, descrizione, file_url, anteprima_url, importo)
+          SELECT ?, ?, ?, ?, ?, ?, ?
+          WHERE NOT EXISTS (
+            SELECT 1 FROM Materiale_Didattico
+            WHERE tutor_id = ? AND materia_id = ? AND titolo = ?
+          )
+        `,
+        [
+          tutorId,
+          row.id,
+          `Dispensa di ${materia}`,
+          `Materiale introduttivo per ${materia}.`,
+          `dispensa-${materia.toLowerCase().replace(/\s+/g, "-")}.pdf`,
+          "",
+          5,
+          tutorId,
+          row.id,
+          `Dispensa di ${materia}`,
+        ],
+        () => {
+          db.run(
+            `
+              INSERT INTO Materiale_Acquistato
+              (studente_id, materiale_id, importo_pagato)
+              SELECT s.id, md.id, md.importo
+              FROM Materiale_Didattico md
+              JOIN Utente s ON s.email = 'studente@skillup.local'
+              WHERE md.tutor_id = ?
+                AND md.materia_id = ?
+                AND md.titolo = ?
+                AND NOT EXISTS (
+                  SELECT 1 FROM Materiale_Acquistato ma
+                  WHERE ma.studente_id = s.id
+                    AND ma.materiale_id = md.id
+                )
+              LIMIT 1
+            `,
+            [tutorId, row.id, `Dispensa di ${materia}`],
+          );
+        },
+      );
+    });
+  });
+
+  lingue.forEach((lingua) => {
+    db.get(`SELECT id FROM Lingue WHERE nome = ?`, [lingua], (err, row) => {
+      if (err || !row) return;
+      db.run(
+        `INSERT OR IGNORE INTO Tutor_Lingue (tutor_id, lingua_id) VALUES (?, ?)`,
+        [tutorId, row.id],
+      );
+    });
   });
 }
 

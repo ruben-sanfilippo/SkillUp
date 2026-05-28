@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
 import {
@@ -33,7 +34,9 @@ import {
   chevronBackOutline,
   chevronForwardOutline,
   informationCircleOutline,
+  logOutOutline,
 } from 'ionicons/icons';
+import { TutorService } from 'src/app/services/tutorService';
 
 interface Dispensa {
   titolo: string;
@@ -43,6 +46,7 @@ interface Dispensa {
   anteprimaUrl?: string | SafeResourceUrl;
   isPdfPreview?: boolean;
   fileCompleto?: File | null;
+  fileUrl?: string;
   haAnteprima: boolean;
   haFileCompleto: boolean;
 }
@@ -136,6 +140,8 @@ export class TutorProfilePage implements OnInit {
   constructor(
     private sanitizer: DomSanitizer,
     private alertController: AlertController,
+    private tutorService: TutorService,
+    private router: Router,
   ) {
     addIcons({
       personOutline,
@@ -166,16 +172,60 @@ export class TutorProfilePage implements OnInit {
       chevronBackOutline,
       chevronForwardOutline,
       informationCircleOutline,
+      logOutOutline,
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.caricaProfiloTutor();
     this.biografiaTmp = this.biografia;
     this.prezzoOrarioTmp = this.prezzoOrario;
     this.materieFiltrate = [...this.materieDisponibili];
     this.lingueFiltrate = [...this.lingueDisponibili];
 
     this.costruisciCalendarioMensile();
+  }
+
+  async caricaProfiloTutor() {
+    const tutor = await this.tutorService.getTutorMe();
+    this.nome = tutor.nome;
+    this.cognome = tutor.cognome;
+    this.biografia = tutor.bio || '';
+    this.avatarUrl = tutor.image || '';
+    this.mediaRecensioni = tutor.rating;
+    this.numeroRecensioni = tutor.reviews;
+    this.prezzoOrario = tutor.price || this.prezzoOrario;
+    this.materieSelezionate = tutor.subjects || [];
+    this.lingueSelezionate = tutor.languages || [];
+    this.databaseDisponibilita = {};
+
+    for (const item of tutor.availability || []) {
+      if (!item.data) continue;
+      this.databaseDisponibilita[item.data] = {
+        attivo: true,
+        dalle: item.ora_inizio,
+        alle: item.ora_fine,
+      };
+    }
+
+    this.listaDispense = (tutor.materials || []).map((materiale: any) => ({
+      titolo: materiale.titolo,
+      descrizione: materiale.descrizione,
+      prezzo: materiale.importo,
+      anteprimaUrl: materiale.anteprima_url,
+      isPdfPreview: false,
+      fileUrl: materiale.file_url,
+      haAnteprima: !!materiale.anteprima_url,
+      haFileCompleto: !!materiale.file_url,
+      fileCompleto: null,
+    }));
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('tipologia_utente');
+    localStorage.removeItem('skillup_recensioni_aggiornate');
+    this.router.navigate(['/login']);
   }
 
   get nomeMeseCorrente(): string {
@@ -361,12 +411,15 @@ export class TutorProfilePage implements OnInit {
   async salvaSezione(sezione: string) {
     if (sezione === 'biografia') {
       this.biografia = this.biografiaTmp ? this.biografiaTmp.substring(0, 200) : '';
+      await this.tutorService.updateTutorMe({ bio: this.biografia });
       this.isEditingBiografia = false;
     } else if (sezione === 'lingue') {
       this.lingueSelezionate = [...this.lingueSelezionateTmp];
+      await this.tutorService.updateTutorMe({ lingue: this.lingueSelezionate });
       this.isEditingLingue = false;
     } else if (sezione === 'materie') {
       this.materieSelezionate = [...this.materieSelezionateTmp];
+      await this.tutorService.updateTutorMe({ materie: this.materieSelezionate });
       this.isEditingMaterie = false;
     } else if (sezione === 'disponibilita') {
       for (const dataKey in this.databaseDisponibilitaTmp) {
@@ -386,6 +439,18 @@ export class TutorProfilePage implements OnInit {
         this.databaseDisponibilita[key] = { ...this.databaseDisponibilitaTmp[key] };
       }
 
+      const disponibilita = Object.entries(this.databaseDisponibilita).map(
+        ([data, info]) => ({
+          data,
+          attivo: info.attivo,
+          dalle: info.dalle,
+          alle: info.alle,
+        }),
+      );
+      await this.tutorService.updateDisponibilitaMe(
+        disponibilita,
+        this.prezzoOrario,
+      );
       this.isEditingDisponibilita = false;
       this.costruisciCalendarioMensile();
     }
@@ -447,6 +512,7 @@ export class TutorProfilePage implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.nuovaDispensa.fileCompleto = file;
+      this.nuovaDispensa.fileUrl = file.name;
       this.nuovaDispensa.haFileCompleto = true;
     }
   }
@@ -473,6 +539,18 @@ export class TutorProfilePage implements OnInit {
       haFileCompleto: this.nuovaDispensa.haFileCompleto,
     };
 
+    await this.tutorService.createMaterial({
+      titolo: dispensaDaSalvare.titolo,
+      descrizione: dispensaDaSalvare.descrizione,
+      materia: this.materieSelezionate[0],
+      file_url: dispensaDaSalvare.fileUrl || dispensaDaSalvare.fileCompleto?.name || '',
+      anteprima_url:
+        typeof dispensaDaSalvare.anteprimaUrl === 'string'
+          ? dispensaDaSalvare.anteprimaUrl
+          : '',
+      importo: dispensaDaSalvare.prezzo || 0,
+    });
+
     this.listaDispense.push(dispensaDaSalvare);
 
     if (copertinaEl) copertinaEl.value = '';
@@ -486,6 +564,7 @@ export class TutorProfilePage implements OnInit {
       copertinaUrl: '',
       anteprimaUrl: '',
       fileCompleto: null,
+      fileUrl: '',
       haAnteprima: false,
       haFileCompleto: false,
       isPdfPreview: false,

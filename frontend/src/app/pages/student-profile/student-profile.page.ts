@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { IonicModule } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   schoolOutline, 
@@ -16,8 +17,10 @@ import {
   cameraOutline,
   imageOutline,
   trashOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  logOutOutline
 } from 'ionicons/icons';
+import { PlatformService } from 'src/app/services/platformService';
 
 interface StudentData {
   firstName: string;
@@ -29,7 +32,7 @@ interface StudentData {
 }
 
 interface Booking {
-  id: string;
+  id: string | number;
   tutorName: string;
   tutorAvatar: string;
   subject: string;
@@ -42,12 +45,13 @@ interface Booking {
 }
 
 interface Material {
-  id: string;
+  id: string | number;
   title: string;
   author: string;
   type: 'pdf' | 'notes';
   fileLabel: string; 
   sizeInMb: string;
+  fileUrl?: string;
 }
 
 @Component({
@@ -106,128 +110,14 @@ export class StudentProfilePage implements OnInit {
     },
   ];
 
-  recentBookings: Booking[] = [
-    {
-      id: 'b1',
-      tutorName: 'Dr. Samuel Chen',
-      tutorAvatar: 'https://i.pravatar.cc/150?u=samuel',
-      subject: 'Calcolo Avanzato',
-      date: new Date('2026-05-25'),
-      dataItaliana: '25 Mag 2026', 
-      startTime: '10:00',
-      endTime: '11:30',
-      status: 'IN PROGRAMMA',
-      hasReviewed: false
-    },
-    {
-      id: 'b2',
-      tutorName: 'Maria Gonzalez',
-      tutorAvatar: 'https://i.pravatar.cc/150?u=maria',
-      subject: 'Strutture Dati',
-      date: new Date('2026-05-20'),
-      dataItaliana: '20 Mag 2026', 
-      startTime: '14:00',
-      endTime: '15:00',
-      status: 'COMPLETATA',
-      hasReviewed: false 
-    }
-  ];
+  recentBookings: Booking[] = [];
+  allBookings: Booking[] = [];
+  purchasedMaterials: Material[] = [];
 
-  allBookings: Booking[] = [
-    {
-      id: 'b1',
-      tutorName: 'Dr. Samuel Chen',
-      tutorAvatar: 'https://i.pravatar.cc/150?u=samuel',
-      subject: 'Calcolo Avanzato',
-      date: new Date('2026-05-25'),
-      dataItaliana: '25 Mag 2026', 
-      startTime: '10:00',
-      endTime: '11:30',
-      status: 'IN PROGRAMMA',
-      hasReviewed: false
-    },
-    {
-      id: 'b2',
-      tutorName: 'Maria Gonzalez',
-      tutorAvatar: 'https://i.pravatar.cc/150?u=maria',
-      subject: 'Strutture Dati',
-      date: new Date('2026-05-20'),
-      dataItaliana: '20 Mag 2026', 
-      startTime: '14:00',
-      endTime: '15:00',
-      status: 'COMPLETATA',
-      hasReviewed: false 
-    },
-    {
-      id: 'b3',
-      tutorName: 'Prof. Enrico Verdi',
-      tutorAvatar: 'https://i.pravatar.cc/150?u=enrico',
-      subject: 'Algebra Lineare',
-      date: new Date('2026-05-10'),
-      dataItaliana: '10 Mag 2026',
-      startTime: '09:00',
-      endTime: '11:00',
-      status: 'COMPLETATA',
-      hasReviewed: true 
-    },
-    {
-      id: 'b4',
-      tutorName: 'Elena Rostova',
-      tutorAvatar: 'https://i.pravatar.cc/150?u=elena',
-      subject: 'Fisica Sperimentale I',
-      date: new Date('2026-04-18'),
-      dataItaliana: '18 Apr 2026',
-      startTime: '16:00',
-      endTime: '17:30',
-      status: 'COMPLETATA',
-      hasReviewed: false 
-    }
-  ];
-
-  purchasedMaterials: Material[] = [
-    {
-      id: 'm1',
-      title: 'Guida al Calcolo Avanzato: Padroneggiare l\'Integrazione',
-      author: 'Dr. Samuel Chen',
-      type: 'pdf',
-      fileLabel: 'PDF',
-      sizeInMb: '4.2 MB'
-    },
-    {
-      id: 'm2',
-      title: 'Appunti Completi di Algoritmi e Strutture Dati - Esame A.A. 2025',
-      author: 'Alessandro Rossi',
-      type: 'notes',
-      fileLabel: 'NOTE',
-      sizeInMb: '2.8 MB'
-    },
-    {
-      id: 'm3',
-      title: 'Dispensa di Algebra Lineare e Geometria Analitica',
-      author: 'Prof. Enrico Verdi',
-      type: 'pdf',
-      fileLabel: 'PDF',
-      sizeInMb: '6.8 MB'
-    },
-    {
-      id: 'm4',
-      title: 'Esercitazioni Risolte di Fisica Sperimentale I',
-      author: 'Studio Co-Tutor',
-      type: 'notes',
-      fileLabel: 'NOTE',
-      sizeInMb: '5.1 MB'
-    },
-    {
-      id: 'm5',
-      title: 'Prontuario di Comandi e Sintassi SQL per Database',
-      author: 'Alessandro Rossi',
-      type: 'pdf',
-      fileLabel: 'PDF',
-      sizeInMb: '1.5 MB'
-    }
-  ];
-
-  constructor() {
+  constructor(
+    private platformService: PlatformService,
+    private router: Router,
+  ) {
     addIcons({
       schoolOutline,
       searchOutline,
@@ -241,11 +131,43 @@ export class StudentProfilePage implements OnInit {
       cameraOutline,
       imageOutline,
       trashOutline,
-      checkmarkCircleOutline
+      checkmarkCircleOutline,
+      logOutOutline
     });
   }
 
-  ngOnInit() {}
+  async ngOnInit() {
+    await this.caricaDatiStudente();
+  }
+
+  async caricaDatiStudente() {
+    const [utente, prenotazioni, materiali] = await Promise.all([
+      this.platformService.getMe(),
+      this.platformService.getBookingsMe(),
+      this.platformService.getPurchasedMaterials(),
+    ]);
+
+    this.student = {
+      firstName: utente.nome,
+      lastName: utente.cognome,
+      avatar: utente.immagine_profilo || '',
+      about: utente.bio || '',
+      sessionsCompleted: prenotazioni.length,
+      studyHours: prenotazioni.length,
+    };
+
+    this.allBookings = prenotazioni.map((booking) => this.mappaPrenotazione(booking));
+    this.recentBookings = this.allBookingsSorted.slice(0, 2);
+    this.purchasedMaterials = materiali.map((materiale) => ({
+      id: materiale.id,
+      title: materiale.titolo,
+      author: materiale.autore,
+      type: 'pdf',
+      fileLabel: 'PDF',
+      sizeInMb: 'Backend',
+      fileUrl: materiale.file_url,
+    }));
+  }
 
   get allBookingsSorted(): Booking[] {
     return [...this.allBookings].sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -271,11 +193,14 @@ export class StudentProfilePage implements OnInit {
     this.currentRating = rating; 
   }
 
-  inviaRecensione() {
+  async inviaRecensione() {
     if (!this.selectedBookingForReview) return;
     
     const targetId = this.selectedBookingForReview.id;
-    console.log(`Valutazione inviata per il Tutor ID: ${targetId} con ${this.currentRating} stelle`);
+    await this.platformService.createReview({
+      prenotazione_id: targetId,
+      voto: this.currentRating,
+    });
 
     const bookingInAll = this.allBookings.find(b => b.id === targetId);
     if (bookingInAll) {
@@ -286,6 +211,8 @@ export class StudentProfilePage implements OnInit {
     if (bookingInRecent) {
       bookingInRecent.hasReviewed = true;
     }
+
+    localStorage.setItem('skillup_recensioni_aggiornate', Date.now().toString());
 
     this.chiudiModalRecensione();
   }
@@ -307,7 +234,7 @@ export class StudentProfilePage implements OnInit {
       const reader = new FileReader();
       reader.onload = () => {
         this.student.avatar = reader.result as string;
-        console.log('Nuova foto profilo caricata con successo!');
+        this.platformService.updateMe({ immagine_profilo: this.student.avatar });
       };
       reader.readAsDataURL(file);
     }
@@ -315,7 +242,7 @@ export class StudentProfilePage implements OnInit {
 
   rimuoviAvatar() {
     this.student.avatar = ''; 
-    console.log('Foto profilo rimossa.');
+    this.platformService.updateMe({ immagine_profilo: '' });
   }
 
   apriModalBio() {
@@ -328,17 +255,16 @@ export class StudentProfilePage implements OnInit {
     this.tempBio = '';
   }
 
-  salvaBio() {
+  async salvaBio() {
     if (this.tempBio && this.tempBio.trim() && this.tempBio.length <= 200) {
       this.student.about = this.tempBio.trim(); 
-      console.log('Biografia aggiornata con successo!');
+      await this.platformService.updateMe({ bio: this.student.about });
       this.chiudiModalBio();
     }
   }
 
   scaricaMateriale(item: Material) {
-    console.log(`Inizio download: ${item.title}`);
-    const contenutoMock = `STUDY HUB - FILE ACQUISTATO\n\nTitolo: ${item.title}\nAutore: ${item.author}`;
+    const contenutoMock = item.fileUrl || `Titolo: ${item.title}\nAutore: ${item.author}`;
     const estensione = item.type === 'pdf' ? 'pdf' : 'txt';
     const nomeFile = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
 
@@ -358,5 +284,33 @@ export class StudentProfilePage implements OnInit {
 
   eseguiAzione(azione: string, id?: string) {
     console.log(`Azione: ${azione}${id ? ' ID: ' + id : ''}`);
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('tipologia_utente');
+    localStorage.removeItem('skillup_recensioni_aggiornate');
+    this.router.navigate(['/login']);
+  }
+
+  private mappaPrenotazione(booking: any): Booking {
+    const data = new Date(booking.data);
+    return {
+      id: booking.id,
+      tutorName: booking.tutorName,
+      tutorAvatar:
+        booking.tutorAvatar || `https://i.pravatar.cc/150?u=${booking.tutor_id}`,
+      subject: booking.materia,
+      date: data,
+      dataItaliana: data.toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      startTime: booking.ora_inizio,
+      endTime: booking.ora_fine,
+      status: data >= new Date() ? 'IN PROGRAMMA' : 'COMPLETATA',
+      hasReviewed: !!booking.hasReviewed,
+    };
   }
 }

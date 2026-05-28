@@ -1,13 +1,173 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>tutorDashboard</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="dashboard-content">
+  <div class="dashboard-wrapper">
+    <section class="dashboard-header">
+      <div>
+        <span class="eyebrow">Area tutor</span>
+        <h1>Dashboard</h1>
+        <p>
+          Monitora prenotazioni, ricavi e andamento dei materiali didattici nel
+          {{ anno }}.
+        </p>
+      </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">tutorDashboard</ion-title>
-    </ion-toolbar>
-  </ion-header>
+      <div class="total-revenue-card">
+        <ion-icon name="cash-outline"></ion-icon>
+        <div>
+          <span>Ricavi totali</span>
+          <strong>{{ formatEuro(totaleRicavi) }}</strong>
+        </div>
+      </div>
+    </section>
+
+    @if (messaggioErrore) {
+    <div class="status-message error-message">{{ messaggioErrore }}</div>
+    } @if (isCaricamento) {
+    <div class="status-message">Caricamento statistiche...</div>
+    }
+
+    <section class="stats-grid">
+      <article class="stat-card accent-primary">
+        <div class="stat-icon">
+          <ion-icon name="book-outline"></ion-icon>
+        </div>
+        <span class="stat-label">Materia più prenotata</span>
+        <strong
+          >{{ materiaPiuPrenotata?.nome || 'Nessuna prenotazione' }}</strong
+        >
+        <p>
+          {{ materiaPiuPrenotata?.prenotazioni || 0 }} prenotazioni confermate
+        </p>
+        <div class="progress-track">
+          <span [style.width.%]="progressoMateriaPiuPrenotata"></span>
+        </div>
+      </article>
+
+      <article class="stat-card accent-secondary">
+        <div class="stat-icon">
+          <ion-icon name="library-outline"></ion-icon>
+        </div>
+        <span class="stat-label">Materiale più acquistato</span>
+        <strong
+          >{{ materialePiuAcquistato?.titolo || 'Nessun materiale' }}</strong
+        >
+        <p>{{ materialePiuAcquistato?.acquisti || 0 }} acquisti</p>
+        <div class="metric-row">
+          <span>Ricavi generati</span>
+          <b>{{ formatEuro(materialePiuAcquistato?.ricavi || 0) }}</b>
+        </div>
+      </article>
+
+      <article class="stat-card accent-tertiary">
+        <div class="stat-icon">
+          <ion-icon name="trending-up-outline"></ion-icon>
+        </div>
+        <span class="stat-label">Materiali venduti</span>
+        <strong>{{ totaleAcquistiMateriali }}</strong>
+        <p>Acquisti totali sulle dispense pubblicate</p>
+      </article>
+    </section>
+
+    <section class="dashboard-main-grid">
+      <article class="panel lessons-panel">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Calendario</span>
+            <h2>Lezioni da effetuare</h2>
+          </div>
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+
+        @if (prossimeLezioni.length === 0) {
+        <div class="empty-state">Non ci sono lezioni future prenotate.</div>
+        }
+
+        <div class="lessons-list">
+          @for (lezione of prossimeLezioni; track lezione.id) {
+          <div class="lesson-row">
+            <div class="student-avatar">
+              <img
+                [src]="lezione.studenteAvatar"
+                [alt]="lezione.studenteNome"
+              />
+            </div>
+
+            <div class="lesson-main">
+              <strong>{{ lezione.studenteNome }}</strong>
+              <span>{{ lezione.materia }}</span>
+              <div class="lesson-meta">
+                <span>
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  {{ formatData(lezione.data) }}
+                </span>
+                <span>
+                  <ion-icon name="time-outline"></ion-icon>
+                  {{ lezione.ora_inizio }} - {{ lezione.ora_fine }}
+                </span>
+              </div>
+            </div>
+
+            <button class="contact-btn" (click)="contattaStudente(lezione)">
+              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+              Contatta
+            </button>
+          </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Andamento</span>
+            <h2>Ricavi mensili</h2>
+          </div>
+          <ion-icon name="stats-chart-outline"></ion-icon>
+        </div>
+
+        <div class="bar-chart" aria-label="Grafico ricavi mensili">
+          @for (mese of ricaviMensili; track mese.mese) {
+          <div class="bar-item">
+            <div class="bar-value">{{ formatEuro(mese.ricavi) }}</div>
+            <div class="bar-track">
+              <span [style.height.%]="getBarHeight(mese.ricavi)"></span>
+            </div>
+            <div class="bar-label">{{ mese.mese }}</div>
+          </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel materials-panel">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Dispense</span>
+            <h2>Materiali didattici</h2>
+          </div>
+        </div>
+
+        <div class="materials-table">
+          <div class="table-row table-head">
+            <span>Materiale</span>
+            <span>Acquisti</span>
+            <span>Ricavi</span>
+          </div>
+
+          @if (materiali.length === 0) {
+          <div class="empty-state">
+            Nessun materiale didattico pubblicato o acquistato.
+          </div>
+          } @for (materiale of materiali; track materiale.id) {
+          <div class="table-row">
+            <div class="material-info">
+              <strong>{{ materiale.titolo }}</strong>
+              <span>{{ materiale.materia }}</span>
+            </div>
+            <span class="number-cell">{{ materiale.acquisti }}</span>
+            <span class="revenue-cell">{{ formatEuro(materiale.ricavi) }}</span>
+          </div>
+          }
+        </div>
+      </article>
+    </section>
+  </div>
 </ion-content>

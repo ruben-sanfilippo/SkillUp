@@ -1,0 +1,94 @@
+const db = require("../db/db");
+
+const Dashboard = {
+  getRicaviMensili: (tutorId, anno) => {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT strftime('%m', data) AS mese, SUM(importo) AS ricavi
+        FROM Prenotazioni
+        WHERE tutor_id = ? AND strftime('%Y', data) = ?
+        GROUP BY mese
+        ORDER BY mese
+      `;
+
+      db.all(query, [tutorId, String(anno)], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  },
+
+  getMateriaPiuPrenotata: (tutorId) => {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT m.nome, COUNT(*) AS prenotazioni
+        FROM Prenotazioni p
+        JOIN Materie m ON m.id = p.materia_id
+        WHERE p.tutor_id = ?
+        GROUP BY m.id, m.nome
+        ORDER BY prenotazioni DESC, m.nome ASC
+        LIMIT 1
+      `;
+
+      db.get(query, [tutorId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row || null);
+      });
+    });
+  },
+
+  getStatisticheMateriali: (tutorId) => {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT
+          MAX(md.id) AS id,
+          md.titolo,
+          COALESCE(m.nome, 'Senza materia') AS materia,
+          COUNT(ma.id) AS acquisti,
+          COALESCE(SUM(ma.importo_pagato), 0) AS ricavi
+        FROM Materiale_Didattico md
+        LEFT JOIN Materie m ON m.id = md.materia_id
+        LEFT JOIN Materiale_Acquistato ma ON ma.materiale_id = md.id
+        WHERE md.tutor_id = ?
+        GROUP BY md.titolo, m.nome
+        ORDER BY acquisti DESC, ricavi DESC, md.titolo ASC
+      `;
+
+      db.all(query, [tutorId], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  },
+
+  getProssimeLezioni: (tutorId) => {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT
+          p.id,
+          p.studente_id,
+          p.data,
+          p.ora_inizio,
+          p.ora_fine,
+          p.importo,
+          m.nome AS materia,
+          s.nome || ' ' || s.cognome AS studenteNome,
+          s.email AS studenteEmail,
+          s.immagine_profilo AS studenteAvatar
+        FROM Prenotazioni p
+        JOIN Materie m ON m.id = p.materia_id
+        JOIN Utente s ON s.id = p.studente_id
+        WHERE p.tutor_id = ?
+          AND datetime(p.data || ' ' || p.ora_inizio) >= datetime('now', 'localtime')
+        ORDER BY p.data ASC, p.ora_inizio ASC
+      `;
+
+      db.all(query, [tutorId], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  },
+};
+
+module.exports = Dashboard;

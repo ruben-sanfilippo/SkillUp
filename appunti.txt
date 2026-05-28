@@ -2,5 +2,24 @@ Nel model inseriamo le query, nel controller inseriamo la logica di business, qu
 Il router decide quale funzione del Controller deve gestire una determinata richiesta che arriva dall'app.
 
 
-tutor profile
--immagine, nome, biografia
+aggiungere durante la fase di prenotazione la scelta della materia sulla base delle materie che ha inserito il tutor
+durante la prenotazione non mi devono spuntare le fascie orarie già occupate
+aggiustare l'ordine di visualizzazione delle mie prenotazioni, mi devono spuntare dalla più vicina alla più lonta in temporalmente, e le prenotazioni passate in fondo alla lista
+quando carico un materiale didattico con copertina e anteprima quando aggiorno la pagina mi scompaiono
+non posso caricare determinati tipi di file come anteprima con errore payload troppo grande
+non devo poter aggiungere la disponibilità per giorni già passati
+aggiungi un messaggio di conferma quando aggiungo una disponibilità
+non 
+Account demo:
+
+Studente
+Email: studente@skillup.local
+Password: Password123
+
+Tutor
+Email: elena.rostova@skillup.local
+Password: Password123
+
+Admin
+Email: admin@skillup.local
+Password: Password123

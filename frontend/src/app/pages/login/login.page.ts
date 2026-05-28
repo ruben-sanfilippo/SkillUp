@@ -73,30 +73,38 @@ export class LoginPage implements OnInit {
       return;
     }
 
-    const emailLower = this.email.toLowerCase();
-
     try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('tipologia_utente');
+
       // Usiamo firstValueFrom per aspettare la risposta HTTP del servizio
       const risposta: any = await firstValueFrom(
-        this.authService.login(this.email, this.password),
+        this.authService.login(this.email.toLowerCase(), this.password),
       );
+      const tipologiaUtente = risposta.tipologia_utente?.toLowerCase();
 
-      console.log('Login riuscito, ecco i dati:', risposta.tipologia_utente);
+      if (!risposta.token || !tipologiaUtente) {
+        this.messaggioErrore = 'Risposta del server non valida.';
+        return;
+      }
+
+      console.log('Login riuscito, ecco i dati:', tipologiaUtente);
 
       // salvo il token e la tipologia nel localStorage:
       localStorage.setItem('token', risposta.token);
-      localStorage.setItem('tipologia_utente', risposta.tipologia_utente);
+      localStorage.setItem('tipologia_utente', tipologiaUtente);
 
-      if (risposta.tipologia_utente === 'admin') {
+      if (tipologiaUtente === 'amministratore') {
         this.router.navigate(['/admin-view']);
-      } else if (risposta.tipologia_utente === 'tutor') {
-        this.router.navigate(['/tabs/tutor-profile']);
+      } else if (tipologiaUtente === 'tutor') {
+        this.router.navigate(['/tabs/tutor-dashboard']);
       } else {
         this.router.navigate(['/tabs/search-tutor']);
       }
     } catch (error: any) {
       const messaggioServer =
         error?.error?.message || 'Errore di connessione al server.';
+      this.messaggioErrore = messaggioServer;
     }
   }
 

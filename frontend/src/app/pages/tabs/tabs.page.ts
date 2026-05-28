@@ -15,7 +15,10 @@ import {
   searchOutline,
   personOutline,
   chatbubblesOutline,
+  statsChartOutline,
+  schoolOutline,
 } from 'ionicons/icons'; // Aggiunta l'icona per i messaggi
+import { PlatformService } from '../../services/platformService';
 
 @Component({
   selector: 'app-tabs',
@@ -38,17 +41,38 @@ export class TabsPage implements OnInit {
   // 1. Definiamo la variabile con un valore di default
   tipologiaUtente = 'studente';
 
-  constructor() {
+  constructor(private platformService: PlatformService) {
     addIcons({
       searchOutline,
       chatbubblesOutline,
       personOutline,
+      statsChartOutline,
+      schoolOutline,
     });
   }
 
   ngOnInit() {
-    // 2. Recuperiamo la tipologia salvata al login (default a 'studente' se non trova nulla)
-    this.tipologiaUtente =
-      localStorage.getItem('tipologia_utente') || 'studente';
+    this.aggiornaTipologiaUtente();
+  }
+
+  ionViewWillEnter() {
+    this.aggiornaTipologiaUtente();
+  }
+
+  private async aggiornaTipologiaUtente() {
+    const ruoloSalvato = localStorage.getItem('tipologia_utente') || 'studente';
+    this.tipologiaUtente = ruoloSalvato.toLowerCase();
+
+    try {
+      const utente = await this.platformService.getMe();
+      const ruoloBackend = utente?.tipologia_utente?.toLowerCase();
+
+      if (ruoloBackend) {
+        this.tipologiaUtente = ruoloBackend;
+        localStorage.setItem('tipologia_utente', ruoloBackend);
+      }
+    } catch {
+      this.tipologiaUtente = 'studente';
+    }
   }
 }

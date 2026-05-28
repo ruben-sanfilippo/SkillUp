@@ -9,6 +9,8 @@ const cors = require("cors"); //serve per permettere al frontend di comunicare c
 // l'app ionic non possono fare richieste a un server che si trova su un indirizzo o una porta diversa
 const db = require("./db/db"); //importo la connessione al database SQLite
 const authRoutes = require("./routes/authRoutes"); //importa il file authRoutes
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const platformRoutes = require("./routes/platformRoutes");
 const app = express(); //istanza del server
 const YAML = require("yamljs");
 const swaggerDocs = YAML.load("./swagger.yaml");
@@ -27,6 +29,8 @@ app.use(
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api", platformRoutes);
 
 // Rotta di prova
 app.get("/", (req, res) => {

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authChildGuard, authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
   //LANDING PAGE E AUTENTICAZIONE
@@ -16,6 +17,8 @@ export const routes: Routes = [
   //VISTA ADMIN: separata e fuori dalle tabs
   {
     path: 'admin-view',
+    canActivate: [authGuard],
+    data: { roles: ['amministratore'] },
     loadComponent: () =>
       import('./pages/admin-view/admin-view.page').then((m) => m.AdminViewPage),
   },
@@ -23,6 +26,8 @@ export const routes: Routes = [
   //AREA APPLICAZIONE PER TUTOR E STUDENTI. QUI COMPARE LA TAB
   {
     path: 'tabs',
+    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
     loadComponent: () =>
       import('./pages/tabs/tabs.page').then((m) => m.TabsPage),
     children: [
@@ -40,6 +45,7 @@ export const routes: Routes = [
       },
       {
         path: 'tutor-profile',
+        data: { roles: ['tutor'] },
         loadComponent: () =>
           import('./pages/tutor-profile/tutor-profile.page').then(
             (m) => m.TutorProfilePage,
@@ -47,6 +53,7 @@ export const routes: Routes = [
       },
       {
         path: 'student-profile',
+        data: { roles: ['studente'] },
         loadComponent: () =>
           import('./pages/student-profile/student-profile.page').then(
             (m) => m.StudentProfilePage,
@@ -54,6 +61,7 @@ export const routes: Routes = [
       },
       {
         path: 'tutor-dashboard',
+        data: { roles: ['tutor'] },
         loadComponent: () =>
           import('./pages/tutor-dashboard/tutor-dashboard.page').then(
             (m) => m.TutorDashboardPage,
@@ -69,22 +77,24 @@ export const routes: Routes = [
 
   {
     path: 'tutor-detail/:id',
+    canActivate: [authGuard],
+    data: { roles: ['studente', 'tutor'] },
     loadComponent: () =>
       import('./pages/tutor-detail/tutor-detail.page').then(
         (m) => m.TutorDetailPage,
       ),
   },
 
-  // se il path è sbagliato, reindirizza alla landing
-  {
-    path: '**',
-    redirectTo: '',
-  },
   {
     path: '',
     loadComponent: () =>
       import('./pages/landing-page/landing-page.page').then(
         (m) => m.LandingPagePage,
       ),
+  },
+  // se il path è sbagliato, reindirizza alla landing
+  {
+    path: '**',
+    redirectTo: '',
   },
 ];

@@ -2,18 +2,21 @@ import { Component, OnInit, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { searchOutline, send, chatbubblesOutline, chevronBackOutline } from 'ionicons/icons';
+import { PlatformService } from 'src/app/services/platformService';
 
 interface Message {
-  id: string;
+  id: string | number;
   text: string;
   time: string;
   sender: 'student' | 'tutor';
 }
 
 interface Chat {
-  id: string;
+  id: string | number;
+  userId: number;
   name: string;
   avatar: string;
   lastMessageText: string;
@@ -39,44 +42,13 @@ export class MessagesPage implements OnInit, AfterViewChecked {
   isChatOpen: boolean = false;
 
   // Nomi puliti senza la dicitura (Tutor)
-  chats: Chat[] = [
-    {
-      id: 'c1',
-      name: 'Sarah Jenkins',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
-      lastMessageText: 'That sounds like a great plan for the...',
-      lastMessageTime: '10:42 AM',
-      messages: [
-        { id: 'm1_1', text: 'Ciao Alessandro, ho analizzato la tua richiesta per l\'esercitazione.', time: '10:30 AM', sender: 'tutor' },
-        { id: 'm1_2', text: 'Ottimo! Pensa che riusciremo a chiudere l\'argomento entro questa settimana?', time: '10:35 AM', sender: 'student' },
-        { id: 'm1_3', text: 'That sounds like a great plan for the framework.', time: '10:42 AM', sender: 'tutor' }
-      ]
-    },
-    {
-      id: 'c2',
-      name: 'David Miller',
-      avatar: 'https://i.pravatar.cc/150?u=david',
-      lastMessageText: 'Ci vediamo direttamente giovedì alle 15:00.',
-      lastMessageTime: 'Yesterday',
-      messages: [
-        { id: 'm2_1', text: 'Purtroppo martedì ho un esame straordinario in facoltà.', time: '04:15 PM', sender: 'tutor' },
-        { id: 'm2_2', text: 'Ci vediamo direttamente giovedì alle 15:00.', time: '04:16 PM', sender: 'tutor' }
-      ]
-    },
-    {
-      id: 'c3',
-      name: 'Michael Chang',
-      avatar: 'https://i.pravatar.cc/150?u=michael',
-      lastMessageText: 'Grazie per il feedback sul progetto.',
-      lastMessageTime: 'Tuesday',
-      messages: [
-        { id: 'm3_1', text: 'Ho caricato le correzioni del codice sul portale di studio.', time: '02:00 PM', sender: 'tutor' },
-        { id: 'm3_2', text: 'Grazie per il feedback sul progetto.', time: '02:15 PM', sender: 'student' }
-      ]
-    }
-  ];
+  chats: Chat[] = [];
+  currentUserId = 0;
 
-  constructor() {
+  constructor(
+    private platformService: PlatformService,
+    private route: ActivatedRoute,
+  ) {
     addIcons({
       searchOutline,
       send,
@@ -85,10 +57,40 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    const utente = await this.platformService.getMe();
+    this.currentUserId = utente.id;
+    await this.caricaConversazioni();
+    const userId = this.route.snapshot.queryParamMap.get('userId');
+    const chatDaAprire = this.chats.find(
+      (chat) => Number(chat.userId) === Number(userId),
+    );
+
+    if (chatDaAprire) {
+      await this.selezionaChat(chatDaAprire);
+    } else {
+      this.activeChat = null;
+      this.isChatOpen = false;
+    }
+  }
+
+  async caricaConversazioni() {
+    const conversations = await this.platformService.getConversations();
+    this.chats = conversations.map((chat) => ({
+      id: chat.id,
+      userId: chat.id,
+      name: `${chat.nome} ${chat.cognome}`,
+      avatar: chat.immagine_profilo || `https://i.pravatar.cc/150?u=${chat.email}`,
+      lastMessageText: chat.lastMessageText || '',
+      lastMessageTime: chat.lastMessageTime
+        ? new Date(chat.lastMessageTime).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        : '',
+      messages: [],
+    }));
     this.filteredChats = [...this.chats];
-    this.activeChat = null;
-    this.isChatOpen = false;
   }
 
   ngAfterViewChecked() {
@@ -106,7 +108,9 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     }
   }
 
-  selezionaChat(chat: Chat) {
+  async selezionaChat(chat: Chat) {
+    const messages = await this.platformService.getMessages(chat.userId);
+    chat.messages = messages.map((msg) => this.mappaMessaggio(msg));
     this.activeChat = chat;
     this.isChatOpen = true; 
     setTimeout(() => this.scrollToBottom(), 50);
@@ -117,21 +121,20 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     this.activeChat = null;
   }
 
-  inviaMessaggio() {
+  async inviaMessaggio() {
     if (!this.newMessageText || !this.newMessageText.trim() || !this.activeChat) return;
 
-    const oraCorrente = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const nuovoMessaggio: Message = {
-      id: `msg_${Math.random().toString(36).substr(2, 9)}`,
-      text: this.newMessageText.trim(),
-      time: oraCorrente,
-      sender: 'student'
-    };
-
-    this.activeChat.messages.push(nuovoMessaggio);
-    this.activeChat.lastMessageText = nuovoMessaggio.text;
-    this.activeChat.lastMessageTime = oraCorrente;
+    const testo = this.newMessageText.trim();
+    const messages = await this.platformService.sendMessage(
+      this.activeChat.userId,
+      testo,
+    );
+    this.activeChat.messages = messages.map((msg) => this.mappaMessaggio(msg));
+    this.activeChat.lastMessageText = testo;
+    this.activeChat.lastMessageTime = new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
     this.newMessageText = '';
 
     this.scrollToBottom();
@@ -142,5 +145,20 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     if (container) {
       container.scrollTop = container.scrollHeight;
     }
+  }
+
+  private mappaMessaggio(msg: any): Message {
+    return {
+      id: msg.id,
+      text: msg.contenuto,
+      time: new Date(msg.data_invio).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      sender:
+        Number(msg.mittente_id) === Number(this.currentUserId)
+          ? 'student'
+          : 'tutor',
+    };
   }
 }

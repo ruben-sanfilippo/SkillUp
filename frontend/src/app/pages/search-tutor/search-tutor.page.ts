@@ -99,6 +99,10 @@ export class SearchTutorPage implements OnInit {
     this.applicaFiltri();
   }
 
+  ionViewWillEnter() {
+    this.applicaFiltri();
+  }
+
   // --- I METODI DELLE MATERIE E LINGUE RIMANGONO IDENTICI ---
   filtraMaterie(event: any) {
     const q = event.target.value.toLowerCase();

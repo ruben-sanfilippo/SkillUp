@@ -111,7 +111,10 @@ export class RegisterPage implements OnInit {
 
     try {
       const risposta: any = await firstValueFrom(
-        this.authService.register(datiRegistrazione),
+        this.authService.register({
+          ...datiRegistrazione,
+          email: datiRegistrazione.email.toLowerCase(),
+        }),
       );
 
       console.log('Registrazione riuscita');
@@ -120,6 +123,7 @@ export class RegisterPage implements OnInit {
     } catch (error: any) {
       const messaggioServer =
         error?.error?.message || 'Errore di connessione al server.';
+      this.messaggioErrore = messaggioServer;
     }
   }
 

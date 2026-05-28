@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonicModule, AlertController, ToastController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
 import {
@@ -24,8 +24,10 @@ import {
   eyeOutline,
   closeOutline,
 } from 'ionicons/icons';
+import { TutorService } from 'src/app/services/tutorService';
 
 interface InfoDisponibilita {
+  id?: number;
   attivo: boolean;
   dalle: string;
   alle: string;
@@ -56,24 +58,7 @@ export class TutorDetailPage implements OnInit {
   lingue: string[] = ['Italiano', 'Inglese'];
 
   // Struttura identica a tutor-profile
-  dispense = [
-    {
-      titolo: 'Appunti di Analisi 1',
-      descrizione: 'Tutti i teoremi dimostrati.',
-      prezzo: 5.0,
-      haAnteprima: true,
-      isPdfPreview: false,
-      anteprimaUrl: 'https://ionicframework.com/docs/img/demos/thumbnail.svg', // Immagine demo per l'anteprima
-    },
-    {
-      titolo: 'Esercizi Fisica',
-      descrizione: 'Dinamica e cinematica con soluzioni.',
-      prezzo: 3.5,
-      haAnteprima: false,
-      isPdfPreview: false,
-      anteprimaUrl: '',
-    },
-  ];
+  dispense: any[] = [];
 
   // Calendario
   dataCorrenteCalendario: Date = new Date();
@@ -94,10 +79,7 @@ export class TutorDetailPage implements OnInit {
     'Novembre',
     'Dicembre',
   ];
-  databaseDisponibilita: { [key: string]: InfoDisponibilita } = {
-    '2026-05-28': { attivo: true, dalle: '15:00', alle: '18:00' },
-    '2026-05-29': { attivo: true, dalle: '10:00', alle: '12:00' },
-  };
+  databaseDisponibilita: { [key: string]: InfoDisponibilita } = {};
 
   orariGenerati: string[] = [];
   oraInizioSelezionata: string = '';
@@ -108,9 +90,12 @@ export class TutorDetailPage implements OnInit {
   dispensaInEvidenza: any = null;
 
   constructor(
+    private route: ActivatedRoute,
     private router: Router,
     private alertController: AlertController,
+    private toastController: ToastController,
     private sanitizer: DomSanitizer,
+    private tutorService: TutorService,
   ) {
     addIcons({
       personOutline,
@@ -133,8 +118,46 @@ export class TutorDetailPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.caricaTutor();
     this.costruisciCalendarioMensile();
+  }
+
+  async caricaTutor() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
+
+    const tutor = await this.tutorService.getTutor(id);
+    this.nome = tutor.nome;
+    this.cognome = tutor.cognome;
+    this.biografia = tutor.bio || '';
+    this.mediaRecensioni = tutor.rating;
+    this.numeroRecensioni = tutor.reviews;
+    this.prezzoOrario = tutor.price;
+    this.avatarUrl = tutor.image;
+    this.materie = tutor.subjects || [];
+    this.lingue = tutor.languages || [];
+
+    this.databaseDisponibilita = {};
+    for (const item of tutor.availability || []) {
+      if (!item.data) continue;
+      this.databaseDisponibilita[item.data] = {
+        id: item.id,
+        attivo: true,
+        dalle: item.ora_inizio,
+        alle: item.ora_fine,
+      };
+    }
+
+    this.dispense = (tutor.materials || []).map((materiale: any) => ({
+      id: materiale.id,
+      titolo: materiale.titolo,
+      descrizione: materiale.descrizione,
+      prezzo: materiale.importo,
+      haAnteprima: !!materiale.anteprima_url,
+      isPdfPreview: false,
+      anteprimaUrl: materiale.anteprima_url,
+    }));
   }
 
   get nomeMeseCorrente(): string {
@@ -194,14 +217,23 @@ export class TutorDetailPage implements OnInit {
     let startHour = parseInt(inizio.split(':')[0]);
     let endHour = parseInt(fine.split(':')[0]);
     for (let i = startHour; i <= endHour; i++) {
-      this.orariGenerati.push(`${i.toString().padStart(2, '0')}:00`);
+      const oraIntera = `${i.toString().padStart(2, '0')}:00`;
+      if (this.puoPrenotareOrario(oraIntera)) {
+        this.orariGenerati.push(oraIntera);
+      }
       if (i !== endHour)
-        this.orariGenerati.push(`${i.toString().padStart(2, '0')}:30`);
+        {
+          const mezzaOra = `${i.toString().padStart(2, '0')}:30`;
+          if (this.puoPrenotareOrario(mezzaOra)) {
+            this.orariGenerati.push(mezzaOra);
+          }
+        }
     }
-    this.oraInizioSelezionata = this.orariGenerati[0];
+    this.oraInizioSelezionata = this.orariGenerati[0] || '';
     this.oraFineSelezionata =
       this.orariGenerati[2] ||
-      this.orariGenerati[this.orariGenerati.length - 1];
+      this.orariGenerati[this.orariGenerati.length - 1] ||
+      '';
   }
 
   contattaTutor() {
@@ -227,7 +259,9 @@ export class TutorDetailPage implements OnInit {
         {
           text: 'Acquista',
           cssClass: 'alert-button-primary',
-          handler: () => console.log('Acquistato', dispensa),
+          handler: async () => {
+            await this.tutorService.purchaseMaterial(dispensa.id);
+          },
         },
       ],
     });
@@ -236,11 +270,30 @@ export class TutorDetailPage implements OnInit {
 
   async prenotaLezione() {
     if (!this.giornoSelezionato || !this.giornoSelezionato.info.attivo) return;
+    if (!this.oraInizioSelezionata || !this.oraFineSelezionata) {
+      const alertErrore = await this.alertController.create({
+        header: 'Nessun orario disponibile',
+        message: 'Per questo giorno non ci sono orari prenotabili.',
+        buttons: ['OK'],
+      });
+      await alertErrore.present();
+      return;
+    }
     if (this.oraInizioSelezionata >= this.oraFineSelezionata) {
       const alertErrore = await this.alertController.create({
         header: 'Orario non valido',
         message:
           "L'orario di fine deve essere successivo all'orario di inizio.",
+        buttons: ['OK'],
+      });
+      await alertErrore.present();
+      return;
+    }
+    if (!this.puoPrenotareOrario(this.oraInizioSelezionata)) {
+      const alertErrore = await this.alertController.create({
+        header: 'Orario non prenotabile',
+        message:
+          "Non puoi prenotare una lezione di oggi con un orario precedente all'ora attuale.",
         buttons: ['OK'],
       });
       await alertErrore.present();
@@ -255,10 +308,54 @@ export class TutorDetailPage implements OnInit {
         {
           text: 'Prenota',
           cssClass: 'alert-button-primary',
-          handler: () => console.log('Prenotato!'),
+          handler: async () => {
+            try {
+              await this.tutorService.createBooking({
+                disponibilita_id: this.giornoSelezionato?.info.id,
+                data: this.giornoSelezionato?.dataString,
+                ora_inizio: this.oraInizioSelezionata,
+                ora_fine: this.oraFineSelezionata,
+              });
+              const toast = await this.toastController.create({
+                message: 'Prenotazione effettuata con successo.',
+                duration: 2500,
+                position: 'bottom',
+                color: 'success',
+              });
+              await toast.present();
+            } catch (error: any) {
+              const alertErrore = await this.alertController.create({
+                header: 'Prenotazione non riuscita',
+                message:
+                  error?.error?.message ||
+                  'Non è stato possibile completare la prenotazione.',
+                buttons: ['OK'],
+              });
+              await alertErrore.present();
+            }
+          },
         },
       ],
     });
     await alert.present();
+  }
+
+  private puoPrenotareOrario(orario: string): boolean {
+    if (!this.giornoSelezionato) return false;
+    const oggi = this.dataLocale(new Date());
+    if (this.giornoSelezionato.dataString !== oggi) return true;
+
+    const dataOraSelezionata = new Date(
+      `${this.giornoSelezionato.dataString}T${orario}:00`,
+    );
+
+    return dataOraSelezionata > new Date();
+  }
+
+  private dataLocale(data: Date): string {
+    const anno = data.getFullYear();
+    const mese = String(data.getMonth() + 1).padStart(2, '0');
+    const giorno = String(data.getDate()).padStart(2, '0');
+    return `${anno}-${mese}-${giorno}`;
   }
 }

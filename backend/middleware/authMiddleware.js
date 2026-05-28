@@ -10,10 +10,11 @@ module.exports = (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Access denied" });
+  }
 
   try {
-    console.log("Token received:", token);
-    console.log("SECRET used for verification:", JWT_SECRET);
     //Decodifica il token ritornando il body codificato con JWT_SECRET
     //Se il token non è valido lancia un errore
     const verified = jwt.verify(token, JWT_SECRET);
@@ -21,6 +22,6 @@ module.exports = (req, res, next) => {
     req.user = verified; //Inserisce dentro req id e tipologia utente, in questo modo il controller può usare questi dati
     next(); //Passa alla funzione sucessiva
   } catch (err) {
-    res.status(400).json({ message: "Invalid token" });
+    res.status(401).json({ message: "Invalid token" });
   }
 };
