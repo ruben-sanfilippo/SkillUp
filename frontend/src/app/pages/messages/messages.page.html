@@ -29,7 +29,14 @@
                   (click)="selezionaChat(chat)">
                   
                   <div class="avatar-sidebar-wrapper">
-                    <img [src]="chat.avatar" [alt]="chat.name" />
+                    @if (chat.avatar) {
+                      <img [src]="chat.avatar" [alt]="chat.name" />
+                    } @else {
+                      <div class="avatar-initials">{{ iniziali(chat.name) }}</div>
+                    }
+                    @if (chat.unread) {
+                      <span class="unread-dot"></span>
+                    }
                   </div>
 
                   <div class="chat-item-body">
@@ -67,7 +74,11 @@
 
               <div class="active-user-profile">
                 <div class="avatar-active-chat">
-                  <img [src]="activeChat.avatar" [alt]="activeChat.name" />
+                  @if (activeChat.avatar) {
+                    <img [src]="activeChat.avatar" [alt]="activeChat.name" />
+                  } @else {
+                    <div class="avatar-initials">{{ iniziali(activeChat.name) }}</div>
+                  }
                 </div>
                 <div class="user-meta-info">
                   <h3>{{ activeChat.name }}</h3>

@@ -6,6 +6,8 @@ import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { searchOutline, send, chatbubblesOutline, chevronBackOutline } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
+import { environment } from 'src/environments/environment';
+import { io, Socket } from 'socket.io-client';
 
 interface Message {
   id: string | number;
@@ -21,6 +23,7 @@ interface Chat {
   avatar: string;
   lastMessageText: string;
   lastMessageTime: string;
+  unread: boolean;
   messages: Message[];
 }
 
@@ -44,6 +47,7 @@ export class MessagesPage implements OnInit, AfterViewChecked {
   // Nomi puliti senza la dicitura (Tutor)
   chats: Chat[] = [];
   currentUserId = 0;
+  private socket?: Socket;
 
   constructor(
     private platformService: PlatformService,
@@ -60,11 +64,16 @@ export class MessagesPage implements OnInit, AfterViewChecked {
   async ngOnInit() {
     const utente = await this.platformService.getMe();
     this.currentUserId = utente.id;
+    this.apriSocket();
     await this.caricaConversazioni();
     const userId = this.route.snapshot.queryParamMap.get('userId');
-    const chatDaAprire = this.chats.find(
+    let chatDaAprire: Chat | null | undefined = this.chats.find(
       (chat) => Number(chat.userId) === Number(userId),
     );
+
+    if (!chatDaAprire && userId) {
+      chatDaAprire = await this.creaChatDaUtente(userId);
+    }
 
     if (chatDaAprire) {
       await this.selezionaChat(chatDaAprire);
@@ -80,7 +89,7 @@ export class MessagesPage implements OnInit, AfterViewChecked {
       id: chat.id,
       userId: chat.id,
       name: `${chat.nome} ${chat.cognome}`,
-      avatar: chat.immagine_profilo || `https://i.pravatar.cc/150?u=${chat.email}`,
+      avatar: chat.immagine_profilo || '',
       lastMessageText: chat.lastMessageText || '',
       lastMessageTime: chat.lastMessageTime
         ? new Date(chat.lastMessageTime).toLocaleTimeString([], {
@@ -88,6 +97,7 @@ export class MessagesPage implements OnInit, AfterViewChecked {
             minute: '2-digit',
           })
         : '',
+      unread: false,
       messages: [],
     }));
     this.filteredChats = [...this.chats];
@@ -111,6 +121,7 @@ export class MessagesPage implements OnInit, AfterViewChecked {
   async selezionaChat(chat: Chat) {
     const messages = await this.platformService.getMessages(chat.userId);
     chat.messages = messages.map((msg) => this.mappaMessaggio(msg));
+    chat.unread = false;
     this.activeChat = chat;
     this.isChatOpen = true; 
     setTimeout(() => this.scrollToBottom(), 50);
@@ -140,6 +151,16 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     this.scrollToBottom();
   }
 
+  iniziali(nome: string): string {
+    return nome
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte[0])
+      .join('')
+      .toUpperCase();
+  }
+
   private scrollToBottom() {
     const container = document.getElementById('messagesContainer');
     if (container) {
@@ -160,5 +181,82 @@ export class MessagesPage implements OnInit, AfterViewChecked {
           ? 'student'
           : 'tutor',
     };
+  }
+
+  private apriSocket() {
+    this.socket = io(environment.apiUrl, {
+      transports: ['websocket', 'polling'],
+    });
+    this.socket.emit('join-user', this.currentUserId);
+    this.socket.on('message-received', (msg: any) => {
+      this.gestisciMessaggioSocket(msg);
+    });
+  }
+
+  private async gestisciMessaggioSocket(msg: any) {
+    const otherUserId =
+      Number(msg.mittente_id) === Number(this.currentUserId)
+        ? Number(msg.destinatario_id)
+        : Number(msg.mittente_id);
+
+    let chat: Chat | null | undefined = this.chats.find(
+      (item) => Number(item.userId) === otherUserId,
+    );
+    if (!chat) {
+      chat = await this.creaChatDaUtente(otherUserId);
+    }
+    if (!chat) return;
+
+    chat.lastMessageText = msg.contenuto;
+    chat.lastMessageTime = new Date(msg.data_invio).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const isActive = Number(this.activeChat?.userId) === otherUserId;
+    if (isActive) {
+      const exists = this.activeChat!.messages.some(
+        (message) => Number(message.id) === Number(msg.id),
+      );
+      if (!exists) {
+        this.activeChat!.messages.push(this.mappaMessaggio(msg));
+      }
+      chat.unread = false;
+      setTimeout(() => this.scrollToBottom(), 50);
+    } else if (Number(msg.mittente_id) !== Number(this.currentUserId)) {
+      chat.unread = true;
+    }
+
+    this.ordinaConversazioni();
+    this.filtraChat();
+  }
+
+  private async creaChatDaUtente(userId: number | string): Promise<Chat | null> {
+    try {
+      const user = await this.platformService.getUser(userId);
+      const chat: Chat = {
+        id: user.id,
+        userId: user.id,
+        name: `${user.nome} ${user.cognome}`,
+        avatar: user.immagine_profilo || '',
+        lastMessageText: '',
+        lastMessageTime: '',
+        unread: false,
+        messages: [],
+      };
+      this.chats.push(chat);
+      this.ordinaConversazioni();
+      this.filteredChats = [...this.chats];
+      return chat;
+    } catch {
+      return null;
+    }
+  }
+
+  private ordinaConversazioni() {
+    this.chats = [...this.chats].sort((a, b) => {
+      if (a.unread !== b.unread) return a.unread ? -1 : 1;
+      return (b.lastMessageTime || '').localeCompare(a.lastMessageTime || '');
+    });
   }
 }

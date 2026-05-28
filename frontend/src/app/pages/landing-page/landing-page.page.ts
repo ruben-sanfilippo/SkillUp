@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import {
   IonContent,
   IonHeader,
-  IonTitle,
   IonToolbar,
   IonButton,
   IonIcon,
@@ -27,7 +26,6 @@ import {
   imports: [
     IonContent,
     IonHeader,
-    IonTitle,
     IonToolbar,
     IonButton,
     IonIcon,

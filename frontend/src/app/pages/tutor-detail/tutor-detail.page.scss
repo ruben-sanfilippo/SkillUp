@@ -495,6 +495,11 @@
       font-size: 24px;
       color: var(--neutral-color);
     }
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
   .dispensa-info-preview {
     flex: 1;

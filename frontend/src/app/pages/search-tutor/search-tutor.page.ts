@@ -13,9 +13,6 @@ import {
 import { TutorCardComponent } from '../../components/tutor-card/tutor-card.component';
 import {
   IonContent,
-  IonGrid,
-  IonRow,
-  IonCol,
   IonIcon,
   IonRange,
   IonSearchbar,
@@ -35,9 +32,6 @@ import { TutorService, FiltriRicerca } from '../../services/tutorService';
     FormsModule,
     TutorCardComponent,
     IonContent,
-    IonGrid,
-    IonRow,
-    IonCol,
     IonIcon,
     IonRange,
     IonSearchbar,

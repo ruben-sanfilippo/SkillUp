@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonicModule, AlertController, ToastController } from '@ionic/angular';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
 import {
   personOutline,
@@ -32,6 +32,18 @@ interface InfoDisponibilita {
   dalle: string;
   alle: string;
 }
+
+interface MateriaTutor {
+  id: number;
+  nome: string;
+}
+
+interface SlotPrenotato {
+  materia_id: number;
+  data: string;
+  ora_inizio: string;
+  ora_fine: string;
+}
 interface GiornoCalendario {
   giorno: number;
   dataString: string;
@@ -55,7 +67,11 @@ export class TutorDetailPage implements OnInit {
   prezzoOrario = 15;
   avatarUrl = '';
   materie: string[] = ['Matematica', 'Fisica', 'Informatica'];
+  materiePrenotabili: MateriaTutor[] = [];
+  materiaSelezionataId: number | null = null;
   lingue: string[] = ['Italiano', 'Inglese'];
+  ruoloUtente = localStorage.getItem('tipologia_utente') || '';
+  tutorId: string | null = null;
 
   // Struttura identica a tutor-profile
   dispense: any[] = [];
@@ -80,6 +96,7 @@ export class TutorDetailPage implements OnInit {
     'Dicembre',
   ];
   databaseDisponibilita: { [key: string]: InfoDisponibilita } = {};
+  slotPrenotati: SlotPrenotato[] = [];
 
   orariGenerati: string[] = [];
   oraInizioSelezionata: string = '';
@@ -126,6 +143,7 @@ export class TutorDetailPage implements OnInit {
   async caricaTutor() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
+    this.tutorId = id;
 
     const tutor = await this.tutorService.getTutor(id);
     this.nome = tutor.nome;
@@ -136,7 +154,10 @@ export class TutorDetailPage implements OnInit {
     this.prezzoOrario = tutor.price;
     this.avatarUrl = tutor.image;
     this.materie = tutor.subjects || [];
+    this.materiePrenotabili = tutor.subjectOptions || [];
+    this.materiaSelezionataId = this.materiePrenotabili[0]?.id || null;
     this.lingue = tutor.languages || [];
+    this.slotPrenotati = tutor.bookedSlots || [];
 
     this.databaseDisponibilita = {};
     for (const item of tutor.availability || []) {
@@ -154,10 +175,27 @@ export class TutorDetailPage implements OnInit {
       titolo: materiale.titolo,
       descrizione: materiale.descrizione,
       prezzo: materiale.importo,
+      copertinaUrl: materiale.copertina_url,
       haAnteprima: !!materiale.anteprima_url,
-      isPdfPreview: false,
-      anteprimaUrl: materiale.anteprima_url,
+      isPdfPreview: this.isPdfDataUrl(materiale.anteprima_url),
+      anteprimaUrl: this.preparaAnteprima(materiale.anteprima_url),
     }));
+  }
+
+  private isPdfDataUrl(url?: string): boolean {
+    return !!url && url.startsWith('data:application/pdf');
+  }
+
+  private preparaAnteprima(url?: string): string | SafeResourceUrl {
+    if (!url) return '';
+    if (this.isPdfDataUrl(url)) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+    return url;
+  }
+
+  get puoInteragireComeStudente(): boolean {
+    return this.ruoloUtente === 'studente';
   }
 
   get nomeMeseCorrente(): string {
@@ -212,32 +250,41 @@ export class TutorDetailPage implements OnInit {
     }
   }
 
+  cambiaMateriaPrenotazione() {
+    if (this.giornoSelezionato?.info.attivo) {
+      this.generaSlotOrari(
+        this.giornoSelezionato.info.dalle,
+        this.giornoSelezionato.info.alle,
+      );
+    }
+  }
+
   generaSlotOrari(inizio: string, fine: string) {
     this.orariGenerati = [];
     let startHour = parseInt(inizio.split(':')[0]);
     let endHour = parseInt(fine.split(':')[0]);
     for (let i = startHour; i <= endHour; i++) {
       const oraIntera = `${i.toString().padStart(2, '0')}:00`;
-      if (this.puoPrenotareOrario(oraIntera)) {
+      if (this.puoPrenotareOrario(oraIntera) && this.slotLibero(oraIntera)) {
         this.orariGenerati.push(oraIntera);
       }
       if (i !== endHour)
         {
           const mezzaOra = `${i.toString().padStart(2, '0')}:30`;
-          if (this.puoPrenotareOrario(mezzaOra)) {
+          if (this.puoPrenotareOrario(mezzaOra) && this.slotLibero(mezzaOra)) {
             this.orariGenerati.push(mezzaOra);
           }
         }
     }
     this.oraInizioSelezionata = this.orariGenerati[0] || '';
-    this.oraFineSelezionata =
-      this.orariGenerati[2] ||
-      this.orariGenerati[this.orariGenerati.length - 1] ||
-      '';
+    this.sincronizzaOraFine();
   }
 
   contattaTutor() {
-    this.router.navigate(['/tabs/messages']);
+    if (!this.puoInteragireComeStudente) return;
+    this.router.navigate(['/tabs/messages'], {
+      queryParams: { userId: this.tutorId },
+    });
   }
 
   // Gestione Modale Anteprima come tutor-profile
@@ -251,6 +298,7 @@ export class TutorDetailPage implements OnInit {
   }
 
   async acquistaDispensa(dispensa: any) {
+    if (!this.puoInteragireComeStudente) return;
     const alert = await this.alertController.create({
       header: 'Conferma Acquisto',
       message: `Confermi l'acquisto di "${dispensa.titolo}" per ${dispensa.prezzo}€?`,
@@ -269,7 +317,17 @@ export class TutorDetailPage implements OnInit {
   }
 
   async prenotaLezione() {
+    if (!this.puoInteragireComeStudente) return;
     if (!this.giornoSelezionato || !this.giornoSelezionato.info.attivo) return;
+    if (!this.materiaSelezionataId) {
+      const alertErrore = await this.alertController.create({
+        header: 'Materia richiesta',
+        message: 'Seleziona la materia della lezione.',
+        buttons: ['OK'],
+      });
+      await alertErrore.present();
+      return;
+    }
     if (!this.oraInizioSelezionata || !this.oraFineSelezionata) {
       const alertErrore = await this.alertController.create({
         header: 'Nessun orario disponibile',
@@ -312,6 +370,7 @@ export class TutorDetailPage implements OnInit {
             try {
               await this.tutorService.createBooking({
                 disponibilita_id: this.giornoSelezionato?.info.id,
+                materia_id: this.materiaSelezionataId,
                 data: this.giornoSelezionato?.dataString,
                 ora_inizio: this.oraInizioSelezionata,
                 ora_fine: this.oraFineSelezionata,
@@ -323,6 +382,11 @@ export class TutorDetailPage implements OnInit {
                 color: 'success',
               });
               await toast.present();
+              await this.caricaTutor();
+              this.costruisciCalendarioMensile();
+              if (this.giornoSelezionato) {
+                this.selezionaGiorno(this.giornoSelezionato);
+              }
             } catch (error: any) {
               const alertErrore = await this.alertController.create({
                 header: 'Prenotazione non riuscita',
@@ -350,6 +414,52 @@ export class TutorDetailPage implements OnInit {
     );
 
     return dataOraSelezionata > new Date();
+  }
+
+  get orariFineDisponibili(): string[] {
+    if (!this.oraInizioSelezionata || !this.giornoSelezionato?.info.attivo) {
+      return [];
+    }
+
+    return this.orariGenerati.filter((ora) => {
+      return (
+        ora > this.oraInizioSelezionata &&
+        ora <= this.giornoSelezionato!.info.alle &&
+        !this.intervalloOccupaPrenotazione(this.oraInizioSelezionata, ora)
+      );
+    });
+  }
+
+  sincronizzaOraFine() {
+    if (!this.orariFineDisponibili.includes(this.oraFineSelezionata)) {
+      this.oraFineSelezionata = this.orariFineDisponibili[0] || '';
+    }
+  }
+
+  private slotLibero(orario: string): boolean {
+    return !this.intervalloOccupaPrenotazione(orario, this.aggiungiMinuti(orario, 30));
+  }
+
+  private intervalloOccupaPrenotazione(oraInizio: string, oraFine: string): boolean {
+    if (!this.giornoSelezionato) return false;
+
+    return this.slotPrenotati.some((slot) => {
+      const stessaData = slot.data === this.giornoSelezionato?.dataString;
+
+      return (
+        stessaData &&
+        slot.ora_inizio < oraFine &&
+        slot.ora_fine > oraInizio
+      );
+    });
+  }
+
+  private aggiungiMinuti(orario: string, minutiDaAggiungere: number): string {
+    const [ore, minuti] = orario.split(':').map(Number);
+    const totale = ore * 60 + minuti + minutiDaAggiungere;
+    const nuoveOre = Math.floor(totale / 60).toString().padStart(2, '0');
+    const nuoviMinuti = (totale % 60).toString().padStart(2, '0');
+    return `${nuoveOre}:${nuoviMinuti}`;
   }
 
   private dataLocale(data: Date): string {

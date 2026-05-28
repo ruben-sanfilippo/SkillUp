@@ -694,6 +694,20 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
       }
 
+      .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        background: var(--input-background);
+        color: var(--primary-color);
+        font-size: 28px;
+        font-weight: 800;
+      }
+
       h3 {
         font-family: var(--font-headline);
         font-size: 1.3rem;

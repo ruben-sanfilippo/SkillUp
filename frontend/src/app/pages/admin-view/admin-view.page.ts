@@ -2,6 +2,7 @@ import { Component, OnInit, Input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, PopoverController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
   searchOutline,
@@ -13,6 +14,7 @@ import {
   mailOutline,
   eyeOutline,
   checkmarkOutline,
+  logOutOutline,
 } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
 
@@ -114,8 +116,6 @@ export class OptionsPopoverComponent {
     CommonModule,
     FormsModule,
     IonicModule,
-    FilterPopoverComponent,
-    OptionsPopoverComponent,
   ],
 })
 export class AdminViewPage implements OnInit {
@@ -128,6 +128,7 @@ export class AdminViewPage implements OnInit {
   constructor(
     private popoverCtrl: PopoverController,
     private platformService: PlatformService,
+    private router: Router,
   ) {
     addIcons({
       searchOutline,
@@ -139,6 +140,7 @@ export class AdminViewPage implements OnInit {
       mailOutline,
       eyeOutline,
       checkmarkOutline,
+      logOutOutline,
     });
   }
 
@@ -213,6 +215,13 @@ export class AdminViewPage implements OnInit {
     if (data?.action === 'delete') this.eliminaUtente(user.id);
     else if (data?.action === 'email')
       window.location.href = `mailto:${user.email}`;
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('tipologia_utente');
+    localStorage.removeItem('skillup_recensioni_aggiornate');
+    this.router.navigate(['/login']);
   }
 
   private mappaUtente(user: any): AdminUser {

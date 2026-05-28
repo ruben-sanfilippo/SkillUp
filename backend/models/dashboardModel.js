@@ -4,14 +4,27 @@ const Dashboard = {
   getRicaviMensili: (tutorId, anno) => {
     return new Promise((resolve, reject) => {
       const query = `
-        SELECT strftime('%m', data) AS mese, SUM(importo) AS ricavi
-        FROM Prenotazioni
-        WHERE tutor_id = ? AND strftime('%Y', data) = ?
+        SELECT mese, SUM(ricavi) AS ricavi
+        FROM (
+          SELECT strftime('%m', data) AS mese, SUM(importo) AS ricavi
+          FROM Prenotazioni
+          WHERE tutor_id = ? AND strftime('%Y', data) = ?
+          GROUP BY mese
+
+          UNION ALL
+
+          SELECT strftime('%m', ma.data_acquisto) AS mese,
+                 SUM(ma.importo_pagato) AS ricavi
+          FROM Materiale_Acquistato ma
+          JOIN Materiale_Didattico md ON md.id = ma.materiale_id
+          WHERE md.tutor_id = ? AND strftime('%Y', ma.data_acquisto) = ?
+          GROUP BY mese
+        )
         GROUP BY mese
         ORDER BY mese
       `;
 
-      db.all(query, [tutorId, String(anno)], (err, rows) => {
+      db.all(query, [tutorId, String(anno), tutorId, String(anno)], (err, rows) => {
         if (err) reject(err);
         else resolve(rows);
       });

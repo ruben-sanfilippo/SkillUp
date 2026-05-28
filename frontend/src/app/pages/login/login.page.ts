@@ -5,8 +5,6 @@ import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import {
   IonContent,
-  IonList,
-  IonItem,
   IonInput,
   IonButton,
   IonIcon,
@@ -29,8 +27,6 @@ import { AuthService } from '../../services/authService';
     CommonModule,
     FormsModule,
     IonContent,
-    IonList,
-    IonItem,
     IonInput,
     IonButton,
     IonIcon,

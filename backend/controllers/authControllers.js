@@ -14,13 +14,6 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    console.log("Registrazione utente:");
-    console.log("Nome:", nome);
-    console.log("Cognome:", cognome);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("Tipo di utente:", tipologia_utente);
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create(
@@ -56,12 +49,19 @@ exports.login = async (req, res) => {
     const existingUser = await User.findByEmail(email);
     if (!existingUser) {
       return res.status(400).json({ message: "Email o Password non corrette" });
-    } else {
-      //Verifica che la password criptata sia corrispondente
-      const isMatch = await bcrypt.compare(password, existingUser.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Credenziali non valide" });
-      }
+    }
+
+    if (existingUser.stato === "bloccato") {
+      return res.status(403).json({
+        message:
+          "Account bloccato. Contatta l'amministratore per maggiori informazioni.",
+      });
+    }
+
+    //Verifica che la password criptata sia corrispondente
+    const isMatch = await bcrypt.compare(password, existingUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Credenziali non valide" });
     }
 
     //Creazione del token JWT

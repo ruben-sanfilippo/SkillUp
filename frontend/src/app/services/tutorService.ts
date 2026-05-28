@@ -33,6 +33,7 @@ export interface MaterialeDidatticoPayload {
   materia?: string;
   file_url: string;
   anteprima_url?: string;
+  copertina_url?: string;
   importo: number;
 }
 

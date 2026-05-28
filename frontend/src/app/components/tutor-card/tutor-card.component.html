@@ -1,7 +1,13 @@
 <div class="tutor-card" (click)="vediProfilo()">
   <div class="card-header">
     <div class="avatar-container">
-      <img [src]="tutor.image" alt="avatar" />
+      @if (tutor.image) {
+        <img [src]="tutor.image" alt="avatar" />
+      } @else {
+        <div class="avatar-placeholder">
+          {{ tutor.nome?.[0] || tutor.name?.[0] || 'T' }}
+        </div>
+      }
     </div>
 
     <div class="subjects-container">

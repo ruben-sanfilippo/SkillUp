@@ -74,7 +74,7 @@ export class StudentProfilePage implements OnInit {
   student: StudentData = {
     firstName: 'Alessandro',
     lastName: 'Rossi',
-    avatar: 'https://i.pravatar.cc/150?u=alessandro',
+    avatar: '',
     about:
       "Appassionato di intelligenza artificiale e machine learning. Sviluppo algoritmi efficienti per l'analisi dati.",
     sessionsCompleted: 24,
@@ -168,9 +168,15 @@ export class StudentProfilePage implements OnInit {
   }
 
   get allBookingsSorted(): Booking[] {
-    return [...this.allBookings].sort(
-      (a, b) => b.date.getTime() - a.date.getTime(),
-    );
+    const adesso = Date.now();
+    return [...this.allBookings].sort((a, b) => {
+      const aFuture = a.date.getTime() >= adesso;
+      const bFuture = b.date.getTime() >= adesso;
+      if (aFuture !== bFuture) return aFuture ? -1 : 1;
+      return aFuture
+        ? a.date.getTime() - b.date.getTime()
+        : b.date.getTime() - a.date.getTime();
+    });
   }
 
   apriModalPrenotazioni() {
@@ -310,9 +316,7 @@ export class StudentProfilePage implements OnInit {
     return {
       id: booking.id,
       tutorName: booking.tutorName,
-      tutorAvatar:
-        booking.tutorAvatar ||
-        `https://i.pravatar.cc/150?u=${booking.tutor_id}`,
+      tutorAvatar: booking.tutorAvatar || '',
       subject: booking.materia,
       date: data,
       dataItaliana: data.toLocaleDateString('it-IT', {

@@ -59,6 +59,18 @@
     }
   }
 
+  .admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+
   .search-container {
     position: relative;
     width: 320px;
@@ -90,6 +102,25 @@
 
       &:focus { border-color: var(--primary-color); }
     }
+  }
+}
+
+.logout-admin-btn {
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  padding: 0 14px;
+  background: var(--primary-color);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 18px;
   }
 }
 

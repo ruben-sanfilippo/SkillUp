@@ -55,8 +55,7 @@ exports.getTutorDashboard = async (req, res) => {
       studenteNome: lezione.studenteNome,
       studenteEmail: lezione.studenteEmail,
       studenteAvatar:
-        lezione.studenteAvatar ||
-        `https://i.pravatar.cc/150?u=${lezione.studenteEmail}`,
+        lezione.studenteAvatar || "",
       materia: lezione.materia,
       data: lezione.data,
       ora_inizio: lezione.ora_inizio,

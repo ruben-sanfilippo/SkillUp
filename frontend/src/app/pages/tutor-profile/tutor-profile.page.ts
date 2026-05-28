@@ -44,6 +44,7 @@ interface Dispensa {
   prezzo: number | null;
   copertinaUrl?: string;
   anteprimaUrl?: string | SafeResourceUrl;
+  anteprimaRawUrl?: string;
   isPdfPreview?: boolean;
   fileCompleto?: File | null;
   fileUrl?: string;
@@ -212,8 +213,10 @@ export class TutorProfilePage implements OnInit {
       titolo: materiale.titolo,
       descrizione: materiale.descrizione,
       prezzo: materiale.importo,
-      anteprimaUrl: materiale.anteprima_url,
-      isPdfPreview: false,
+      copertinaUrl: materiale.copertina_url,
+      anteprimaRawUrl: materiale.anteprima_url,
+      anteprimaUrl: this.preparaAnteprima(materiale.anteprima_url),
+      isPdfPreview: this.isPdfDataUrl(materiale.anteprima_url),
       fileUrl: materiale.file_url,
       haAnteprima: !!materiale.anteprima_url,
       haFileCompleto: !!materiale.file_url,
@@ -408,6 +411,24 @@ export class TutorProfilePage implements OnInit {
     await alert.present();
   }
 
+  async mostraPopupErroreDataPassata() {
+    const alert = await this.alertController.create({
+      header: 'Data non valida',
+      message: 'Non puoi aggiungere disponibilita per giorni gia passati.',
+      buttons: [{ text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' }],
+    });
+    await alert.present();
+  }
+
+  async mostraPopupSalvataggioDisponibilita() {
+    const alert = await this.alertController.create({
+      header: 'Disponibilita salvata',
+      message: 'Le tue fasce orarie sono state aggiornate correttamente.',
+      buttons: [{ text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' }],
+    });
+    await alert.present();
+  }
+
   async salvaSezione(sezione: string) {
     if (sezione === 'biografia') {
       this.biografia = this.biografiaTmp ? this.biografiaTmp.substring(0, 200) : '';
@@ -425,6 +446,10 @@ export class TutorProfilePage implements OnInit {
       for (const dataKey in this.databaseDisponibilitaTmp) {
         const blocco = this.databaseDisponibilitaTmp[dataKey];
         if (blocco.attivo) {
+          if (dataKey < this.dataLocale(new Date())) {
+            await this.mostraPopupErroreDataPassata();
+            return;
+          }
           if (blocco.dalle >= blocco.alle) {
             await this.mostraPopupErroreOrario();
             return;
@@ -453,6 +478,7 @@ export class TutorProfilePage implements OnInit {
       );
       this.isEditingDisponibilita = false;
       this.costruisciCalendarioMensile();
+      await this.mostraPopupSalvataggioDisponibilita();
     }
   }
 
@@ -492,14 +518,21 @@ export class TutorProfilePage implements OnInit {
     const file = event.target.files[0];
     if (file) {
       if (file.type === 'application/pdf') {
-        const blobUrl = URL.createObjectURL(file);
-        this.nuovaDispensa.anteprimaUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
-        this.nuovaDispensa.isPdfPreview = true;
-        this.nuovaDispensa.haAnteprima = true;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result as string;
+          this.nuovaDispensa.anteprimaRawUrl = dataUrl;
+          this.nuovaDispensa.anteprimaUrl =
+            this.sanitizer.bypassSecurityTrustResourceUrl(dataUrl);
+          this.nuovaDispensa.isPdfPreview = true;
+          this.nuovaDispensa.haAnteprima = true;
+        };
+        reader.readAsDataURL(file);
       } else if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = () => {
-          this.nuovaDispensa.anteprimaUrl = reader.result as string;
+          this.nuovaDispensa.anteprimaRawUrl = reader.result as string;
+          this.nuovaDispensa.anteprimaUrl = this.nuovaDispensa.anteprimaRawUrl;
           this.nuovaDispensa.isPdfPreview = false;
           this.nuovaDispensa.haAnteprima = true;
         };
@@ -533,8 +566,10 @@ export class TutorProfilePage implements OnInit {
       prezzo: this.nuovaDispensa.prezzo,
       copertinaUrl: this.nuovaDispensa.copertinaUrl,
       anteprimaUrl: this.nuovaDispensa.anteprimaUrl,
+      anteprimaRawUrl: this.nuovaDispensa.anteprimaRawUrl,
       isPdfPreview: this.nuovaDispensa.isPdfPreview,
       fileCompleto: this.nuovaDispensa.fileCompleto,
+      fileUrl: this.nuovaDispensa.fileUrl,
       haAnteprima: this.nuovaDispensa.haAnteprima,
       haFileCompleto: this.nuovaDispensa.haFileCompleto,
     };
@@ -544,10 +579,8 @@ export class TutorProfilePage implements OnInit {
       descrizione: dispensaDaSalvare.descrizione,
       materia: this.materieSelezionate[0],
       file_url: dispensaDaSalvare.fileUrl || dispensaDaSalvare.fileCompleto?.name || '',
-      anteprima_url:
-        typeof dispensaDaSalvare.anteprimaUrl === 'string'
-          ? dispensaDaSalvare.anteprimaUrl
-          : '',
+      anteprima_url: dispensaDaSalvare.anteprimaRawUrl || '',
+      copertina_url: dispensaDaSalvare.copertinaUrl || '',
       importo: dispensaDaSalvare.prezzo || 0,
     });
 
@@ -563,6 +596,7 @@ export class TutorProfilePage implements OnInit {
       prezzo: null,
       copertinaUrl: '',
       anteprimaUrl: '',
+      anteprimaRawUrl: '',
       fileCompleto: null,
       fileUrl: '',
       haAnteprima: false,
@@ -593,5 +627,24 @@ export class TutorProfilePage implements OnInit {
   chiudiAnteprimaStudente() {
     this.isViewingAnteprima = false;
     this.dispensaInEvidenza = null;
+  }
+
+  private isPdfDataUrl(url?: string): boolean {
+    return !!url && url.startsWith('data:application/pdf');
+  }
+
+  private preparaAnteprima(url?: string) {
+    if (!url) return '';
+    if (this.isPdfDataUrl(url)) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+    return url;
+  }
+
+  private dataLocale(data: Date): string {
+    const anno = data.getFullYear();
+    const mese = String(data.getMonth() + 1).padStart(2, '0');
+    const giorno = String(data.getDate()).padStart(2, '0');
+    return `${anno}-${mese}-${giorno}`;
   }
 }

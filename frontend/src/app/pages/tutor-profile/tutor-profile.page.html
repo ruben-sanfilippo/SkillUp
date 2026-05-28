@@ -315,12 +315,12 @@
               <div class="calendar-day-wrapper">
                 <div
                   class="calendar-day-circle"
-                  [class.is-available]="giorno.info?.attivo"
+                  [class.is-available]="giorno.info.attivo"
                   [class.is-selected]="giorno.dataString === giornoSelezionato?.dataString"
                   (click)="selezionaGiorno(giorno)"
                 >
                   <span class="day-number-text">{{ giorno.giorno }}</span>
-                  @if (giorno.info?.attivo && giorno.dataString !==
+                  @if (giorno.info.attivo && giorno.dataString !==
                   giornoSelezionato?.dataString) {
                   <span class="time-dot-indicator"></span>
                   }
@@ -333,7 +333,7 @@
             <div class="day-config-panel animate-fade-in">
               <div class="panel-header-inline">
                 <h4>{{ dataFormattataPannello }}</h4>
-                @if (!giornoSelezionato.info?.attivo) {
+                @if (!giornoSelezionato.info.attivo) {
                 <span class="badge-status-closed">Non disponibile</span>
                 } @else {
                 <span class="badge-status-open">Disponibile</span>
@@ -379,14 +379,14 @@
               </div>
               } @else {
               <div class="static-day-info-display">
-                @if (giornoSelezionato.info?.attivo) {
+                @if (giornoSelezionato.info.attivo) {
                 <div class="info-hours-box">
                   <ion-icon name="time-outline"></ion-icon>
                   <span
                     >Orario:
                     <strong
-                      >{{ giornoSelezionato.info?.dalle }} - {{
-                      giornoSelezionato.info?.alle }}</strong
+                      >{{ giornoSelezionato.info.dalle }} - {{
+                      giornoSelezionato.info.alle }}</strong
                     ></span
                   >
                 </div>
@@ -633,7 +633,7 @@
               [(ngModel)]="biografiaTmp"
               maxlength="200"
             ></textarea>
-            <div class="char-counter">{{ biografiaTmp?.length || 0 }}/200</div>
+            <div class="char-counter">{{ biografiaTmp.length || 0 }}/200</div>
           </div>
         </div>
 

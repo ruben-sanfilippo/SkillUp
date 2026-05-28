@@ -2,9 +2,7 @@ const Platform = require("../models/platformModel");
 
 function requireRole(req, res, roles) {
   if (!roles.includes(req.user.tipologia_utente)) {
-    res
-      .status(403)
-      .json({ message: "Non puoi prenotare una lezione come tutor!" });
+    res.status(403).json({ message: "Permessi insufficienti" });
     return false;
   }
   return true;
@@ -41,12 +39,13 @@ exports.getTutor = async (req, res) => {
     const tutor = await Platform.getTutorById(req.params.id);
     if (!tutor) return res.status(404).json({ message: "Tutor non trovato" });
 
-    const [availability, materials] = await Promise.all([
+    const [availability, materials, bookedSlots] = await Promise.all([
       Platform.getAvailability(req.params.id),
       Platform.getTutorMaterials(req.params.id),
+      Platform.getBookedSlots(req.params.id),
     ]);
 
-    res.json({ ...tutor, availability, materials });
+    res.json({ ...tutor, availability, materials, bookedSlots });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -70,13 +69,32 @@ exports.updateTutorMe = async (req, res) => {
 exports.updateAvailabilityMe = async (req, res) => {
   try {
     if (!requireRole(req, res, ["tutor"])) return;
-    res.json(
-      await Platform.replaceAvailability(
-        req.user.id,
-        req.body.disponibilita || [],
-        req.body.tariffa_oraria,
-      ),
+    const availability = await Platform.replaceAvailability(
+      req.user.id,
+      req.body.disponibilita || [],
+      req.body.tariffa_oraria,
     );
+    if (availability.invalidPastDate) {
+      return res.status(400).json({
+        message: "Non puoi aggiungere disponibilita per giorni gia passati.",
+      });
+    }
+    if (availability.invalidTime) {
+      return res.status(400).json({
+        message: "Gli orari di disponibilita non sono validi.",
+      });
+    }
+    res.json(availability);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getUser = async (req, res) => {
+  try {
+    const user = await Platform.getUserSummary(req.params.id);
+    if (!user) return res.status(404).json({ message: "Utente non trovato" });
+    res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -126,6 +144,11 @@ exports.createBooking = async (req, res) => {
       return res.status(400).json({
         message:
           "Non puoi prenotare una lezione di oggi con un orario precedente all'ora attuale.",
+      });
+    }
+    if (booking.invalidSlot) {
+      return res.status(400).json({
+        message: "La fascia oraria scelta non rientra nella disponibilita del tutor.",
       });
     }
     if (booking.conflict) {
@@ -181,7 +204,19 @@ exports.getMessages = async (req, res) => {
 
 exports.sendMessage = async (req, res) => {
   try {
-    res.status(201).json(await Platform.sendMessage(req.user.id, req.body));
+    const result = await Platform.sendMessage(req.user.id, req.body);
+    const io = req.app.get("io");
+    if (io && result.newMessage) {
+      io.to(`user:${result.newMessage.destinatario_id}`).emit(
+        "message-received",
+        result.newMessage,
+      );
+      io.to(`user:${result.newMessage.mittente_id}`).emit(
+        "message-received",
+        result.newMessage,
+      );
+    }
+    res.status(201).json(result.messages);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

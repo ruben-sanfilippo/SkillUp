@@ -19,6 +19,10 @@ export class PlatformService {
     );
   }
 
+  getUser(id: number | string) {
+    return firstValueFrom(this.http.get<any>(`${environment.apiUrl}/api/users/${id}`));
+  }
+
   getBookingsMe() {
     return firstValueFrom(
       this.http.get<any[]>(`${environment.apiUrl}/api/bookings/me`),

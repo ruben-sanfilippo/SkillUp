@@ -3,12 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
 import {
-  IonContent,
   IonLabel,
   IonIcon,
   IonTabButton,
   IonTabs,
-  IonRouterOutlet,
   IonTabBar,
 } from '@ionic/angular/standalone';
 import {
@@ -26,12 +24,10 @@ import { PlatformService } from '../../services/platformService';
   styleUrls: ['./tabs.page.scss'],
   standalone: true,
   imports: [
-    IonContent,
     IonIcon,
     IonLabel,
     IonTabButton,
     IonTabs,
-    IonRouterOutlet,
     IonTabBar,
     CommonModule,
     FormsModule,

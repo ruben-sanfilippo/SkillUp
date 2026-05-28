@@ -199,7 +199,13 @@
         <div class="review-modal-body">
           @if (selectedBookingForReview) {
             <div class="target-tutor">
-              <img [src]="selectedBookingForReview.tutorAvatar" alt="Tutor Avatar" />
+              @if (selectedBookingForReview.tutorAvatar) {
+                <img [src]="selectedBookingForReview.tutorAvatar" alt="Tutor Avatar" />
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ selectedBookingForReview.tutorName[0] }}
+                </div>
+              }
               <h3>{{ selectedBookingForReview.tutorName }}</h3>
               <p>{{ selectedBookingForReview.subject }}</p>
             </div>

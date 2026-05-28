@@ -183,6 +183,7 @@ function creaTabelle() {
                 descrizione TEXT,
                 file_url TEXT NOT NULL,
                 anteprima_url TEXT,
+                copertina_url TEXT,
                 importo REAL NOT NULL,
                 FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id),
                 FOREIGN KEY (materia_id) REFERENCES Materie(id)
@@ -195,6 +196,7 @@ function creaTabelle() {
     );
 
     db.run(`ALTER TABLE Materiale_Didattico ADD COLUMN anteprima_url TEXT`, () => {});
+    db.run(`ALTER TABLE Materiale_Didattico ADD COLUMN copertina_url TEXT`, () => {});
 
     //Tabella Materiale_Acquistato
     db.run(

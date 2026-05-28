@@ -27,6 +27,20 @@ function all(query, params = []) {
   });
 }
 
+function minuti(orario) {
+  if (!/^\d{2}:\d{2}$/.test(orario || "")) return null;
+  const [ore, minuti] = orario.split(":").map(Number);
+  if (ore < 0 || ore > 23 || minuti < 0 || minuti > 59) return null;
+  return ore * 60 + minuti;
+}
+
+function dataLocale(data = new Date()) {
+  const anno = data.getFullYear();
+  const mese = String(data.getMonth() + 1).padStart(2, "0");
+  const giorno = String(data.getDate()).padStart(2, "0");
+  return `${anno}-${mese}-${giorno}`;
+}
+
 async function idMateria(nome) {
   await run(`INSERT OR IGNORE INTO Materie (nome) VALUES (?)`, [nome]);
   const row = await get(`SELECT id FROM Materie WHERE nome = ?`, [nome]);
@@ -42,6 +56,15 @@ async function idLingua(nome) {
 function mappaTutor(row) {
   const subjects = row.subjects ? row.subjects.split(",").filter(Boolean) : [];
   const languages = row.languages ? row.languages.split(",").filter(Boolean) : [];
+  const subjectOptions = row.subjectOptions
+    ? row.subjectOptions
+        .split(",")
+        .filter(Boolean)
+        .map((item) => {
+          const [id, ...nameParts] = item.split(":");
+          return { id: Number(id), nome: nameParts.join(":") };
+        })
+    : [];
 
   return {
     id: row.id,
@@ -51,11 +74,12 @@ function mappaTutor(row) {
     email: row.email,
     bio: row.bio_tutor || "",
     subjects,
+    subjectOptions,
     languages,
     rating: Number(row.rating || 0).toFixed(1),
     reviews: Number(row.reviews || 0),
     price: Number(row.price || 0),
-    image: row.immagine_profilo || `https://i.pravatar.cc/150?u=${row.email}`,
+    image: row.immagine_profilo || "",
     disponibileDal: row.disponibileDal,
     disponibileAl: row.disponibileAl,
   };
@@ -91,6 +115,17 @@ const Platform = {
     }
 
     return user;
+  },
+
+  async getUserSummary(userId) {
+    return get(
+      `
+        SELECT id, nome, cognome, email, immagine_profilo, tipologia_utente
+        FROM Utente
+        WHERE id = ? AND stato = 'attivo'
+      `,
+      [userId],
+    );
   },
 
   async updateCurrentUser(userId, data) {
@@ -146,6 +181,7 @@ const Platform = {
         MIN(dt.data) AS disponibileDal,
         MAX(dt.data) AS disponibileAl,
         GROUP_CONCAT(DISTINCT m.nome) AS subjects,
+        GROUP_CONCAT(DISTINCT m.id || ':' || m.nome) AS subjectOptions,
         GROUP_CONCAT(DISTINCT l.nome) AS languages
       FROM Tutor t
       JOIN Utente u ON u.id = t.utente_id
@@ -211,35 +247,70 @@ const Platform = {
     );
   },
 
+  async getBookedSlots(tutorId) {
+    return all(
+      `
+        SELECT id, disponibilita_id, materia_id, data, ora_inizio, ora_fine
+        FROM Prenotazioni
+        WHERE tutor_id = ?
+        ORDER BY data ASC, ora_inizio ASC
+      `,
+      [tutorId],
+    );
+  },
+
   async replaceAvailability(tutorId, disponibilita = [], tariffaOraria = 0) {
     const tutorMaterie = await all(
       `SELECT materia_id FROM Tutor_Materie WHERE tutor_id = ?`,
       [tutorId],
     );
-    const fallbackMateriaId =
-      tutorMaterie[0]?.materia_id || (await idMateria("Matematica"));
+    const materiaIds = tutorMaterie.length
+      ? tutorMaterie.map((row) => row.materia_id)
+      : [await idMateria("Matematica")];
+
+    for (const item of disponibilita) {
+      if (!item.attivo) continue;
+      const data = item.data;
+      const oraInizio = item.dalle || item.ora_inizio;
+      const oraFine = item.alle || item.ora_fine;
+      const inizioMinuti = minuti(oraInizio);
+      const fineMinuti = minuti(oraFine);
+
+      if (!data || data < dataLocale()) return { invalidPastDate: true };
+      if (
+        inizioMinuti === null ||
+        fineMinuti === null ||
+        inizioMinuti >= fineMinuti
+      ) {
+        return { invalidTime: true };
+      }
+    }
 
     await run(`DELETE FROM Disponibilita_Tutor WHERE tutor_id = ?`, [tutorId]);
 
     for (const item of disponibilita) {
       if (!item.attivo) continue;
       const data = item.data;
-      await run(
-        `
-          INSERT INTO Disponibilita_Tutor
-          (tutor_id, materia_id, data, giorno_settimana, ora_inizio, ora_fine, tariffa_oraria)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `,
-        [
-          tutorId,
-          item.materia_id || fallbackMateriaId,
-          data,
-          item.giorno_settimana || data || "da definire",
-          item.dalle || item.ora_inizio,
-          item.alle || item.ora_fine,
-          tariffaOraria || item.tariffa_oraria || 0,
-        ],
-      );
+      const idsDaSalvare = item.materia_id ? [item.materia_id] : materiaIds;
+
+      for (const materiaId of idsDaSalvare) {
+        await run(
+          `
+            INSERT INTO Disponibilita_Tutor
+            (tutor_id, materia_id, data, giorno_settimana, ora_inizio, ora_fine, tariffa_oraria)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `,
+          [
+            tutorId,
+            materiaId,
+            data,
+            item.giorno_settimana || data || "da definire",
+            item.dalle || item.ora_inizio,
+            item.alle || item.ora_fine,
+            tariffaOraria || item.tariffa_oraria || 0,
+          ],
+        );
+      }
     }
 
     return this.getAvailability(tutorId);
@@ -285,12 +356,14 @@ const Platform = {
   async getTutorMaterials(tutorId) {
     return all(
       `
-        SELECT MAX(md.id) AS id, md.titolo, md.descrizione, md.file_url, md.anteprima_url,
+        SELECT MAX(md.id) AS id, md.titolo, md.descrizione, md.file_url,
+               md.anteprima_url, md.copertina_url,
                md.importo, m.nome AS materia
         FROM Materiale_Didattico md
         JOIN Materie m ON m.id = md.materia_id
         WHERE md.tutor_id = ?
         GROUP BY md.titolo, md.descrizione, md.file_url, md.anteprima_url,
+                 md.copertina_url,
                  md.importo, m.nome
         ORDER BY md.id DESC
       `,
@@ -307,8 +380,8 @@ const Platform = {
     const result = await run(
       `
         INSERT INTO Materiale_Didattico
-        (tutor_id, materia_id, titolo, descrizione, file_url, anteprima_url, importo)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (tutor_id, materia_id, titolo, descrizione, file_url, anteprima_url, copertina_url, importo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         tutorId,
@@ -317,6 +390,7 @@ const Platform = {
         data.descrizione || "",
         data.file_url || "",
         data.anteprima_url || "",
+        data.copertina_url || "",
         Number(data.importo) || 0,
       ],
     );
@@ -356,16 +430,45 @@ const Platform = {
   },
 
   async createBooking(studenteId, data) {
-    const disponibilita = await get(
+    const disponibilitaRichiesta = await get(
       `SELECT * FROM Disponibilita_Tutor WHERE id = ?`,
       [data.disponibilita_id],
     );
-    if (!disponibilita) return null;
+    if (!disponibilitaRichiesta) return null;
+
+    const inizioMinuti = minuti(data.ora_inizio);
+    const fineMinuti = minuti(data.ora_fine);
+    if (inizioMinuti === null || fineMinuti === null || inizioMinuti >= fineMinuti) {
+      return { invalidSlot: true };
+    }
 
     const inizioPrenotazione = new Date(`${data.data}T${data.ora_inizio}:00`);
     if (inizioPrenotazione <= new Date()) {
       return { invalidTime: true };
     }
+
+    const materiaId = data.materia_id || disponibilitaRichiesta.materia_id;
+    const disponibilita = await get(
+      `
+        SELECT *
+        FROM Disponibilita_Tutor
+        WHERE tutor_id = ?
+          AND materia_id = ?
+          AND data = ?
+          AND ora_inizio <= ?
+          AND ora_fine >= ?
+        LIMIT 1
+      `,
+      [
+        disponibilitaRichiesta.tutor_id,
+        materiaId,
+        data.data,
+        data.ora_inizio,
+        data.ora_fine,
+      ],
+    );
+
+    if (!disponibilita) return { invalidSlot: true };
 
     const conflitto = await get(
       `
@@ -436,7 +539,20 @@ const Platform = {
         JOIN Utente tutor ON tutor.id = p.tutor_id
         JOIN Utente stud ON stud.id = p.studente_id
         WHERE ${field} = ?
-        ORDER BY p.data DESC, p.ora_inizio DESC
+        ORDER BY
+          CASE
+            WHEN datetime(p.data || ' ' || p.ora_inizio) >= datetime('now', 'localtime')
+            THEN 0
+            ELSE 1
+          END,
+          CASE
+            WHEN datetime(p.data || ' ' || p.ora_inizio) >= datetime('now', 'localtime')
+            THEN datetime(p.data || ' ' || p.ora_inizio)
+          END ASC,
+          CASE
+            WHEN datetime(p.data || ' ' || p.ora_inizio) < datetime('now', 'localtime')
+            THEN datetime(p.data || ' ' || p.ora_inizio)
+          END DESC
       `,
       [userId],
     );
@@ -491,7 +607,7 @@ const Platform = {
             LIMIT 1
           ) AS lastMessageText
         FROM Utente u
-        LEFT JOIN Messaggio msg
+        JOIN Messaggio msg
           ON (msg.mittente_id = ? AND msg.destinatario_id = u.id)
           OR (msg.mittente_id = u.id AND msg.destinatario_id = ?)
         WHERE u.id != ?
@@ -518,14 +634,20 @@ const Platform = {
   },
 
   async sendMessage(userId, data) {
-    await run(
+    const result = await run(
       `
         INSERT INTO Messaggio (mittente_id, destinatario_id, contenuto)
         VALUES (?, ?, ?)
       `,
       [userId, data.destinatario_id, data.contenuto],
     );
-    return this.getMessages(userId, data.destinatario_id);
+    const newMessage = await get(`SELECT * FROM Messaggio WHERE id = ?`, [
+      result.id,
+    ]);
+    return {
+      newMessage,
+      messages: await this.getMessages(userId, data.destinatario_id),
+    };
   },
 
   async getAdminUsers() {

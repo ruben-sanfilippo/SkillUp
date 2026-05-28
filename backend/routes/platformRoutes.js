@@ -5,6 +5,7 @@ const platformController = require("../controllers/platformController");
 
 router.get("/users/me", authMiddleware, platformController.getMe);
 router.put("/users/me", authMiddleware, platformController.updateMe);
+router.get("/users/:id", authMiddleware, platformController.getUser);
 
 router.post("/tutors/search", platformController.searchTutors);
 router.get("/tutors/me", authMiddleware, platformController.getTutorMe);
