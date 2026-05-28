@@ -39,11 +39,14 @@ exports.getTutor = async (req, res) => {
     const tutor = await Platform.getTutorById(req.params.id);
     if (!tutor) return res.status(404).json({ message: "Tutor non trovato" });
 
+    const studenteId =
+      req.user.tipologia_utente === "studente" ? req.user.id : null;
+
     const [availability, materials, bookedSlots, availableSchedule] = await Promise.all([
       Platform.getAvailability(req.params.id),
-      Platform.getTutorMaterials(req.params.id),
-      Platform.getBookedSlots(req.params.id),
-      Platform.getAvailableSchedule(req.params.id),
+      Platform.getTutorMaterials(req.params.id, studenteId),
+      Platform.getBookedSlots(req.params.id, studenteId),
+      Platform.getAvailableSchedule(req.params.id, studenteId),
     ]);
 
     res.json({ ...tutor, availability, materials, bookedSlots, availableSchedule });
@@ -85,6 +88,12 @@ exports.updateAvailabilityMe = async (req, res) => {
         message: "Gli orari di disponibilita non sono validi.",
       });
     }
+    if (availability.noSubjects) {
+      return res.status(400).json({
+        message:
+          "Seleziona almeno una materia prima di inserire disponibilita.",
+      });
+    }
     res.json(availability);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -119,6 +128,9 @@ exports.purchaseMaterial = async (req, res) => {
     );
     if (!material)
       return res.status(404).json({ message: "Materiale non trovato" });
+    if (material.alreadyPurchased) {
+      return res.status(409).json({ message: "Materiale già acquistato" });
+    }
     res.status(201).json(material);
   } catch (err) {
     res.status(500).json({ error: err.message });

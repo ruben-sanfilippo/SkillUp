@@ -279,9 +279,13 @@
 
                 <div class="dispensa-actions-group">
                   @if (puoInteragireComeStudente) {
-                    <ion-button class="buy-dispensa-btn" (click)="acquistaDispensa(dispensa)">
+                    <ion-button
+                      class="buy-dispensa-btn"
+                      [disabled]="dispensa.acquistato"
+                      (click)="acquistaDispensa(dispensa)"
+                    >
                       <ion-icon slot="start" name="cart-outline"></ion-icon>
-                      Acquista
+                      {{ dispensa.acquistato ? 'Acquistato' : 'Acquista' }}
                     </ion-button>
                   }
 
@@ -367,10 +371,15 @@
                 expand="block"
                 class="buy-dispensa-btn"
                 style="width: 100%; height: 50px"
+                [disabled]="dispensaInEvidenza?.acquistato"
                 (click)="acquistaDispensa(dispensaInEvidenza); chiudiAnteprimaStudente()"
               >
                 <ion-icon slot="start" name="cart-outline"></ion-icon>
-                Acquista a {{ dispensaInEvidenza?.prezzo | number:'1.2-2' }}€
+                @if (dispensaInEvidenza?.acquistato) {
+                  Acquistato
+                } @else {
+                  Acquista a {{ dispensaInEvidenza?.prezzo | number:'1.2-2' }}€
+                }
               </ion-button>
             </div>
           }

@@ -1,25 +1,22 @@
-Nel model inseriamo le query, nel controller inseriamo la logica di business, quindi effettuiamo i vari controlli prima di chiamare il model.
-Il router decide quale funzione del Controller deve gestire una determinata richiesta che arriva dall'app.
+
+Risolti
+
+1. durante la prenotazione non mi devono spuntare nella selezione gli orari già occupate SE NON CI SONO FASCE ORARIE DISPONIBILI IL GIORNO DEVE RISULTARE INTERAMENTE NON DISPONIBILE
+2. un tutor che non ha nemmeno una materia selezionata come insegnamento non deve poter avere disponibilita e non deve spuntare nella sezione di ricerca.
+3. aggiustare l'ordine di visualizzazione delle mie prenotazioni, mi devono spuntare da quella con la data e ora più vicina alla più lonta temporalmente, e le prenotazioni passate in fondo alla lista 
+4. i materiali e le foto profilo inseriti non vengono salvati nel backend
+5. non posso caricare determinati tipi di file con errore payload troppo grande (ora 250mb)
+6. aggiungi un messaggio di conferma quando aggiungo una disponibilità ed escimi dalla modalità modifica
+7. errore 500 col metodo put per inserire una nuova disponibilità
+8. nella chat i messaggi si aggiornano in tempo reale senza aggiornare la pagina e compare un cerchio blu sulle chat con nuovi messaggi
+9. nella schermata della chat spuntano solo le conversazioni con messaggi reali
+10. se clicco contatta tutor si apre la schermata messaggi con la chat di quel tutor aperta
+11. nelle prenotazioni dello studente spunta sempre la foto del tutor o un avatar predefinito
+12. dopo l'acquisto di una dispensa si aggiornano ricavi totali, ricavi materiali e statistiche dei materiali
+13. uno studente non può ricomprare lo stesso materiale didattico e vede il messaggio Acquistato
+
 
 MODIFICHE DA FARE
-
-1. aggiungere durante la fase di prenotazione la scelta della materia sulla base delle materie che ha inserito il tutor
-2. durante la prenotazione non mi devono spuntare le fascie orarie già occupate
-3. aggiustare l'ordine di visualizzazione delle mie prenotazioni, mi devono spuntare dalla più vicina alla più lonta in temporalmente, e le prenotazioni passate in fondo alla lista
-4. quando carico un materiale didattico con copertina e anteprima quando aggiorno la pagina mi scompaiono
-5. non posso caricare determinati tipi di file come anteprima con errore payload troppo grande
-6. non devo poter aggiungere la disponibilità per giorni già passati
-7. aggiungi un messaggio di conferma quando aggiungo una disponibilità ed escimi dalla modalità modifica
-8. errore 500 col metodo put per inserire una nuova disponibilità
-9. aggiungi un pulsante di "esci" nella dashboard dell'amministratore con le stesse funzionalità del pulsante esci nel profilo tutor e studente
-10. nella chat i messaggi si devono aggiornare in tempo reale tramite le web socket utilizzando socket.io e devo avere un messaggio di notifica come su whatsapp ovvere nelle chat a sinistra un cerchio blu
-11. nella schermata della chat devo avere solo le chat con tutor/studente con cui effetuo una conversazione
-12. non aggiungere immagini profilo a profili appena creati
-13. se compro una dispensa di un tutor, non si aggiornano i ricavi totali e i ricavi dei materiali didattici, e aggiungi nei materiali totali anche i ricavi dei materiali didattici
-14. se apro la tutor-detail come tutor non devo poter prenotare lezioni e non devo poter contattarlo
-15. se l'admin blocca il profilo di un tutor/studente imposta lo stato a false ed esegui il controllo durante il login
-16. sostituisci tutti gli nfig e nffor con la nuova notazione @if e @for 
-
 
 Account demo:
 

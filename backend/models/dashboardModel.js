@@ -54,7 +54,7 @@ const Dashboard = {
     return new Promise((resolve, reject) => {
       const query = `
         SELECT
-          MAX(md.id) AS id,
+          md.id,
           md.titolo,
           COALESCE(m.nome, 'Senza materia') AS materia,
           COUNT(ma.id) AS acquisti,
@@ -63,7 +63,7 @@ const Dashboard = {
         LEFT JOIN Materie m ON m.id = md.materia_id
         LEFT JOIN Materiale_Acquistato ma ON ma.materiale_id = md.id
         WHERE md.tutor_id = ?
-        GROUP BY md.titolo, m.nome
+        GROUP BY md.id, md.titolo, m.nome
         ORDER BY acquisti DESC, ricavi DESC, md.titolo ASC
       `;
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -8,6 +8,7 @@ import { searchOutline, send, chatbubblesOutline, chevronBackOutline } from 'ion
 import { PlatformService } from 'src/app/services/platformService';
 import { environment } from 'src/environments/environment';
 import { io, Socket } from 'socket.io-client';
+import { Subscription } from 'rxjs';
 
 interface Message {
   id: string | number;
@@ -23,6 +24,7 @@ interface Chat {
   avatar: string;
   lastMessageText: string;
   lastMessageTime: string;
+  lastMessageAt: string;
   unread: boolean;
   messages: Message[];
 }
@@ -34,7 +36,7 @@ interface Chat {
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule]
 })
-export class MessagesPage implements OnInit, AfterViewChecked {
+export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
 
   searchQuery: string = '';
   newMessageText: string = '';
@@ -48,6 +50,7 @@ export class MessagesPage implements OnInit, AfterViewChecked {
   chats: Chat[] = [];
   currentUserId = 0;
   private socket?: Socket;
+  private queryParamsSub?: Subscription;
 
   constructor(
     private platformService: PlatformService,
@@ -66,21 +69,29 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     this.currentUserId = utente.id;
     this.apriSocket();
     await this.caricaConversazioni();
-    const userId = this.route.snapshot.queryParamMap.get('userId');
-    let chatDaAprire: Chat | null | undefined = this.chats.find(
-      (chat) => Number(chat.userId) === Number(userId),
-    );
+    this.queryParamsSub = this.route.queryParamMap.subscribe((params) => {
+      const userId = params.get('userId');
+      if (userId) {
+        void this.apriChatDaUserId(userId);
+      }
+    });
 
-    if (!chatDaAprire && userId) {
-      chatDaAprire = await this.creaChatDaUtente(userId);
-    }
-
-    if (chatDaAprire) {
-      await this.selezionaChat(chatDaAprire);
-    } else {
+    if (!this.route.snapshot.queryParamMap.get('userId')) {
       this.activeChat = null;
       this.isChatOpen = false;
     }
+  }
+
+  async ionViewWillEnter() {
+    const userId = this.route.snapshot.queryParamMap.get('userId');
+    if (userId && this.currentUserId) {
+      await this.apriChatDaUserId(userId);
+    }
+  }
+
+  ngOnDestroy() {
+    this.queryParamsSub?.unsubscribe();
+    this.socket?.disconnect();
   }
 
   async caricaConversazioni() {
@@ -97,9 +108,11 @@ export class MessagesPage implements OnInit, AfterViewChecked {
             minute: '2-digit',
           })
         : '',
+      lastMessageAt: chat.lastMessageTime || '',
       unread: false,
       messages: [],
     }));
+    this.ordinaConversazioni();
     this.filteredChats = [...this.chats];
   }
 
@@ -142,10 +155,19 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     );
     this.activeChat.messages = messages.map((msg) => this.mappaMessaggio(msg));
     this.activeChat.lastMessageText = testo;
-    this.activeChat.lastMessageTime = new Date().toLocaleTimeString([], {
+    const ultimoMessaggio = messages[messages.length - 1];
+    this.activeChat.lastMessageAt =
+      ultimoMessaggio?.data_invio || new Date().toISOString();
+    this.activeChat.lastMessageTime = new Date(
+      this.activeChat.lastMessageAt,
+    ).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
+    this.activeChat.unread = false;
+    this.aggiungiChatSeMancante(this.activeChat);
+    this.ordinaConversazioni();
+    this.filtraChat();
     this.newMessageText = '';
 
     this.scrollToBottom();
@@ -208,6 +230,7 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     if (!chat) return;
 
     chat.lastMessageText = msg.contenuto;
+    chat.lastMessageAt = msg.data_invio || new Date().toISOString();
     chat.lastMessageTime = new Date(msg.data_invio).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
@@ -231,7 +254,26 @@ export class MessagesPage implements OnInit, AfterViewChecked {
     this.filtraChat();
   }
 
-  private async creaChatDaUtente(userId: number | string): Promise<Chat | null> {
+  private async apriChatDaUserId(userId: number | string) {
+    if (Number(userId) === Number(this.currentUserId)) return;
+
+    let chatDaAprire: Chat | null | undefined = this.chats.find(
+      (chat) => Number(chat.userId) === Number(userId),
+    );
+
+    if (!chatDaAprire) {
+      chatDaAprire = await this.creaChatDaUtente(userId, false);
+    }
+
+    if (chatDaAprire) {
+      await this.selezionaChat(chatDaAprire);
+    }
+  }
+
+  private async creaChatDaUtente(
+    userId: number | string,
+    aggiungiAllaLista = true,
+  ): Promise<Chat | null> {
     try {
       const user = await this.platformService.getUser(userId);
       const chat: Chat = {
@@ -241,12 +283,15 @@ export class MessagesPage implements OnInit, AfterViewChecked {
         avatar: user.immagine_profilo || '',
         lastMessageText: '',
         lastMessageTime: '',
+        lastMessageAt: '',
         unread: false,
         messages: [],
       };
-      this.chats.push(chat);
-      this.ordinaConversazioni();
-      this.filteredChats = [...this.chats];
+      if (aggiungiAllaLista) {
+        this.aggiungiChatSeMancante(chat);
+        this.ordinaConversazioni();
+        this.filteredChats = [...this.chats];
+      }
       return chat;
     } catch {
       return null;
@@ -256,7 +301,22 @@ export class MessagesPage implements OnInit, AfterViewChecked {
   private ordinaConversazioni() {
     this.chats = [...this.chats].sort((a, b) => {
       if (a.unread !== b.unread) return a.unread ? -1 : 1;
-      return (b.lastMessageTime || '').localeCompare(a.lastMessageTime || '');
+      return this.timestampChat(b) - this.timestampChat(a);
     });
+  }
+
+  private aggiungiChatSeMancante(chat: Chat) {
+    const exists = this.chats.some(
+      (item) => Number(item.userId) === Number(chat.userId),
+    );
+    if (!exists) {
+      this.chats = [chat, ...this.chats];
+    }
+  }
+
+  private timestampChat(chat: Chat): number {
+    if (!chat.lastMessageAt) return 0;
+    const timestamp = new Date(chat.lastMessageAt).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
   }
 }

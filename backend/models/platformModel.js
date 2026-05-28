@@ -101,10 +101,17 @@ function mappaTutor(row) {
     rating: Number(row.rating || 0).toFixed(1),
     reviews: Number(row.reviews || 0),
     price: Number(row.price || 0),
-    image: row.immagine_profilo || "",
+    image: row.immagine_profilo || immagineProfiloPredefinita(row),
     disponibileDal: row.disponibileDal,
     disponibileAl: row.disponibileAl,
   };
+}
+
+function immagineProfiloPredefinita(row) {
+  const nome = encodeURIComponent(
+    `${row.nome || "Tutor"} ${row.cognome || ""}`.trim(),
+  );
+  return `https://ui-avatars.com/api/?name=${nome}&background=1e40af&color=fff`;
 }
 
 const Platform = {
@@ -218,6 +225,10 @@ const Platform = {
     `);
 
     return rows.map(mappaTutor).filter((tutor) => {
+      if (!filtri.includeWithoutSubjects && tutor.subjects.length === 0) {
+        return false;
+      }
+
       const testo = (filtri.testo || "").toLowerCase();
       if (testo && !tutor.name.toLowerCase().includes(testo)) return false;
       if (
@@ -262,7 +273,7 @@ const Platform = {
   },
 
   async getTutorById(tutorId) {
-    const tutors = await this.searchTutors({});
+    const tutors = await this.searchTutors({ includeWithoutSubjects: true });
     const tutor = tutors.find((item) => Number(item.id) === Number(tutorId));
     if (!tutor) return null;
 
@@ -289,22 +300,31 @@ const Platform = {
     );
   },
 
-  async getBookedSlots(tutorId) {
+  async getBookedSlots(tutorId, studenteId = null) {
+    const params = [tutorId];
+    let filtroStudente = "";
+
+    if (studenteId) {
+      filtroStudente = " OR studente_id = ?";
+      params.push(studenteId);
+    }
+
     return all(
       `
-        SELECT id, disponibilita_id, materia_id, data, ora_inizio, ora_fine
+        SELECT id, disponibilita_id, materia_id, data, ora_inizio, ora_fine,
+               tutor_id, studente_id
         FROM Prenotazioni
-        WHERE tutor_id = ?
+        WHERE tutor_id = ?${filtroStudente}
         ORDER BY data ASC, ora_inizio ASC
       `,
-      [tutorId],
+      params,
     );
   },
 
-  async getAvailableSchedule(tutorId) {
+  async getAvailableSchedule(tutorId, studenteId = null) {
     const [availability, bookedSlots] = await Promise.all([
       this.getAvailability(tutorId),
-      this.getBookedSlots(tutorId),
+      this.getBookedSlots(tutorId, studenteId),
     ]);
 
     const fasceUniche = new Map();
@@ -398,9 +418,11 @@ const Platform = {
       `SELECT materia_id FROM Tutor_Materie WHERE tutor_id = ?`,
       [tutorId],
     );
-    const materiaIds = tutorMaterie.length
-      ? tutorMaterie.map((row) => row.materia_id)
-      : [await idMateria("Matematica")];
+    if (tutorMaterie.length === 0) {
+      return { noSubjects: true };
+    }
+
+    const materiaIds = tutorMaterie.map((row) => row.materia_id);
 
     for (const item of disponibilita) {
       if (!item.attivo) continue;
@@ -420,7 +442,18 @@ const Platform = {
       }
     }
 
-    await run(`DELETE FROM Disponibilita_Tutor WHERE tutor_id = ?`, [tutorId]);
+    await run(
+      `
+        DELETE FROM Disponibilita_Tutor
+        WHERE tutor_id = ?
+          AND id NOT IN (
+            SELECT DISTINCT disponibilita_id
+            FROM Prenotazioni
+            WHERE disponibilita_id IS NOT NULL
+          )
+      `,
+      [tutorId],
+    );
 
     for (const item of disponibilita) {
       if (!item.attivo) continue;
@@ -471,6 +504,10 @@ const Platform = {
           [tutorId, materiaId],
         );
       }
+
+      if (data.materie.length === 0) {
+        await run(`DELETE FROM Disponibilita_Tutor WHERE tutor_id = ?`, [tutorId]);
+      }
     }
 
     if (Array.isArray(data.lingue)) {
@@ -487,21 +524,26 @@ const Platform = {
     return this.getTutorById(tutorId);
   },
 
-  async getTutorMaterials(tutorId) {
+  async getTutorMaterials(tutorId, studenteId = null) {
     return all(
       `
-        SELECT MAX(md.id) AS id, md.titolo, md.descrizione, md.file_url,
+        SELECT md.id, md.titolo, md.descrizione, md.file_url,
                md.anteprima_url, md.copertina_url,
-               md.importo, m.nome AS materia
+               md.importo, m.nome AS materia,
+               EXISTS(
+                 SELECT 1
+                 FROM Materiale_Acquistato ma
+                 WHERE ma.materiale_id = md.id
+                   AND ma.studente_id = ?
+               ) AS acquistato
         FROM Materiale_Didattico md
         JOIN Materie m ON m.id = md.materia_id
         WHERE md.tutor_id = ?
-        GROUP BY md.titolo, md.descrizione, md.file_url, md.anteprima_url,
-                 md.copertina_url,
-                 md.importo, m.nome
+        GROUP BY md.id, md.titolo, md.descrizione, md.file_url, md.anteprima_url,
+                 md.copertina_url, md.importo, m.nome
         ORDER BY md.id DESC
       `,
-      [tutorId],
+      [studenteId || 0, tutorId],
     );
   },
 
@@ -536,6 +578,20 @@ const Platform = {
       materialeId,
     ]);
     if (!materiale) return null;
+
+    const acquistoEsistente = await get(
+      `
+        SELECT id
+        FROM Materiale_Acquistato
+        WHERE studente_id = ? AND materiale_id = ?
+      `,
+      [studenteId, materialeId],
+    );
+
+    if (acquistoEsistente) {
+      return { alreadyPurchased: true, material: materiale };
+    }
+
     await run(
       `
         INSERT INTO Materiale_Acquistato

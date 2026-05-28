@@ -281,11 +281,12 @@ export class TutorProfilePage implements OnInit {
     this.isActionSheetAvatarOpen = true;
   }
 
-  rimuoviAvatar() {
+  async rimuoviAvatar() {
     this.avatarUrl = '';
     if (this.avatarInputHidden && this.avatarInputHidden.nativeElement) {
       this.avatarInputHidden.nativeElement.value = '';
     }
+    await this.tutorService.updateTutorMe({ immagine_profilo: '' });
   }
 
   costruisciCalendarioMensile() {
@@ -420,6 +421,21 @@ export class TutorProfilePage implements OnInit {
     await alert.present();
   }
 
+  async mostraPopupErroreMaterieMancanti() {
+    await this.mostraPopupErrorePersonalizzato(
+      'Seleziona almeno una materia prima di inserire disponibilita.',
+    );
+  }
+
+  async mostraPopupErrorePersonalizzato(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Disponibilita non salvata',
+      message,
+      buttons: [{ text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' }],
+    });
+    await alert.present();
+  }
+
   async mostraPopupSalvataggioDisponibilita() {
     const alert = await this.alertController.create({
       header: 'Disponibilita salvata',
@@ -441,8 +457,17 @@ export class TutorProfilePage implements OnInit {
     } else if (sezione === 'materie') {
       this.materieSelezionate = [...this.materieSelezionateTmp];
       await this.tutorService.updateTutorMe({ materie: this.materieSelezionate });
+      if (this.materieSelezionate.length === 0) {
+        this.databaseDisponibilita = {};
+        this.databaseDisponibilitaTmp = {};
+      }
       this.isEditingMaterie = false;
     } else if (sezione === 'disponibilita') {
+      if (this.materieSelezionate.length === 0) {
+        await this.mostraPopupErroreMaterieMancanti();
+        return;
+      }
+
       for (const dataKey in this.databaseDisponibilitaTmp) {
         const blocco = this.databaseDisponibilitaTmp[dataKey];
         if (blocco.attivo) {
@@ -472,10 +497,17 @@ export class TutorProfilePage implements OnInit {
           alle: info.alle,
         }),
       );
-      await this.tutorService.updateDisponibilitaMe(
-        disponibilita,
-        this.prezzoOrario,
-      );
+      try {
+        await this.tutorService.updateDisponibilitaMe(
+          disponibilita,
+          this.prezzoOrario,
+        );
+      } catch (error: any) {
+        const message = error?.error?.message || 'Disponibilita non salvata.';
+        await this.mostraPopupErrorePersonalizzato(message);
+        return;
+      }
+
       this.isEditingDisponibilita = false;
       this.costruisciCalendarioMensile();
       await this.mostraPopupSalvataggioDisponibilita();
@@ -500,7 +532,12 @@ export class TutorProfilePage implements OnInit {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => (this.avatarUrl = reader.result as string);
+      reader.onload = async () => {
+        this.avatarUrl = reader.result as string;
+        await this.tutorService.updateTutorMe({
+          immagine_profilo: this.avatarUrl,
+        });
+      };
       reader.readAsDataURL(file);
     }
   }
@@ -544,9 +581,13 @@ export class TutorProfilePage implements OnInit {
   onFileCompletoSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      this.nuovaDispensa.fileCompleto = file;
-      this.nuovaDispensa.fileUrl = file.name;
-      this.nuovaDispensa.haFileCompleto = true;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.nuovaDispensa.fileCompleto = file;
+        this.nuovaDispensa.fileUrl = reader.result as string;
+        this.nuovaDispensa.haFileCompleto = true;
+      };
+      reader.readAsDataURL(file);
     }
   }
 
@@ -574,15 +615,26 @@ export class TutorProfilePage implements OnInit {
       haFileCompleto: this.nuovaDispensa.haFileCompleto,
     };
 
-    await this.tutorService.createMaterial({
-      titolo: dispensaDaSalvare.titolo,
-      descrizione: dispensaDaSalvare.descrizione,
-      materia: this.materieSelezionate[0],
-      file_url: dispensaDaSalvare.fileUrl || dispensaDaSalvare.fileCompleto?.name || '',
-      anteprima_url: dispensaDaSalvare.anteprimaRawUrl || '',
-      copertina_url: dispensaDaSalvare.copertinaUrl || '',
-      importo: dispensaDaSalvare.prezzo || 0,
-    });
+    try {
+      const materialeCreato = await this.tutorService.createMaterial({
+        titolo: dispensaDaSalvare.titolo,
+        descrizione: dispensaDaSalvare.descrizione,
+        materia: this.materieSelezionate[0],
+        file_url: dispensaDaSalvare.fileUrl || '',
+        anteprima_url: dispensaDaSalvare.anteprimaRawUrl || '',
+        copertina_url: dispensaDaSalvare.copertinaUrl || '',
+        importo: dispensaDaSalvare.prezzo || 0,
+      });
+
+      dispensaDaSalvare.fileUrl = materialeCreato.file_url || dispensaDaSalvare.fileUrl;
+    } catch (error: any) {
+      const message =
+        error?.status === 413
+          ? 'Il file e troppo grande per essere caricato.'
+          : error?.error?.message || 'Non e stato possibile salvare la dispensa.';
+      await this.mostraPopupErrorePersonalizzato(message);
+      return;
+    }
 
     this.listaDispense.push(dispensaDaSalvare);
 
@@ -606,18 +658,25 @@ export class TutorProfilePage implements OnInit {
   }
 
   scaricaFileCompleto(dispensa: Dispensa) {
-    if (!dispensa.fileCompleto) {
+    if (!dispensa.fileUrl && !dispensa.fileCompleto) {
       alert('Nessun file scaricabile trovato.');
       return;
     }
-    const url = URL.createObjectURL(dispensa.fileCompleto);
+
+    const url = dispensa.fileUrl?.startsWith('data:')
+      ? dispensa.fileUrl
+      : URL.createObjectURL(dispensa.fileCompleto as File);
     const link = document.createElement('a');
     link.href = url;
-    link.download = dispensa.fileCompleto.name;
+    link.download =
+      dispensa.fileCompleto?.name ||
+      `${dispensa.titolo.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    if (!dispensa.fileUrl?.startsWith('data:')) {
+      URL.revokeObjectURL(url);
+    }
   }
 
   apriAnteprimaStudente(dispensa: Dispensa) {

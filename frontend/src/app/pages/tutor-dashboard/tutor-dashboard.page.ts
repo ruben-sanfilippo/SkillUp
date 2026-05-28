@@ -61,6 +61,10 @@ export class TutorDashboardPage implements OnInit {
     this.caricaStatistiche();
   }
 
+  ionViewWillEnter() {
+    this.caricaStatistiche();
+  }
+
   get totaleRicavi(): number {
     return this.ricaviMensili.reduce((totale, mese) => totale + mese.ricavi, 0);
   }
@@ -72,6 +76,13 @@ export class TutorDashboardPage implements OnInit {
   get totaleAcquistiMateriali(): number {
     return this.materiali.reduce(
       (totale, materiale) => totale + materiale.acquisti,
+      0,
+    );
+  }
+
+  get totaleRicaviMateriali(): number {
+    return this.materiali.reduce(
+      (totale, materiale) => totale + materiale.ricavi,
       0,
     );
   }

@@ -187,6 +187,7 @@ export class TutorDetailPage implements OnInit {
       haAnteprima: !!materiale.anteprima_url,
       isPdfPreview: this.isPdfDataUrl(materiale.anteprima_url),
       anteprimaUrl: this.preparaAnteprima(materiale.anteprima_url),
+      acquistato: !!materiale.acquistato,
     }));
   }
 
@@ -415,6 +416,17 @@ export class TutorDetailPage implements OnInit {
 
   async acquistaDispensa(dispensa: any) {
     if (!this.puoInteragireComeStudente) return;
+    if (dispensa?.acquistato) {
+      const toast = await this.toastController.create({
+        message: 'Materiale già acquistato.',
+        duration: 2200,
+        position: 'bottom',
+        color: 'primary',
+      });
+      await toast.present();
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: 'Conferma Acquisto',
       message: `Confermi l'acquisto di "${dispensa.titolo}" per ${dispensa.prezzo}€?`,
@@ -424,7 +436,35 @@ export class TutorDetailPage implements OnInit {
           text: 'Acquista',
           cssClass: 'alert-button-primary',
           handler: async () => {
-            await this.tutorService.purchaseMaterial(dispensa.id);
+            try {
+              await this.tutorService.purchaseMaterial(dispensa.id);
+              dispensa.acquistato = true;
+              const itemLista = this.dispense.find(
+                (item) => Number(item.id) === Number(dispensa.id),
+              );
+              if (itemLista) {
+                itemLista.acquistato = true;
+              }
+              const toast = await this.toastController.create({
+                message: 'Materiale acquistato con successo.',
+                duration: 2500,
+                position: 'bottom',
+                color: 'success',
+              });
+              await toast.present();
+            } catch (error: any) {
+              if (error?.status === 409) {
+                dispensa.acquistato = true;
+              }
+              const toast = await this.toastController.create({
+                message:
+                  error?.error?.message || 'Non è stato possibile completare l\'acquisto.',
+                duration: 2500,
+                position: 'bottom',
+                color: error?.status === 409 ? 'primary' : 'danger',
+              });
+              await toast.present();
+            }
           },
         },
       ],

@@ -312,11 +312,11 @@ export class StudentProfilePage implements OnInit {
   }
 
   private mappaPrenotazione(booking: any): Booking {
-    const data = new Date(booking.data);
+    const data = new Date(`${booking.data}T${booking.ora_inizio}:00`);
     return {
       id: booking.id,
       tutorName: booking.tutorName,
-      tutorAvatar: booking.tutorAvatar || '',
+      tutorAvatar: booking.tutorAvatar || this.avatarTutorPredefinito(booking),
       subject: booking.materia,
       date: data,
       dataItaliana: data.toLocaleDateString('it-IT', {
@@ -329,5 +329,10 @@ export class StudentProfilePage implements OnInit {
       status: data >= new Date() ? 'IN PROGRAMMA' : 'COMPLETATA',
       hasReviewed: !!booking.hasReviewed,
     };
+  }
+
+  private avatarTutorPredefinito(booking: any): string {
+    const nome = encodeURIComponent(booking.tutorName || 'Tutor');
+    return `https://ui-avatars.com/api/?name=${nome}&background=1e40af&color=fff`;
   }
 }

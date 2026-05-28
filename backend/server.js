@@ -27,7 +27,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.set("io", io);
 
-app.use(express.json({ limit: "50mb" })); // Permette al server di leggere dati in formato JSON
+app.use(express.json({ limit: "250mb" })); // Permette al server di leggere dati in formato JSON
+app.use(express.urlencoded({ limit: "250mb", extended: true }));
 
 app.use(
   cors({
