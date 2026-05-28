@@ -2,7 +2,9 @@ const Platform = require("../models/platformModel");
 
 function requireRole(req, res, roles) {
   if (!roles.includes(req.user.tipologia_utente)) {
-    res.status(403).json({ message: "Permessi insufficienti" });
+    res
+      .status(403)
+      .json({ message: "Non puoi prenotare una lezione come tutor!" });
     return false;
   }
   return true;
@@ -92,8 +94,12 @@ exports.createMaterial = async (req, res) => {
 exports.purchaseMaterial = async (req, res) => {
   try {
     if (!requireRole(req, res, ["studente"])) return;
-    const material = await Platform.purchaseMaterial(req.user.id, req.params.id);
-    if (!material) return res.status(404).json({ message: "Materiale non trovato" });
+    const material = await Platform.purchaseMaterial(
+      req.user.id,
+      req.params.id,
+    );
+    if (!material)
+      return res.status(404).json({ message: "Materiale non trovato" });
     res.status(201).json(material);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -136,7 +142,9 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookings = async (req, res) => {
   try {
-    res.json(await Platform.getBookingsForUser(req.user.id, req.user.tipologia_utente));
+    res.json(
+      await Platform.getBookingsForUser(req.user.id, req.user.tipologia_utente),
+    );
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -146,7 +154,8 @@ exports.createReview = async (req, res) => {
   try {
     if (!requireRole(req, res, ["studente"])) return;
     const bookings = await Platform.createReview(req.user.id, req.body);
-    if (!bookings) return res.status(400).json({ message: "Prenotazione non valida" });
+    if (!bookings)
+      return res.status(400).json({ message: "Prenotazione non valida" });
     res.status(201).json(bookings);
   } catch (err) {
     res.status(500).json({ error: err.message });

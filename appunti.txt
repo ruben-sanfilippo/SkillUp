@@ -16,6 +16,7 @@ nella schermata della chat devo avere solo le chat con tutor/studente con cui ef
 non aggiungere immagini profilo a profili appena creati
 se compro una dispensa di un tutor, non si aggiornano i ricavi totali e i ricavi dei materiali didattici, e aggiungi nei materiali totali anche i ricavi dei materiali didattici
 
+
 Account demo:
 
 Studente
