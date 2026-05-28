@@ -15,8 +15,9 @@ nella chat i messaggi si devono aggiornare in tempo reale tramite le web socket 
 nella schermata della chat devo avere solo le chat con tutor/studente con cui effetuo una conversazione
 non aggiungere immagini profilo a profili appena creati
 se compro una dispensa di un tutor, non si aggiornano i ricavi totali e i ricavi dei materiali didattici, e aggiungi nei materiali totali anche i ricavi dei materiali didattici
-
-
+se apro la tutor-detail come tutor non devo poter prenotare lezioni e non devo poter contattarlo
+se l'admin blocca il profilo di un tutor/studente imposta lo stato a false ed esegui il controllo durante il login
+sostituisci tutti gli nfig e nffor con la nuova notazione @if e @for 
 Account demo:
 
 Studente

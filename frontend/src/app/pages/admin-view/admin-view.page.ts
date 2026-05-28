@@ -3,9 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { 
-  searchOutline, peopleOutline, banOutline, funnelOutline, 
-  ellipsisVertical, trashOutline, mailOutline, eyeOutline, checkmarkOutline 
+import {
+  searchOutline,
+  peopleOutline,
+  banOutline,
+  funnelOutline,
+  ellipsisVertical,
+  trashOutline,
+  mailOutline,
+  eyeOutline,
+  checkmarkOutline,
 } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
 
@@ -24,19 +31,30 @@ interface AdminUser {
 @Component({
   selector: 'app-filter-popover',
   template: `
-    <ion-list lines="none" style="background: var(--card-background); padding: 8px;">
-      <ion-item button (click)="toggleFiltro('studenti')" style="--background: transparent; --color: var(--text-main);">
+    <ion-list
+      lines="none"
+      style="background: var(--card-background); padding: 8px;"
+    >
+      <ion-item
+        button
+        (click)="toggleFiltro('studenti')"
+        style="--background: transparent; --color: var(--text-main);"
+      >
         <ion-checkbox [checked]="studenti" slot="start"></ion-checkbox>
         <ion-label>Studenti</ion-label>
       </ion-item>
-      <ion-item button (click)="toggleFiltro('tutor')" style="--background: transparent; --color: var(--text-main);">
+      <ion-item
+        button
+        (click)="toggleFiltro('tutor')"
+        style="--background: transparent; --color: var(--text-main);"
+      >
         <ion-checkbox [checked]="tutor" slot="start"></ion-checkbox>
         <ion-label>Tutor</ion-label>
       </ion-item>
     </ion-list>
   `,
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule],
 })
 export class FilterPopoverComponent {
   @Input() studenti: boolean = true;
@@ -45,7 +63,10 @@ export class FilterPopoverComponent {
   toggleFiltro(tipo: 'studenti' | 'tutor') {
     if (tipo === 'studenti') this.studenti = !this.studenti;
     else this.tutor = !this.tutor;
-    if (!this.studenti && !this.tutor) { if (tipo === 'studenti') this.tutor = true; else this.studenti = true; }
+    if (!this.studenti && !this.tutor) {
+      if (tipo === 'studenti') this.tutor = true;
+      else this.studenti = true;
+    }
     this.popoverCtrl.dismiss({ studenti: this.studenti, tutor: this.tutor });
   }
 }
@@ -53,28 +74,35 @@ export class FilterPopoverComponent {
 @Component({
   selector: 'app-options-popover',
   template: `
-    <ion-list lines="none" style="background: var(--card-background); padding: 4px;">
-      <ion-item button (click)="seleziona('view')" style="--background: transparent; --color: var(--text-main);">
-        <ion-icon name="eye-outline" slot="start" style="font-size: 18px; margin-right: 12px;"></ion-icon>
-        <ion-label>Visualizza profilo</ion-label>
-      </ion-item>
-      <ion-item button (click)="seleziona('email')" style="--background: transparent; --color: var(--text-main);">
-        <ion-icon name="mail-outline" slot="start" style="font-size: 18px; margin-right: 12px;"></ion-icon>
+    <ion-list
+      lines="none"
+      style="background: var(--card-background); padding: 4px;"
+    >
+      <ion-item
+        button
+        (click)="seleziona('email')"
+        style="--background: transparent; --color: var(--text-main);"
+      >
+        <ion-icon
+          name="mail-outline"
+          slot="start"
+          style="font-size: 18px; margin-right: 12px;"
+        ></ion-icon>
         <ion-label>Email</ion-label>
       </ion-item>
-      <div style="height: 1px; background: var(--input-background); margin: 4px 8px;"></div>
-      <ion-item button (click)="seleziona('delete')" style="--background: transparent; --color: #EF4444;">
-        <ion-icon name="trash-outline" slot="start" style="font-size: 18px; margin-right: 12px;"></ion-icon>
-        <ion-label>Elimina</ion-label>
-      </ion-item>
+      <div
+        style="height: 1px; background: var(--input-background); margin: 4px 8px;"
+      ></div>
     </ion-list>
   `,
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule],
 })
 export class OptionsPopoverComponent {
   constructor(private popoverCtrl: PopoverController) {}
-  seleziona(action: string) { this.popoverCtrl.dismiss({ action }); }
+  seleziona(action: string) {
+    this.popoverCtrl.dismiss({ action });
+  }
 }
 
 @Component({
@@ -82,21 +110,36 @@ export class OptionsPopoverComponent {
   templateUrl: './admin-view.page.html',
   styleUrls: ['./admin-view.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, FilterPopoverComponent, OptionsPopoverComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    FilterPopoverComponent,
+    OptionsPopoverComponent,
+  ],
 })
 export class AdminViewPage implements OnInit {
-
   searchQuery = signal('');
   mostraStudenti = signal(true);
   mostraTutor = signal(true);
-  
+
   masterUsersList = signal<AdminUser[]>([]);
 
   constructor(
     private popoverCtrl: PopoverController,
     private platformService: PlatformService,
   ) {
-    addIcons({ searchOutline, peopleOutline, banOutline, funnelOutline, ellipsisVertical, trashOutline, mailOutline, eyeOutline, checkmarkOutline });
+    addIcons({
+      searchOutline,
+      peopleOutline,
+      banOutline,
+      funnelOutline,
+      ellipsisVertical,
+      trashOutline,
+      mailOutline,
+      eyeOutline,
+      checkmarkOutline,
+    });
   }
 
   async ngOnInit() {
@@ -109,17 +152,24 @@ export class AdminViewPage implements OnInit {
   }
 
   totalUsersCount = computed(() => this.masterUsersList().length);
-  blockedUsersCount = computed(() => this.masterUsersList().filter(u => u.status === 'Bloccato').length);
+  blockedUsersCount = computed(
+    () => this.masterUsersList().filter((u) => u.status === 'Bloccato').length,
+  );
 
   filteredUsersList = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const s = this.mostraStudenti();
     const t = this.mostraTutor();
-    return this.masterUsersList().filter(u => {
+    return this.masterUsersList().filter((u) => {
       if (u.role === 'Studente' && !s) return false;
       if (u.role === 'Tutor' && !t) return false;
       if (!q) return true;
-      return u.firstName.toLowerCase().includes(q) || u.lastName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.role.toLowerCase().includes(q);
+      return (
+        u.firstName.toLowerCase().includes(q) ||
+        u.lastName.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.role.toLowerCase().includes(q)
+      );
     });
   });
 
@@ -135,23 +185,40 @@ export class AdminViewPage implements OnInit {
   }
 
   async apriFiltri(event: Event) {
-    const pop = await this.popoverCtrl.create({ component: FilterPopoverComponent, event, componentProps: { studenti: this.mostraStudenti(), tutor: this.mostraTutor() } });
+    const pop = await this.popoverCtrl.create({
+      component: FilterPopoverComponent,
+      event,
+      componentProps: {
+        studenti: this.mostraStudenti(),
+        tutor: this.mostraTutor(),
+      },
+    });
     await pop.present();
     const { data } = await pop.onWillDismiss();
-    if (data) { this.mostraStudenti.set(data.studenti); this.mostraTutor.set(data.tutor); }
+    if (data) {
+      this.mostraStudenti.set(data.studenti);
+      this.mostraTutor.set(data.tutor);
+    }
   }
 
   async apriMenuOpzioni(user: AdminUser, event: Event) {
     event.stopPropagation();
-    const pop = await this.popoverCtrl.create({ component: OptionsPopoverComponent, event, componentProps: { user } });
+    const pop = await this.popoverCtrl.create({
+      component: OptionsPopoverComponent,
+      event,
+      componentProps: { user },
+    });
     await pop.present();
     const { data } = await pop.onWillDismiss();
     if (data?.action === 'delete') this.eliminaUtente(user.id);
-    else if (data?.action === 'email') window.location.href = `mailto:${user.email}`;
+    else if (data?.action === 'email')
+      window.location.href = `mailto:${user.email}`;
   }
 
   private mappaUtente(user: any): AdminUser {
-    const data = user.data_iscrizione ? new Date(user.data_iscrizione) : new Date();
+    const data = user.data_iscrizione
+      ? new Date(user.data_iscrizione)
+      : new Date();
     return {
       id: user.id,
       firstName: user.nome,
