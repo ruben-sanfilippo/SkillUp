@@ -1,23 +1,26 @@
 Nel model inseriamo le query, nel controller inseriamo la logica di business, quindi effettuiamo i vari controlli prima di chiamare il model.
 Il router decide quale funzione del Controller deve gestire una determinata richiesta che arriva dall'app.
 
+MODIFICHE DA FARE
 
-aggiungere durante la fase di prenotazione la scelta della materia sulla base delle materie che ha inserito il tutor
-durante la prenotazione non mi devono spuntare le fascie orarie già occupate
-aggiustare l'ordine di visualizzazione delle mie prenotazioni, mi devono spuntare dalla più vicina alla più lonta in temporalmente, e le prenotazioni passate in fondo alla lista
-quando carico un materiale didattico con copertina e anteprima quando aggiorno la pagina mi scompaiono
-non posso caricare determinati tipi di file come anteprima con errore payload troppo grande
-non devo poter aggiungere la disponibilità per giorni già passati
-aggiungi un messaggio di conferma quando aggiungo una disponibilità ed escimi dalla modalità modifica
-errore 500 col metodo put per inserire una nuova disponibilità
-aggiungi un pulsante di "esci" nella dashboard dell'amministratore con le stesse funzionalità del pulsante esci nel profilo tutor e studente
-nella chat i messaggi si devono aggiornare in tempo reale tramite le web socket utilizzando socket.io e devo avere un messaggio di notifica come su whatsapp ovvere nelle chat a sinistra un cerchio blu
-nella schermata della chat devo avere solo le chat con tutor/studente con cui effetuo una conversazione
-non aggiungere immagini profilo a profili appena creati
-se compro una dispensa di un tutor, non si aggiornano i ricavi totali e i ricavi dei materiali didattici, e aggiungi nei materiali totali anche i ricavi dei materiali didattici
-se apro la tutor-detail come tutor non devo poter prenotare lezioni e non devo poter contattarlo
-se l'admin blocca il profilo di un tutor/studente imposta lo stato a false ed esegui il controllo durante il login
-sostituisci tutti gli nfig e nffor con la nuova notazione @if e @for 
+1. aggiungere durante la fase di prenotazione la scelta della materia sulla base delle materie che ha inserito il tutor
+2. durante la prenotazione non mi devono spuntare le fascie orarie già occupate
+3. aggiustare l'ordine di visualizzazione delle mie prenotazioni, mi devono spuntare dalla più vicina alla più lonta in temporalmente, e le prenotazioni passate in fondo alla lista
+4. quando carico un materiale didattico con copertina e anteprima quando aggiorno la pagina mi scompaiono
+5. non posso caricare determinati tipi di file come anteprima con errore payload troppo grande
+6. non devo poter aggiungere la disponibilità per giorni già passati
+7. aggiungi un messaggio di conferma quando aggiungo una disponibilità ed escimi dalla modalità modifica
+8. errore 500 col metodo put per inserire una nuova disponibilità
+9. aggiungi un pulsante di "esci" nella dashboard dell'amministratore con le stesse funzionalità del pulsante esci nel profilo tutor e studente
+10. nella chat i messaggi si devono aggiornare in tempo reale tramite le web socket utilizzando socket.io e devo avere un messaggio di notifica come su whatsapp ovvere nelle chat a sinistra un cerchio blu
+11. nella schermata della chat devo avere solo le chat con tutor/studente con cui effetuo una conversazione
+12. non aggiungere immagini profilo a profili appena creati
+13. se compro una dispensa di un tutor, non si aggiornano i ricavi totali e i ricavi dei materiali didattici, e aggiungi nei materiali totali anche i ricavi dei materiali didattici
+14. se apro la tutor-detail come tutor non devo poter prenotare lezioni e non devo poter contattarlo
+15. se l'admin blocca il profilo di un tutor/studente imposta lo stato a false ed esegui il controllo durante il login
+16. sostituisci tutti gli nfig e nffor con la nuova notazione @if e @for 
+
+
 Account demo:
 
 Studente
