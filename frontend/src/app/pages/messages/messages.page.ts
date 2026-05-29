@@ -109,11 +109,12 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
           })
         : '',
       lastMessageAt: chat.lastMessageTime || '',
-      unread: false,
+      unread: Number(chat.unreadCount || 0) > 0,
       messages: [],
     }));
     this.ordinaConversazioni();
     this.filteredChats = [...this.chats];
+    this.notificaMessaggiNonLetti();
   }
 
   ngAfterViewChecked() {
@@ -137,6 +138,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     chat.unread = false;
     this.activeChat = chat;
     this.isChatOpen = true; 
+    this.notificaMessaggiNonLetti();
     setTimeout(() => this.scrollToBottom(), 50);
   }
 
@@ -245,11 +247,13 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
         this.activeChat!.messages.push(this.mappaMessaggio(msg));
       }
       chat.unread = false;
+      await this.platformService.markMessagesRead(otherUserId);
       setTimeout(() => this.scrollToBottom(), 50);
     } else if (Number(msg.mittente_id) !== Number(this.currentUserId)) {
       chat.unread = true;
     }
 
+    this.notificaMessaggiNonLetti();
     this.ordinaConversazioni();
     this.filtraChat();
   }
@@ -318,5 +322,15 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     if (!chat.lastMessageAt) return 0;
     const timestamp = new Date(chat.lastMessageAt).getTime();
     return Number.isNaN(timestamp) ? 0 : timestamp;
+  }
+
+  private notificaMessaggiNonLetti() {
+    const hasUnread = this.chats.some((chat) => chat.unread);
+    localStorage.setItem('skillup_messaggi_non_letti', hasUnread ? '1' : '0');
+    window.dispatchEvent(
+      new CustomEvent('skillup-messaggi-non-letti', {
+        detail: { hasUnread },
+      }),
+    );
   }
 }

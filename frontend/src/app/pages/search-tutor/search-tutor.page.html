@@ -137,11 +137,19 @@
 
       <main class="main-content">
         <div class="header-section">
+          @if (tipologiaUtente === 'tutor') {
+          <h1>Esplora i profili dei tutor</h1>
+          <p>
+            Confronta materie, tariffe e disponibilità pubblicate dagli altri
+            tutor della piattaforma.
+          </p>
+          } @else {
           <h1>Trova il tutor perfetto per te</h1>
           <p>
             Esplora la nostra community di tutor e migliora il tuo percorso di
             studio.
           </p>
+          }
 
           <div class="main-search-bar">
             <ion-icon name="search-outline"></ion-icon>

@@ -40,6 +40,7 @@ import { TutorService, FiltriRicerca } from '../../services/tutorService';
 })
 export class SearchTutorPage implements OnInit {
   mostraFiltriMobile = false;
+  tipologiaUtente = 'studente';
 
   // Aggiungiamo uno stato di caricamento per l'UI
   isCaricamento = false;
@@ -90,11 +91,19 @@ export class SearchTutorPage implements OnInit {
 
   ngOnInit() {
     // Al caricamento della pagina, facciamo subito una prima ricerca a vuoto per mostrare tutti i tutor
+    this.aggiornaRuolo();
     this.applicaFiltri();
   }
 
   ionViewWillEnter() {
+    this.aggiornaRuolo();
     this.applicaFiltri();
+  }
+
+  private aggiornaRuolo() {
+    this.tipologiaUtente = (
+      localStorage.getItem('tipologia_utente') || 'studente'
+    ).toLowerCase();
   }
 
   // --- I METODI DELLE MATERIE E LINGUE RIMANGONO IDENTICI ---

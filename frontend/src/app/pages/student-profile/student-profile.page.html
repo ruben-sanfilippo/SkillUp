@@ -51,6 +51,10 @@
                 <span class="val">{{ student.studyHours }}h</span>
               </div>
             </div>
+            <button class="change-password-profile-btn" (click)="vaiAModificaPassword()">
+              <ion-icon name="key-outline"></ion-icon>
+              Modifica password
+            </button>
             <button class="logout-profile-btn" (click)="logout()">
               <ion-icon name="log-out-outline"></ion-icon>
               Esci
@@ -108,14 +112,23 @@
             <div class="material-list">
               @for (item of purchasedMaterials; track item.id) {
                 <div class="material-row">
-                  <div class="icon-box" [class.notes]="item.type === 'notes'">
-                    <ion-icon [name]="item.type === 'pdf' ? 'document-text-outline' : 'book-outline'"></ion-icon>
+                  <div class="cover-box" [class.notes]="item.type === 'notes'">
+                    @if (item.coverUrl) {
+                      <img [src]="item.coverUrl" alt="Copertina materiale" />
+                    } @else {
+                      <ion-icon [name]="item.type === 'pdf' ? 'document-text-outline' : 'book-outline'"></ion-icon>
+                    }
                   </div>
                   <div class="info">
                     <h4>{{ item.title }}</h4>
                     <p class="author-name">{{ item.author }}</p>
                     <p class="file-spec">{{ item.fileLabel }} • {{ item.sizeInMb }}</p>
                   </div>
+                  @if (item.previewUrl) {
+                    <ion-button fill="clear" class="btn-preview" (click)="apriAnteprimaMateriale(item)">
+                      <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                  }
                   <ion-button fill="clear" class="btn-download" (click)="scaricaMateriale(item)">
                     <ion-icon name="download-outline" slot="icon-only"></ion-icon>
                   </ion-button>
@@ -230,6 +243,41 @@
                 Invia Recensione
               </ion-button>
             </div>
+          }
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal
+    [isOpen]="isPreviewModalOpen"
+    (didDismiss)="chiudiAnteprimaMateriale()"
+    class="material-preview-modal">
+    <ng-template>
+      <ion-header class="ion-no-border modal-header">
+        <ion-toolbar>
+          <ion-title>{{ selectedMaterialPreview?.title }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="chiudiAnteprimaMateriale()" class="close-modal-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-bg">
+        <div class="preview-material-body">
+          @if (selectedMaterialPreview?.isPdfPreview) {
+            <iframe
+              [src]="selectedMaterialPreview?.previewUrl"
+              title="Anteprima materiale"
+              class="material-preview-frame">
+            </iframe>
+          } @else if (selectedMaterialPreview?.previewUrl) {
+            <img
+              [src]="selectedMaterialPreview?.previewUrl"
+              alt="Anteprima materiale"
+              class="material-preview-image" />
           }
         </div>
       </ion-content>

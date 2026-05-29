@@ -18,7 +18,15 @@
   .tabs-group ion-tab-button {
     flex: 1 1 0;
     min-width: 0;
+    max-width: none;
+    --padding-start: 0;
+    --padding-end: 0;
   }
+
+  .tabs-group ion-tab-button::part(native) {
+    width: 100%;
+  }
+
 }
 
 @media (min-width: 1025px) {
@@ -86,6 +94,29 @@
   font-size: 28px;
   color: var(--primary-color);
 }
+
+.messages-tab-button {
+  position: relative;
+}
+
+.tab-unread-dot {
+  position: absolute;
+  top: 8px;
+  left: calc(50% + 8px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 2px solid var(--app-background);
+}
+
+@media (min-width: 1025px) {
+  .tab-unread-dot {
+    top: 19px;
+    left: 36px;
+  }
+}
+
 .brand-text {
   font-size: 1.4rem;
   font-weight: 800;

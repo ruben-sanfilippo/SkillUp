@@ -13,6 +13,34 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/register/register.page').then((m) => m.RegisterPage),
   },
+  {
+    path: 'recupera-password',
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password.page').then(
+        (m) => m.ForgotPasswordPage,
+      ),
+  },
+  {
+    path: 'modifica-password',
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password.page').then(
+        (m) => m.ResetPasswordPage,
+      ),
+  },
+  {
+    path: 'modifica-password-profilo',
+    loadComponent: () =>
+      import('./pages/profile-password/profile-password.page').then(
+        (m) => m.ProfilePasswordPage,
+      ),
+  },
+  {
+    path: 'conferma-password-profilo',
+    loadComponent: () =>
+      import('./pages/profile-reset-password/profile-reset-password.page').then(
+        (m) => m.ProfileResetPasswordPage,
+      ),
+  },
 
   //VISTA ADMIN: separata e fuori dalle tabs
   {

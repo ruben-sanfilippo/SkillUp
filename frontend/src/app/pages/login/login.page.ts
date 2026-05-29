@@ -115,6 +115,6 @@ export class LoginPage implements OnInit {
   }
 
   recuperaPassword() {
-    console.log('Link di recupero credenziali premuto');
+    this.router.navigate(['/recupera-password']);
   }
 }

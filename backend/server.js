@@ -17,7 +17,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   },
 });
 const YAML = require("yamljs");
@@ -33,7 +33,7 @@ app.use(express.urlencoded({ limit: "250mb", extended: true }));
 app.use(
   cors({
     origin: "*", // Permette richieste da qualsiasi origine
-    methods: ["GET", "POST", "PUT", "DELETE"], // Metodi HTTP consentiti
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Metodi HTTP consentiti
     allowedHeaders: ["Content-Type", "Authorization"], // Intestazioni consentite
   }),
 );

@@ -51,6 +51,12 @@ export class PlatformService {
     );
   }
 
+  markMessagesRead(userId: number | string) {
+    return firstValueFrom(
+      this.http.patch<any>(`${environment.apiUrl}/api/messages/${userId}/read`, {}),
+    );
+  }
+
   sendMessage(destinatarioId: number | string, contenuto: string) {
     return firstValueFrom(
       this.http.post<any[]>(`${environment.apiUrl}/api/messages`, {

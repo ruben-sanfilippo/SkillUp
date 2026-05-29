@@ -172,12 +172,6 @@ export class TutorDetailPage implements OnInit {
       tutor.availableSchedule || [],
     );
 
-    if (Object.keys(this.databaseDisponibilita).length === 0) {
-      this.databaseDisponibilita = this.creaDisponibilitaDaFasce(
-        tutor.availability || [],
-      );
-    }
-
     this.dispense = (tutor.materials || []).map((materiale: any) => ({
       id: materiale.id,
       titolo: materiale.titolo,
@@ -514,9 +508,10 @@ export class TutorDetailPage implements OnInit {
       return;
     }
 
+    const prezzoLezione = this.calcolaPrezzoLezione();
     const alert = await this.alertController.create({
       header: 'Conferma Prenotazione',
-      message: `Vuoi prenotare una lezione per il ${this.dataFormattataPannello} dalle ${this.oraInizioSelezionata} alle ${this.oraFineSelezionata}?`,
+      message: `Vuoi prenotare una lezione per il ${this.dataFormattataPannello} dalle ${this.oraInizioSelezionata} alle ${this.oraFineSelezionata}? Prezzo totale: ${this.formatEuro(prezzoLezione)}.`,
       buttons: [
         { text: 'Annulla', role: 'cancel' },
         {
@@ -702,6 +697,24 @@ export class TutorDetailPage implements OnInit {
 
   private disponibilitaIdPerPrenotazione(): number | undefined {
     return this.fasciaPerOrarioInizio(this.oraInizioSelezionata)?.id;
+  }
+
+  private calcolaPrezzoLezione(): number {
+    const inizio = this.minutiDaOrario(this.oraInizioSelezionata);
+    const fine = this.minutiDaOrario(this.oraFineSelezionata);
+    if (inizio === null || fine === null || fine <= inizio) return 0;
+
+    const ore = (fine - inizio) / 60;
+    return ore * Number(this.prezzoOrario || 0);
+  }
+
+  private formatEuro(valore: number): string {
+    return new Intl.NumberFormat('it-IT', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(valore);
   }
 
   private minutiDaOrario(orario: string): number | null {

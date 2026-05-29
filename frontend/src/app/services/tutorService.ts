@@ -79,6 +79,12 @@ export class TutorService {
     );
   }
 
+  deleteMaterial(materialeId: number | string) {
+    return firstValueFrom(
+      this.http.delete<any>(`${environment.apiUrl}/api/materials/${materialeId}`),
+    );
+  }
+
   purchaseMaterial(materialeId: number | string) {
     return firstValueFrom(
       this.http.post<any>(

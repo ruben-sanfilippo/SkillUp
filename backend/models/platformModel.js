@@ -539,6 +539,7 @@ const Platform = {
         FROM Materiale_Didattico md
         JOIN Materie m ON m.id = md.materia_id
         WHERE md.tutor_id = ?
+          AND COALESCE(md.eliminato, 0) = 0
         GROUP BY md.id, md.titolo, md.descrizione, md.file_url, md.anteprima_url,
                  md.copertina_url, md.importo, m.nome
         ORDER BY md.id DESC
@@ -574,9 +575,10 @@ const Platform = {
   },
 
   async purchaseMaterial(studenteId, materialeId) {
-    const materiale = await get(`SELECT * FROM Materiale_Didattico WHERE id = ?`, [
-      materialeId,
-    ]);
+    const materiale = await get(
+      `SELECT * FROM Materiale_Didattico WHERE id = ? AND COALESCE(eliminato, 0) = 0`,
+      [materialeId],
+    );
     if (!materiale) return null;
 
     const acquistoEsistente = await get(
@@ -603,11 +605,26 @@ const Platform = {
     return materiale;
   },
 
+  async deleteMaterial(tutorId, materialeId) {
+    const materiale = await get(
+      `SELECT id FROM Materiale_Didattico WHERE id = ? AND tutor_id = ?`,
+      [materialeId, tutorId],
+    );
+    if (!materiale) return null;
+
+    await run(
+      `UPDATE Materiale_Didattico SET eliminato = 1 WHERE id = ? AND tutor_id = ?`,
+      [materialeId, tutorId],
+    );
+    return { ok: true };
+  },
+
   async getPurchasedMaterials(studenteId) {
     return all(
       `
         SELECT ma.id, ma.data_acquisto, ma.importo_pagato,
-               md.titolo, md.file_url, md.importo,
+               md.titolo, md.descrizione, md.file_url, md.anteprima_url,
+               md.copertina_url, md.importo,
                u.nome || ' ' || u.cognome AS autore
         FROM Materiale_Acquistato ma
         JOIN Materiale_Didattico md ON md.id = ma.materiale_id
@@ -805,6 +822,14 @@ const Platform = {
             ORDER BY m2.data_invio DESC
             LIMIT 1
           ) AS lastMessageText
+          ,
+          SUM(
+            CASE
+              WHEN msg.destinatario_id = ? AND COALESCE(msg.letto, 0) = 0
+              THEN 1
+              ELSE 0
+            END
+          ) AS unreadCount
         FROM Utente u
         JOIN Messaggio msg
           ON (msg.mittente_id = ? AND msg.destinatario_id = u.id)
@@ -815,11 +840,13 @@ const Platform = {
         GROUP BY u.id
         ORDER BY lastMessageTime DESC, u.nome ASC
       `,
-      [userId, userId, userId, userId, userId],
+      [userId, userId, userId, userId, userId, userId],
     );
   },
 
   async getMessages(userId, otherId) {
+    await this.markMessagesRead(userId, otherId);
+
     return all(
       `
         SELECT *
@@ -830,6 +857,18 @@ const Platform = {
       `,
       [userId, otherId, otherId, userId],
     );
+  },
+
+  async markMessagesRead(userId, otherId) {
+    await run(
+      `
+        UPDATE Messaggio
+        SET letto = 1
+        WHERE mittente_id = ? AND destinatario_id = ?
+      `,
+      [otherId, userId],
+    );
+    return { ok: true };
   },
 
   async sendMessage(userId, data) {

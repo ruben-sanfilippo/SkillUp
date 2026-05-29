@@ -31,4 +31,25 @@ export class AuthService {
       tipologia_utente: datiRegistrazione.tipologia_utente,
     });
   }
+
+  richiediOtpPassword(email: string) {
+    return this.httpClient.post(`${environment.apiUrl}/api/auth/password/otp`, {
+      email,
+    });
+  }
+
+  verificaOtpPassword(email: string, otp: string) {
+    return this.httpClient.post<any>(
+      `${environment.apiUrl}/api/auth/password/verify-otp`,
+      { email, otp },
+    );
+  }
+
+  modificaPassword(email: string, resetToken: string, nuovaPassword: string) {
+    return this.httpClient.post(`${environment.apiUrl}/api/auth/password/reset`, {
+      email,
+      resetToken,
+      nuovaPassword,
+    });
+  }
 }

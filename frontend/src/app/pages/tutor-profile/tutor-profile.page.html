@@ -47,6 +47,10 @@
               </div>
             </div>
 
+            <button class="change-password-profile-btn" (click)="vaiAModificaPassword()">
+              <ion-icon name="key-outline"></ion-icon>
+              Modifica password
+            </button>
             <button class="logout-profile-btn" (click)="logout()">
               <ion-icon name="log-out-outline"></ion-icon>
               Esci
@@ -315,12 +319,13 @@
               <div class="calendar-day-wrapper">
                 <div
                   class="calendar-day-circle"
-                  [class.is-available]="giorno.info.attivo"
+                  [class.is-available]="giorno.info.attivo && !isGiornoPassato(giorno)"
                   [class.is-selected]="giorno.dataString === giornoSelezionato?.dataString"
+                  [class.is-past-day]="isGiornoPassato(giorno)"
                   (click)="selezionaGiorno(giorno)"
                 >
                   <span class="day-number-text">{{ giorno.giorno }}</span>
-                  @if (giorno.info.attivo && giorno.dataString !==
+                  @if (giorno.info.attivo && !isGiornoPassato(giorno) && giorno.dataString !==
                   giornoSelezionato?.dataString) {
                   <span class="time-dot-indicator"></span>
                   }
@@ -341,6 +346,12 @@
               </div>
 
               @if (isEditingDisponibilita) {
+                @if (isGiornoPassato(giornoSelezionato)) {
+                  <div class="instruction-inline-tip">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <p>Non puoi impostare disponibilità per un giorno già passato.</p>
+                  </div>
+                } @else {
               <div class="editing-controls-inside-panel">
                 <div class="toggle-row">
                   <label class="checkbox-container-custom">
@@ -377,6 +388,7 @@
                   </div>
                 </div>
               </div>
+                }
               } @else {
               <div class="static-day-info-display">
                 @if (giornoSelezionato.info.attivo) {
@@ -542,7 +554,7 @@
           @if (listaDispense.length > 0) {
           <div class="uploaded-dispense-list">
             <h3>Dispense Pubblicate ({{ listaDispense.length }})</h3>
-            @for (dispensa of listaDispense; track dispensa.titolo) {
+            @for (dispensa of listaDispense; track dispensa.id || dispensa.titolo) {
             <div class="dispensa-item-card layout-between">
               <div class="dispensa-main-info">
                 <div class="dispensa-cover-preview">
@@ -593,6 +605,16 @@
                   <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
                 </ion-button>
                 }
+
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  color="danger"
+                  title="Elimina Dispensa"
+                  (click)="eliminaDispensa(dispensa)"
+                >
+                  <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                </ion-button>
               </div>
             </div>
             }

@@ -29,7 +29,8 @@ function creaTabelle() {
                 password TEXT NOT NULL,
                 immagine_profilo TEXT DEFAULT NULL,
                 stato TEXT CHECK(stato IN ('attivo', 'bloccato')) DEFAULT 'attivo',
-                tipologia_utente TEXT CHECK(tipologia_utente IN ('studente', 'tutor', 'amministratore')) NOT NULL
+                tipologia_utente TEXT CHECK(tipologia_utente IN ('studente', 'tutor', 'amministratore')) NOT NULL,
+                data_iscrizione TEXT DEFAULT NULL
             )
         `,
       (err) => {
@@ -39,6 +40,10 @@ function creaTabelle() {
     );
 
     db.run(`ALTER TABLE Utente ADD COLUMN data_iscrizione TEXT`, () => {});
+    db.run(
+      `UPDATE Utente SET data_iscrizione = datetime('now','localtime') WHERE data_iscrizione IS NULL`,
+      () => {},
+    );
 
     // Tabella Tutor
     db.run(
@@ -172,6 +177,29 @@ function creaTabelle() {
       },
     );
 
+    db.run(`ALTER TABLE Messaggio ADD COLUMN letto INTEGER DEFAULT 0`, () => {});
+
+    db.run(
+      `
+            CREATE TABLE IF NOT EXISTS Password_Reset (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                email TEXT NOT NULL,
+                otp_hash TEXT NOT NULL,
+                reset_token_hash TEXT,
+                scadenza DATETIME NOT NULL,
+                verificato INTEGER DEFAULT 0,
+                usato INTEGER DEFAULT 0,
+                creato_il DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES Utente(id) ON DELETE CASCADE
+            )
+        `,
+      (err) => {
+        if (err) console.error("Errore Password_Reset:", err.message);
+        else console.log("Tabella Password_Reset OK");
+      },
+    );
+
     //Tabella Materiale_Didattico
     db.run(
       `
@@ -185,6 +213,7 @@ function creaTabelle() {
                 anteprima_url TEXT,
                 copertina_url TEXT,
                 importo REAL NOT NULL,
+                eliminato INTEGER DEFAULT 0,
                 FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id),
                 FOREIGN KEY (materia_id) REFERENCES Materie(id)
             )
@@ -197,6 +226,7 @@ function creaTabelle() {
 
     db.run(`ALTER TABLE Materiale_Didattico ADD COLUMN anteprima_url TEXT`, () => {});
     db.run(`ALTER TABLE Materiale_Didattico ADD COLUMN copertina_url TEXT`, () => {});
+    db.run(`ALTER TABLE Materiale_Didattico ADD COLUMN eliminato INTEGER DEFAULT 0`, () => {});
 
     //Tabella Materiale_Acquistato
     db.run(

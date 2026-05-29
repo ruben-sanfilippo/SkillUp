@@ -119,6 +119,18 @@ exports.createMaterial = async (req, res) => {
   }
 };
 
+exports.deleteMaterial = async (req, res) => {
+  try {
+    if (!requireRole(req, res, ["tutor"])) return;
+    const result = await Platform.deleteMaterial(req.user.id, req.params.id);
+    if (!result)
+      return res.status(404).json({ message: "Materiale non trovato" });
+    res.json({ message: "Materiale eliminato" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.purchaseMaterial = async (req, res) => {
   try {
     if (!requireRole(req, res, ["studente"])) return;
@@ -220,6 +232,14 @@ exports.getMessages = async (req, res) => {
   }
 };
 
+exports.markMessagesRead = async (req, res) => {
+  try {
+    res.json(await Platform.markMessagesRead(req.user.id, req.params.userId));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.sendMessage = async (req, res) => {
   try {
     const result = await Platform.sendMessage(req.user.id, req.body);
@@ -252,7 +272,14 @@ exports.getAdminUsers = async (req, res) => {
 exports.updateUserStatus = async (req, res) => {
   try {
     if (!requireRole(req, res, ["amministratore"])) return;
-    res.json(await Platform.updateUserStatus(req.params.id, req.body.stato));
+    const users = await Platform.updateUserStatus(req.params.id, req.body.stato);
+    const io = req.app.get("io");
+    if (io && req.body.stato === "bloccato") {
+      io.to(`user:${req.params.id}`).emit("user-status-updated", {
+        stato: "bloccato",
+      });
+    }
+    res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

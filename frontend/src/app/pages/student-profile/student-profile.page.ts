@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
 import {
   schoolOutline,
@@ -19,6 +20,8 @@ import {
   trashOutline,
   checkmarkCircleOutline,
   logOutOutline,
+  eyeOutline,
+  keyOutline,
 } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
 
@@ -52,6 +55,10 @@ interface Material {
   fileLabel: string;
   sizeInMb: string;
   fileUrl?: string;
+  coverUrl?: string;
+  previewUrl?: string | SafeResourceUrl;
+  rawPreviewUrl?: string;
+  isPdfPreview?: boolean;
 }
 
 @Component({
@@ -66,10 +73,13 @@ export class StudentProfilePage implements OnInit {
   isReviewModalOpen = false;
   isBioModalOpen = false;
   isAvatarActionSheetOpen = false;
+  isPreviewModalOpen = false;
 
   selectedBookingForReview: Booking | null = null;
+  selectedMaterialPreview: Material | null = null;
   currentRating: number = 0;
   tempBio: string = '';
+  email = '';
 
   student: StudentData = {
     firstName: 'Alessandro',
@@ -113,6 +123,7 @@ export class StudentProfilePage implements OnInit {
   constructor(
     private platformService: PlatformService,
     private router: Router,
+    private sanitizer: DomSanitizer,
   ) {
     addIcons({
       schoolOutline,
@@ -129,10 +140,16 @@ export class StudentProfilePage implements OnInit {
       trashOutline,
       checkmarkCircleOutline,
       logOutOutline,
+      eyeOutline,
+      keyOutline,
     });
   }
 
   async ngOnInit() {
+    await this.caricaDatiStudente();
+  }
+
+  async ionViewWillEnter() {
     await this.caricaDatiStudente();
   }
 
@@ -143,6 +160,7 @@ export class StudentProfilePage implements OnInit {
       this.platformService.getPurchasedMaterials(),
     ]);
 
+    this.email = utente.email || '';
     this.student = {
       firstName: utente.nome,
       lastName: utente.cognome,
@@ -160,10 +178,14 @@ export class StudentProfilePage implements OnInit {
       id: materiale.id,
       title: materiale.titolo,
       author: materiale.autore,
-      type: 'pdf',
-      fileLabel: 'PDF',
-      sizeInMb: materiale.sizeInMb,
+      type: this.tipoMateriale(materiale.file_url),
+      fileLabel: this.etichettaFile(materiale.file_url),
+      sizeInMb: this.dimensioneFile(materiale.file_url),
       fileUrl: materiale.file_url,
+      coverUrl: materiale.copertina_url,
+      rawPreviewUrl: materiale.anteprima_url,
+      previewUrl: this.preparaAnteprima(materiale.anteprima_url),
+      isPdfPreview: this.isPdfDataUrl(materiale.anteprima_url),
     }));
   }
 
@@ -278,15 +300,21 @@ export class StudentProfilePage implements OnInit {
     }
   }
 
-  scaricaMateriale(item: Material) {
-    const contenutoMock =
-      item.fileUrl || `Titolo: ${item.title}\nAutore: ${item.author}`;
-    const estensione = item.type === 'pdf' ? 'pdf' : 'txt';
-    const nomeFile = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
+  apriAnteprimaMateriale(item: Material) {
+    if (!item.previewUrl) return;
+    this.selectedMaterialPreview = item;
+    this.isPreviewModalOpen = true;
+  }
 
-    const blob = new Blob([contenutoMock], {
-      type: 'text/plain;charset=utf-8',
-    });
+  chiudiAnteprimaMateriale() {
+    this.isPreviewModalOpen = false;
+    setTimeout(() => (this.selectedMaterialPreview = null), 250);
+  }
+
+  async scaricaMateriale(item: Material) {
+    const estensione = this.estensioneFile(item.fileUrl);
+    const nomeFile = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
+    const blob = await this.creaBlobDownload(item);
     const url = window.URL.createObjectURL(blob);
 
     const ancoraDownload = document.createElement('a');
@@ -309,6 +337,15 @@ export class StudentProfilePage implements OnInit {
     localStorage.removeItem('tipologia_utente');
     localStorage.removeItem('skillup_recensioni_aggiornate');
     this.router.navigate(['/login']);
+  }
+
+  vaiAModificaPassword() {
+    this.router.navigate(['/modifica-password-profilo'], {
+      state: {
+        email: this.email,
+        returnUrl: '/tabs/student-profile',
+      },
+    });
   }
 
   private mappaPrenotazione(booking: any): Booking {
@@ -334,5 +371,62 @@ export class StudentProfilePage implements OnInit {
   private avatarTutorPredefinito(booking: any): string {
     const nome = encodeURIComponent(booking.tutorName || 'Tutor');
     return `https://ui-avatars.com/api/?name=${nome}&background=1e40af&color=fff`;
+  }
+
+  private preparaAnteprima(url?: string): string | SafeResourceUrl {
+    if (!url) return '';
+    if (this.isPdfDataUrl(url)) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+    return url;
+  }
+
+  private isPdfDataUrl(url?: string): boolean {
+    return !!url && url.startsWith('data:application/pdf');
+  }
+
+  private tipoMateriale(url?: string): 'pdf' | 'notes' {
+    return this.mimeDaDataUrl(url).includes('pdf') ? 'pdf' : 'notes';
+  }
+
+  private etichettaFile(url?: string): string {
+    const mime = this.mimeDaDataUrl(url);
+    if (mime.includes('pdf')) return 'PDF';
+    if (mime.includes('image')) return 'IMMAGINE';
+    if (mime.includes('plain')) return 'TXT';
+    return 'FILE';
+  }
+
+  private dimensioneFile(url?: string): string {
+    if (!url?.startsWith('data:')) return 'File';
+    const base64 = url.split(',')[1] || '';
+    const bytes = Math.floor((base64.length * 3) / 4);
+    const mb = bytes / (1024 * 1024);
+    return `${Math.max(0.01, mb).toFixed(2)} MB`;
+  }
+
+  private estensioneFile(url?: string): string {
+    const mime = this.mimeDaDataUrl(url);
+    if (mime.includes('pdf')) return 'pdf';
+    if (mime.includes('png')) return 'png';
+    if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
+    if (mime.includes('plain')) return 'txt';
+    return 'dat';
+  }
+
+  private mimeDaDataUrl(url?: string): string {
+    const match = String(url || '').match(/^data:([^;,]+)/);
+    return match?.[1] || 'text/plain';
+  }
+
+  private async creaBlobDownload(item: Material): Promise<Blob> {
+    if (item.fileUrl?.startsWith('data:')) {
+      const response = await fetch(item.fileUrl);
+      return response.blob();
+    }
+
+    return new Blob([`Titolo: ${item.title}\nAutore: ${item.author}`], {
+      type: 'text/plain;charset=utf-8',
+    });
   }
 }

@@ -11,8 +11,11 @@
         <ion-label>Cerca</ion-label>
       </ion-tab-button>
 
-      <ion-tab-button tab="messages">
+      <ion-tab-button tab="messages" class="messages-tab-button">
         <ion-icon name="chatbubbles-outline"></ion-icon>
+        @if (hasUnreadMessages) {
+          <span class="tab-unread-dot"></span>
+        }
         <ion-label>Messaggi</ion-label>
       </ion-tab-button>
 

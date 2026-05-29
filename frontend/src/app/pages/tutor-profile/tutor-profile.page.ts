@@ -35,10 +35,13 @@ import {
   chevronForwardOutline,
   informationCircleOutline,
   logOutOutline,
+  trashOutline,
+  keyOutline,
 } from 'ionicons/icons';
 import { TutorService } from 'src/app/services/tutorService';
 
 interface Dispensa {
+  id?: number | string;
   titolo: string;
   descrizione: string;
   prezzo: number | null;
@@ -78,6 +81,7 @@ export class TutorProfilePage implements OnInit {
   mediaRecensioni = 4.8;
   numeroRecensioni = 24;
   prezzoOrario = 15;
+  email = '';
 
   materieSelezionate: string[] = ['Matematica', 'Fisica'];
   lingueSelezionate: string[] = ['Italiano'];
@@ -174,6 +178,8 @@ export class TutorProfilePage implements OnInit {
       chevronForwardOutline,
       informationCircleOutline,
       logOutOutline,
+      trashOutline,
+      keyOutline,
     });
   }
 
@@ -191,6 +197,7 @@ export class TutorProfilePage implements OnInit {
     const tutor = await this.tutorService.getTutorMe();
     this.nome = tutor.nome;
     this.cognome = tutor.cognome;
+    this.email = tutor.email || '';
     this.biografia = tutor.bio || '';
     this.avatarUrl = tutor.image || '';
     this.mediaRecensioni = tutor.rating;
@@ -210,6 +217,7 @@ export class TutorProfilePage implements OnInit {
     }
 
     this.listaDispense = (tutor.materials || []).map((materiale: any) => ({
+      id: materiale.id,
       titolo: materiale.titolo,
       descrizione: materiale.descrizione,
       prezzo: materiale.importo,
@@ -229,6 +237,15 @@ export class TutorProfilePage implements OnInit {
     localStorage.removeItem('tipologia_utente');
     localStorage.removeItem('skillup_recensioni_aggiornate');
     this.router.navigate(['/login']);
+  }
+
+  vaiAModificaPassword() {
+    this.router.navigate(['/modifica-password-profilo'], {
+      state: {
+        email: this.email,
+        returnUrl: '/tabs/tutor-profile',
+      },
+    });
   }
 
   get nomeMeseCorrente(): string {
@@ -344,6 +361,11 @@ export class TutorProfilePage implements OnInit {
 
   selezionaGiorno(giorno: GiornoCalendario) {
     this.giornoSelezionato = giorno;
+  }
+
+  isGiornoPassato(giorno: GiornoCalendario | null): boolean {
+    if (!giorno) return false;
+    return giorno.dataString < this.dataLocale(new Date());
   }
 
   attivaModificaLingue() {
@@ -627,6 +649,7 @@ export class TutorProfilePage implements OnInit {
       });
 
       dispensaDaSalvare.fileUrl = materialeCreato.file_url || dispensaDaSalvare.fileUrl;
+      dispensaDaSalvare.id = materialeCreato.id;
     } catch (error: any) {
       const message =
         error?.status === 413
@@ -655,6 +678,36 @@ export class TutorProfilePage implements OnInit {
       haFileCompleto: false,
       isPdfPreview: false,
     };
+  }
+
+  async eliminaDispensa(dispensa: Dispensa) {
+    const alert = await this.alertController.create({
+      header: 'Elimina dispensa',
+      message:
+        'La dispensa non sara piu visibile nella ricerca. Gli studenti che l hanno gia acquistata continueranno ad averla nel profilo.',
+      buttons: [
+        { text: 'Annulla', role: 'cancel' },
+        {
+          text: 'Elimina',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              if (dispensa.id) {
+                await this.tutorService.deleteMaterial(dispensa.id);
+              }
+              this.listaDispense = this.listaDispense.filter(
+                (item) => item !== dispensa,
+              );
+            } catch (error: any) {
+              const message =
+                error?.error?.message || 'Non e stato possibile eliminare la dispensa.';
+              await this.mostraPopupErrorePersonalizzato(message);
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   scaricaFileCompleto(dispensa: Dispensa) {

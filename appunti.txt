@@ -1,12 +1,16 @@
 
+RISOLTI
+
+1. nel profilo studente spuntano anteprima e copertina dei materiali acquistati, e il download conserva il formato corretto del PDF.
+2. i ricavi mostrano anche i centesimi.
+3. spunta il puntino sui messaggi non letti e nella tab bar sulla sezione Messaggi.
+4. se acquisto un materiale e torno al profilo, il materiale compare senza ricaricare la pagina.
+5. quando prenoto una lezione vedo la conferma con il prezzo totale calcolato in base alle ore.
+6. dopo una prenotazione gli orari occupati non ricompaiono al refresh e il giorno resta disponibile solo se ha ancora slot liberi.
+7. nel profilo tutor i giorni passati non mostrano la spunta per aggiungere disponibilita.
+
 MODIFICHE DA FARE
 
-1.non spuntano le anteprime del materiale acquistato nel profilo studente e nemmeno l'immagine di copertina, inoltre ciò che scarico non può essere aperto: "impossibile caricare il documento PDF".
-2. non risultano i centesimi nei ricavi.
-3. deve spuntare un puntino nei messaggi non visti e nella tab bar in corrispondenza della sezione messaggi se ci sono messaggi da leggere.
-4. quando acquisto una lezione devo avere una conferma con il prezzo calcolato della lezione sulla base delle ore.
-5. quando acquisto una lezione e poi aggiorno la pagina non trovo, nella selezione non si rimuovono gli orari che ovviamente non possono più essere acquistati, tuttavia se acquisto tutto il giorno poi quel giorno non spunta piu disponibile.
-6. per giorni antecedenti a oggi, come tutor, non deve esistere totalmente la spunta per prenotare un giorno antecedente a oggi.
 7. se sono un tutor e vado nella ricerca non devo vedere "trova il tutor perfetto per te" "esplora la nostra community di tutor e migliora il tuo percorso di studio" ma devo vedere qualcos'altro.
 8. se sono un tutor e carico un materiale, devo poter eliminare in qualsiasi momento, ovviamente se lo elimino e qualcuno lo ha gia acquistato, a quella persona il materiale rimane tra i materiali acquistati.
 9. se un admin blocca un profilo e intanto qualcuno è dentro quel profilo, può continuare a effettuare operazioni e anche se ricarica la pagina non esce in automatico dal profilo. invece deve spuntare immediatamente che il profilo è stato bloccato e fare uscire dal profilo.

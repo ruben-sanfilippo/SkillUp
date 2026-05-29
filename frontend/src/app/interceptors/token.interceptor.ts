@@ -20,9 +20,19 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(richiestaConToken).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      const messaggioErrore = String(
+        error.error?.message || error.error?.error || '',
+      ).toLowerCase();
+      const accountBloccato =
+        error.status === 403 && messaggioErrore.includes('bloccato');
+
+      if (error.status === 401 || accountBloccato) {
         localStorage.removeItem('token');
         localStorage.removeItem('tipologia_utente');
+        localStorage.removeItem('skillup_messaggi_non_letti');
+        if (accountBloccato) {
+          window.alert('Il tuo account e stato bloccato. Verrai disconnesso.');
+        }
         router.navigate(['/login']);
       }
 

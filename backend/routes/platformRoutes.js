@@ -18,6 +18,7 @@ router.put(
 router.get("/tutors/:id", authMiddleware, platformController.getTutor);
 
 router.post("/materials", authMiddleware, platformController.createMaterial);
+router.delete("/materials/:id", authMiddleware, platformController.deleteMaterial);
 router.post(
   "/materials/:id/purchase",
   authMiddleware,
@@ -39,6 +40,11 @@ router.get(
   "/messages/:userId",
   authMiddleware,
   platformController.getMessages,
+);
+router.patch(
+  "/messages/:userId/read",
+  authMiddleware,
+  platformController.markMessagesRead,
 );
 router.post("/messages", authMiddleware, platformController.sendMessage);
 
