@@ -129,6 +129,10 @@ export class StudentProfilePage implements OnInit {
       this.platformService.getPurchasedMaterials(),
     ]);
 
+    const prenotazioniMappate = prenotazioni.map((prenotazione) =>
+      this.mappaPrenotazione(prenotazione),
+    );
+
     this.email = utente.email || '';
     this.student = {
       nome: utente.nome,
@@ -136,12 +140,10 @@ export class StudentProfilePage implements OnInit {
       immagineProfilo: utente.immagine_profilo || '',
       biografia: utente.bio || '',
       sessioniCompletate: prenotazioni.length,
-      oreStudio: prenotazioni.length,
+      oreStudio: this.calcolaOreStudio(prenotazioniMappate),
     };
 
-    this.allBookings = prenotazioni.map((prenotazione) =>
-      this.mappaPrenotazione(prenotazione),
-    );
+    this.allBookings = prenotazioniMappate;
     this.recentBookings = this.allBookingsSorted.slice(0, 2);
     this.purchasedMaterials = materiali.map((materiale) => ({
       id: materiale.id,
@@ -194,20 +196,32 @@ export class StudentProfilePage implements OnInit {
     if (!this.selectedBookingForReview) return;
 
     const targetId = this.selectedBookingForReview.id;
-    await this.platformService.createReview({
-      prenotazione_id: targetId,
-      voto: this.currentRating,
-    });
+    const tutorId = this.selectedBookingForReview.tutorId;
 
-    const bookingInAll = this.allBookings.find((b) => b.id === targetId);
-    if (bookingInAll) {
-      bookingInAll.recensita = true;
+    try {
+      await this.platformService.createReview({
+        prenotazione_id: targetId,
+        voto: this.currentRating,
+      });
+    } catch (error: any) {
+      alert(
+        error?.error?.message ||
+          'Non è stato possibile inviare la recensione.',
+      );
+      return;
     }
 
-    const bookingInRecent = this.recentBookings.find((b) => b.id === targetId);
-    if (bookingInRecent) {
-      bookingInRecent.recensita = true;
-    }
+    this.allBookings
+      .filter((prenotazione) => Number(prenotazione.tutorId) === Number(tutorId))
+      .forEach((prenotazione) => {
+        prenotazione.recensita = true;
+      });
+
+    this.recentBookings
+      .filter((prenotazione) => Number(prenotazione.tutorId) === Number(tutorId))
+      .forEach((prenotazione) => {
+        prenotazione.recensita = true;
+      });
 
     localStorage.setItem(
       'skillup_recensioni_aggiornate',
@@ -333,6 +347,7 @@ export class StudentProfilePage implements OnInit {
 
     return {
       id: prenotazione.id,
+      tutorId: prenotazione.tutor_id || prenotazione.tutorId,
       nomeTutor,
       avatarTutor,
       materia: prenotazione.materia,
@@ -347,6 +362,28 @@ export class StudentProfilePage implements OnInit {
       stato: data >= new Date() ? 'IN PROGRAMMA' : 'COMPLETATA',
       recensita: !!(prenotazione.recensita || prenotazione.hasReviewed),
     };
+  }
+
+  private calcolaOreStudio(prenotazioni: PrenotazioneProfilo[]): number {
+    const totaleOre = prenotazioni.reduce((totale, prenotazione) => {
+      const inizio = this.minutiDaOrario(prenotazione.oraInizio);
+      const fine = this.minutiDaOrario(prenotazione.oraFine);
+      if (inizio === null || fine === null || fine <= inizio) return totale;
+      return totale + (fine - inizio) / 60;
+    }, 0);
+
+    return Math.round(totaleOre * 10) / 10;
+  }
+
+  private minutiDaOrario(orario: string): number | null {
+    const parti = String(orario || '')
+      .split(':')
+      .slice(0, 2)
+      .map(Number);
+    if (parti.length < 2 || parti.some((parte) => Number.isNaN(parte))) {
+      return null;
+    }
+    return parti[0] * 60 + parti[1];
   }
 
   private avatarTutorPredefinito(nomeTutor: string): string {

@@ -204,6 +204,25 @@ function creaTabelle() {
       },
     );
 
+    db.run(
+      `
+        DELETE FROM Recensione
+        WHERE id NOT IN (
+          SELECT MIN(id)
+          FROM Recensione
+          GROUP BY studente_id, tutor_id
+        )
+      `,
+      () => {},
+    );
+    db.run(
+      `
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_recensione_studente_tutor
+        ON Recensione(studente_id, tutor_id)
+      `,
+      () => {},
+    );
+
     //Tabella Materiale_Didattico
     db.run(
       `
@@ -306,15 +325,48 @@ function popolaDatiIniziali() {
   const materie = [
     "Matematica",
     "Fisica",
-    "Letteratura",
-    "Informatica",
-    "Inglese",
-    "Scienze",
-    "Analisi Matematica 1",
     "Chimica",
+    "Biologia",
+    "Scienze",
+    "Italiano",
+    "Letteratura",
+    "Storia",
+    "Geografia",
+    "Filosofia",
+    "Latino",
+    "Greco",
+    "Inglese",
+    "Informatica",
+    "Analisi Matematica 1",
+    "Analisi Matematica 2",
     "Geometria",
+    "Algebra Lineare",
+    "Statistica",
+    "Programmazione",
+    "Basi di Dati",
+    "Ingegneria del Software",
+    "Economia",
+    "Diritto",
+    "Anatomia",
+    "Psicologia",
   ];
-  const lingue = ["Italiano", "Inglese", "Spagnolo", "Francese", "Tedesco"];
+  const lingue = [
+    "Italiano",
+    "Inglese",
+    "Spagnolo",
+    "Francese",
+    "Tedesco",
+    "Portoghese",
+    "Cinese",
+    "Giapponese",
+    "Arabo",
+    "Russo",
+    "Coreano",
+    "Hindi",
+    "Olandese",
+    "Polacco",
+    "Turco",
+  ];
   const utentiDemo = [
     {
       nome: "Mario",

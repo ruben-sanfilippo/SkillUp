@@ -813,12 +813,44 @@ const Platform = {
       return null;
     }
 
+    const voto = Number(data.voto);
+    if (!Number.isInteger(voto) || voto < 1 || voto > 5) {
+      return { invalidVote: true };
+    }
+
+    const lezioneConclusa = await get(
+      `
+        SELECT 1
+        WHERE datetime(? || ' ' || ?) <= datetime('now', 'localtime')
+      `,
+      [booking.data, booking.ora_fine],
+    );
+
+    if (!lezioneConclusa) {
+      return { lessonNotCompleted: true };
+    }
+
+    const recensioneEsistente = await get(
+      `
+        SELECT id
+        FROM Recensione
+        WHERE studente_id = ?
+          AND tutor_id = ?
+        LIMIT 1
+      `,
+      [studenteId, booking.tutor_id],
+    );
+
+    if (recensioneEsistente) {
+      return { duplicateReview: true };
+    }
+
     await run(
       `
         INSERT INTO Recensione (studente_id, tutor_id, voto, commento)
         VALUES (?, ?, ?, ?)
       `,
-      [studenteId, booking.tutor_id, data.voto, data.commento || ""],
+      [studenteId, booking.tutor_id, voto, data.commento || ""],
     );
 
     await run(

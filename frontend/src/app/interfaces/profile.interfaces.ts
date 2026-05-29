@@ -11,6 +11,7 @@ export interface DatiStudente {
 
 export interface PrenotazioneProfilo {
   id: string | number;
+  tutorId: string | number;
   nomeTutor: string;
   avatarTutor: string;
   materia: string;
