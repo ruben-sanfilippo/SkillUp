@@ -315,18 +315,18 @@
             <div class="calendar-days-grid">
               @for (vuoto of spaziVuotiIniziali; track $index) {
               <div class="calendar-day-wrapper empty-cell"></div>
-              } @for (giorno of giorniDelMese; track giorno.dataString) {
+              } @for (giorno of giorniDelMese; track giorno.dataIso) {
               <div class="calendar-day-wrapper">
                 <div
                   class="calendar-day-circle"
                   [class.is-available]="giorno.info.attivo && !isGiornoPassato(giorno)"
-                  [class.is-selected]="giorno.dataString === giornoSelezionato?.dataString"
+                  [class.is-selected]="giorno.dataIso === giornoSelezionato?.dataIso"
                   [class.is-past-day]="isGiornoPassato(giorno)"
                   (click)="selezionaGiorno(giorno)"
                 >
                   <span class="day-number-text">{{ giorno.giorno }}</span>
-                  @if (giorno.info.attivo && !isGiornoPassato(giorno) && giorno.dataString !==
-                  giornoSelezionato?.dataString) {
+                  @if (giorno.info.attivo && !isGiornoPassato(giorno) && giorno.dataIso !==
+                  giornoSelezionato?.dataIso) {
                   <span class="time-dot-indicator"></span>
                   }
                 </div>
@@ -498,13 +498,13 @@
               <button
                 class="file-mock-btn"
                 (click)="copertinaInput.click()"
-                [style.border-color]="nuovaDispensa.copertinaUrl ? 'var(--primary-color)' : ''"
+                [style.border-color]="nuovaDispensa.urlCopertina ? 'var(--primary-color)' : ''"
               >
                 <ion-icon
-                  [name]="nuovaDispensa.copertinaUrl ? 'checkmark-circle-outline' : 'image-outline'"
+                  [name]="nuovaDispensa.urlCopertina ? 'checkmark-circle-outline' : 'image-outline'"
                 ></ion-icon>
                 <span
-                  >{{ nuovaDispensa.copertinaUrl ? 'Copertina OK' : 'Copertina'
+                  >{{ nuovaDispensa.urlCopertina ? 'Copertina OK' : 'Copertina'
                   }}</span
                 >
               </button>
@@ -558,9 +558,9 @@
             <div class="dispensa-item-card layout-between">
               <div class="dispensa-main-info">
                 <div class="dispensa-cover-preview">
-                  @if (dispensa.copertinaUrl) {
+                  @if (dispensa.urlCopertina) {
                   <img
-                    [src]="dispensa.copertinaUrl"
+                    [src]="dispensa.urlCopertina"
                     alt="Copertina Dispensa"
                     class="cover-img-inside-card"
                   />
@@ -707,19 +707,19 @@
           </div>
 
           <div class="document-preview-render structural-clean">
-            @if (dispensaInEvidenza?.isPdfPreview) {
+            @if (dispensaInEvidenza?.anteprimaPdf) {
             <div class="pdf-frame-container">
               <iframe
-                [src]="dispensaInEvidenza?.anteprimaUrl"
+                [src]="dispensaInEvidenza?.urlAnteprima"
                 width="100%"
                 height="500px"
                 style="border: none; border-radius: 8px"
               ></iframe>
             </div>
-            } @else if (dispensaInEvidenza?.anteprimaUrl) {
+            } @else if (dispensaInEvidenza?.urlAnteprima) {
             <div class="image-preview-clean-container">
               <img
-                [src]="dispensaInEvidenza?.anteprimaUrl"
+                [src]="dispensaInEvidenza?.urlAnteprima"
                 alt="Anteprima Immagine"
                 class="real-preview-img-solid"
               />
@@ -737,3 +737,4 @@
     </ng-template>
   </ion-modal>
 </ion-content>
+

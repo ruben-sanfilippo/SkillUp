@@ -10,11 +10,11 @@
               
               <div class="avatar-container">
                 <div class="avatar-holder">
-                  @if (student.avatar) {
-                    <img [src]="student.avatar" alt="Avatar Studente" />
+                  @if (student.immagineProfilo) {
+                    <img [src]="student.immagineProfilo" alt="immagineProfilo Studente" />
                   } @else {
                     <div class="avatar-placeholder">
-                      {{ student.firstName[0] }}{{ student.lastName[0] }}
+                      {{ student.nome[0] }}{{ student.cognome[0] }}
                     </div>
                   }
                 </div>
@@ -29,12 +29,12 @@
                   style="display: none;" />
               </div>
 
-              <h2 class="name">{{ student.firstName }} {{ student.lastName }}</h2>
+              <h2 class="name">{{ student.nome }} {{ student.cognome }}</h2>
             </div>
             <div class="hr"></div>
             <div class="bio">
               <h3>Biografia</h3>
-              <p>{{ student.about || 'Nessuna biografia inserita.' }}</p>
+              <p>{{ student.biografia || 'Nessuna biografia inserita.' }}</p>
               <button class="edit-bio-btn" (click)="apriModalBio()">
                 <ion-icon name="create-outline"></ion-icon>
                 Modifica biografia
@@ -44,11 +44,11 @@
             <div class="stats-container">
               <div class="stat-box">
                 <span class="label">Sessioni</span>
-                <span class="val">{{ student.sessionsCompleted }}</span>
+                <span class="val">{{ student.sessioniCompletate }}</span>
               </div>
               <div class="stat-box">
                 <span class="label">Ore Studio</span>
-                <span class="val">{{ student.studyHours }}h</span>
+                <span class="val">{{ student.oreStudio }}h</span>
               </div>
             </div>
             <button class="change-password-profile-btn" (click)="vaiAModificaPassword()">
@@ -70,30 +70,30 @@
         </div>
 
         <div class="bookings-grid">
-          @for (booking of recentBookings; track booking.id) {
+          @for (prenotazione of recentBookings; track prenotazione.id) {
             <div class="card booking-card">
               <div class="booking-top">
                 <div class="tutor">
-                  <img [src]="booking.tutorAvatar" alt="Tutor" />
+                  <img [src]="prenotazione.avatarTutor" alt="Tutor" />
                   <div class="tutor-info">
-                    <h4>{{ booking.tutorName }}</h4>
-                    <p>{{ booking.subject }}</p>
+                    <h4>{{ prenotazione.nomeTutor }}</h4>
+                    <p>{{ prenotazione.materia }}</p>
                   </div>
                 </div>
-                <div class="status-chip" [class.upcoming]="booking.status === 'IN PROGRAMMA'">
-                  {{ booking.status }}
+                <div class="status-chip" [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'">
+                  {{ prenotazione.stato }}
                 </div>
               </div>
               <div class="booking-mid">
                 <ion-icon name="calendar-outline"></ion-icon>
-                <span>{{ booking.dataItaliana }} • {{ booking.startTime }} - {{ booking.endTime }}</span>
+                <span>{{ prenotazione.dataItaliana }} • {{ prenotazione.oraInizio }} - {{ prenotazione.oraFine }}</span>
               </div>
               <div class="booking-bottom">
-                @if (booking.status === 'COMPLETATA' && !booking.hasReviewed) {
-                  <ion-button fill="outline" class="btn-outline full-width" (click)="apriModalRecensione(booking)">
+                @if (prenotazione.stato === 'COMPLETATA' && !prenotazione.recensita) {
+                  <ion-button fill="outline" class="btn-outline full-width" (click)="apriModalRecensione(prenotazione)">
                     Lascia una recensione
                   </ion-button>
-                } @else if (booking.status === 'COMPLETATA' && booking.hasReviewed) {
+                } @else if (prenotazione.stato === 'COMPLETATA' && prenotazione.recensita) {
                   <div class="reviewed-badge full-width">
                     <ion-icon name="checkmark-circle-outline"></ion-icon>
                     <span>Lezione recensita</span>
@@ -112,19 +112,19 @@
             <div class="material-list">
               @for (item of purchasedMaterials; track item.id) {
                 <div class="material-row">
-                  <div class="cover-box" [class.notes]="item.type === 'notes'">
-                    @if (item.coverUrl) {
-                      <img [src]="item.coverUrl" alt="Copertina materiale" />
+                  <div class="cover-box" [class.notes]="item.tipo === 'appunti'">
+                    @if (item.urlCopertina) {
+                      <img [src]="item.urlCopertina" alt="Copertina materiale" />
                     } @else {
-                      <ion-icon [name]="item.type === 'pdf' ? 'document-text-outline' : 'book-outline'"></ion-icon>
+                      <ion-icon [name]="item.tipo === 'pdf' ? 'document-text-outline' : 'book-outline'"></ion-icon>
                     }
                   </div>
                   <div class="info">
-                    <h4>{{ item.title }}</h4>
-                    <p class="author-name">{{ item.author }}</p>
-                    <p class="file-spec">{{ item.fileLabel }} • {{ item.sizeInMb }}</p>
+                    <h4>{{ item.titolo }}</h4>
+                    <p class="author-name">{{ item.autore }}</p>
+                    <p class="file-spec">{{ item.etichettaFile }} • {{ item.dimensioneMb }}</p>
                   </div>
-                  @if (item.previewUrl) {
+                  @if (item.urlAnteprima) {
                     <ion-button fill="clear" class="btn-preview" (click)="apriAnteprimaMateriale(item)">
                       <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
                     </ion-button>
@@ -157,27 +157,27 @@
 
       <ion-content class="modal-content-bg">
         <div class="modal-list-container">
-          @for (booking of allBookingsSorted; track booking.id) {
+          @for (prenotazione of allBookingsSorted; track prenotazione.id) {
             <div class="modal-booking-row">
               <div class="modal-left-layout">
                 <div class="modal-tutor-group">
-                  <img [src]="booking.tutorAvatar" alt="Tutor" />
+                  <img [src]="prenotazione.avatarTutor" alt="Tutor" />
                   <div class="modal-tutor-details">
-                    <h4>{{ booking.tutorName }}</h4>
-                    <p>{{ booking.subject }}</p>
+                    <h4>{{ prenotazione.nomeTutor }}</h4>
+                    <p>{{ prenotazione.materia }}</p>
                     <div class="modal-time-info">
                       <ion-icon name="calendar-outline"></ion-icon>
-                      <span>{{ booking.dataItaliana }} • {{ booking.startTime }} - {{ booking.endTime }}</span>
+                      <span>{{ prenotazione.dataItaliana }} • {{ prenotazione.oraInizio }} - {{ prenotazione.oraFine }}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div class="modal-action-wrapper">
-                  @if (booking.status === 'COMPLETATA' && !booking.hasReviewed) {
-                    <ion-button fill="outline" class="btn-outline btn-small" (click)="apriModalRecensione(booking)">
+                  @if (prenotazione.stato === 'COMPLETATA' && !prenotazione.recensita) {
+                    <ion-button fill="outline" class="btn-outline btn-small" (click)="apriModalRecensione(prenotazione)">
                       Lascia una recensione
                     </ion-button>
-                  } @else if (booking.status === 'COMPLETATA' && booking.hasReviewed) {
+                  } @else if (prenotazione.stato === 'COMPLETATA' && prenotazione.recensita) {
                     <div class="reviewed-badge badge-small">
                       <ion-icon name="checkmark-circle-outline"></ion-icon>
                       <span>Lezione recensita</span>
@@ -185,8 +185,8 @@
                   }
                 </div>
               </div>
-              <div class="status-chip" [class.upcoming]="booking.status === 'IN PROGRAMMA'">
-                {{ booking.status }}
+              <div class="status-chip" [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'">
+                {{ prenotazione.stato }}
               </div>
             </div>
           }
@@ -212,15 +212,15 @@
         <div class="review-modal-body">
           @if (selectedBookingForReview) {
             <div class="target-tutor">
-              @if (selectedBookingForReview.tutorAvatar) {
-                <img [src]="selectedBookingForReview.tutorAvatar" alt="Tutor Avatar" />
+              @if (selectedBookingForReview.avatarTutor) {
+                <img [src]="selectedBookingForReview.avatarTutor" alt="Tutor immagineProfilo" />
               } @else {
                 <div class="avatar-placeholder">
-                  {{ selectedBookingForReview.tutorName[0] }}
+                  {{ selectedBookingForReview.nomeTutor[0] }}
                 </div>
               }
-              <h3>{{ selectedBookingForReview.tutorName }}</h3>
-              <p>{{ selectedBookingForReview.subject }}</p>
+              <h3>{{ selectedBookingForReview.nomeTutor }}</h3>
+              <p>{{ selectedBookingForReview.materia }}</p>
             </div>
 
             <div class="stars-rating-container">
@@ -256,7 +256,7 @@
     <ng-template>
       <ion-header class="ion-no-border modal-header">
         <ion-toolbar>
-          <ion-title>{{ selectedMaterialPreview?.title }}</ion-title>
+          <ion-title>{{ selectedMaterialPreview?.titolo }}</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="chiudiAnteprimaMateriale()" class="close-modal-btn">
               <ion-icon name="close-outline"></ion-icon>
@@ -267,15 +267,15 @@
 
       <ion-content class="modal-content-bg">
         <div class="preview-material-body">
-          @if (selectedMaterialPreview?.isPdfPreview) {
+          @if (selectedMaterialPreview?.anteprimaPdf) {
             <iframe
-              [src]="selectedMaterialPreview?.previewUrl"
+              [src]="selectedMaterialPreview?.urlAnteprima"
               title="Anteprima materiale"
               class="material-preview-frame">
             </iframe>
-          } @else if (selectedMaterialPreview?.previewUrl) {
+          } @else if (selectedMaterialPreview?.urlAnteprima) {
             <img
-              [src]="selectedMaterialPreview?.previewUrl"
+              [src]="selectedMaterialPreview?.urlAnteprima"
               alt="Anteprima materiale"
               class="material-preview-image" />
           }
@@ -334,3 +334,6 @@
   </ion-action-sheet>
 
 </ion-content>
+
+
+

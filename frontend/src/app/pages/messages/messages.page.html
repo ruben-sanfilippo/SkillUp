@@ -29,24 +29,24 @@
                   (click)="selezionaChat(chat)">
                   
                   <div class="avatar-sidebar-wrapper">
-                    @if (chat.avatar) {
-                      <img [src]="chat.avatar" [alt]="chat.name" />
+                    @if (chat.immagineProfilo) {
+                      <img [src]="chat.immagineProfilo" [alt]="chat.nome" />
                     } @else {
-                      <div class="avatar-initials">{{ iniziali(chat.name) }}</div>
+                      <div class="avatar-initials">{{ iniziali(chat.nome) }}</div>
                     }
-                    @if (chat.unread) {
+                    @if (chat.nonLetta) {
                       <span class="unread-dot"></span>
                     }
                   </div>
 
                   <div class="chat-item-body">
                     <div class="chat-item-top">
-                      <h4>{{ chat.name }}</h4>
-                      <span class="chat-time">{{ chat.lastMessageTime }}</span>
+                      <h4>{{ chat.nome }}</h4>
+                      <span class="chat-time">{{ chat.ultimoMessaggioOrario }}</span>
                     </div>
                     <div class="chat-item-bottom">
                       <p class="last-message">
-                        {{ chat.lastMessageText }}
+                        {{ chat.ultimoMessaggioTesto }}
                       </p>
                     </div>
                   </div>
@@ -74,25 +74,25 @@
 
               <div class="active-user-profile">
                 <div class="avatar-active-chat">
-                  @if (activeChat.avatar) {
-                    <img [src]="activeChat.avatar" [alt]="activeChat.name" />
+                  @if (activeChat.immagineProfilo) {
+                    <img [src]="activeChat.immagineProfilo" [alt]="activeChat.nome" />
                   } @else {
-                    <div class="avatar-initials">{{ iniziali(activeChat.name) }}</div>
+                    <div class="avatar-initials">{{ iniziali(activeChat.nome) }}</div>
                   }
                 </div>
                 <div class="user-meta-info">
-                  <h3>{{ activeChat.name }}</h3>
+                  <h3>{{ activeChat.nome }}</h3>
                 </div>
               </div>
             </header>
 
             <div class="messages-scroll-area" id="messagesContainer">
               <div class="messages-thread">
-                @for (msg of activeChat.messages; track msg.id) {
-                  <div class="message-row" [class.msg-sent]="msg.sender === 'student'" [class.msg-received]="msg.sender === 'tutor'">
+                @for (msg of activeChat.messaggi; track msg.id) {
+                  <div class="message-row" [class.msg-sent]="msg.mittente === 'studente'" [class.msg-received]="msg.mittente === 'tutor'">
                     <div class="message-bubble">
-                      <p class="msg-text">{{ msg.text }}</p>
-                      <span class="msg-meta">{{ msg.time }}</span>
+                      <p class="msg-text">{{ msg.testo }}</p>
+                      <span class="msg-meta">{{ msg.orario }}</span>
                     </div>
                   </div>
                 }

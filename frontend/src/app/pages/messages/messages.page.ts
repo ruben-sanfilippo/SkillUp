@@ -9,25 +9,10 @@ import { PlatformService } from 'src/app/services/platformService';
 import { environment } from 'src/environments/environment';
 import { io, Socket } from 'socket.io-client';
 import { Subscription } from 'rxjs';
-
-interface Message {
-  id: string | number;
-  text: string;
-  time: string;
-  sender: 'student' | 'tutor';
-}
-
-interface Chat {
-  id: string | number;
-  userId: number;
-  name: string;
-  avatar: string;
-  lastMessageText: string;
-  lastMessageTime: string;
-  lastMessageAt: string;
-  unread: boolean;
-  messages: Message[];
-}
+import type {
+  ConversazioneChat,
+  MessaggioChat,
+} from 'src/app/interfaces/messages.interfaces';
 
 @Component({
   selector: 'app-messages',
@@ -40,14 +25,14 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
 
   searchQuery: string = '';
   newMessageText: string = '';
-  activeChat: Chat | null = null;
-  filteredChats: Chat[] = [];
+  activeChat: ConversazioneChat | null = null;
+  filteredChats: ConversazioneChat[] = [];
   
   // Variabile di controllo di navigazione per Smartphone
   isChatOpen: boolean = false;
 
   // Nomi puliti senza la dicitura (Tutor)
-  chats: Chat[] = [];
+  chats: ConversazioneChat[] = [];
   currentUserId = 0;
   private socket?: Socket;
   private queryParamsSub?: Subscription;
@@ -98,19 +83,19 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     const conversations = await this.platformService.getConversations();
     this.chats = conversations.map((chat) => ({
       id: chat.id,
-      userId: chat.id,
-      name: `${chat.nome} ${chat.cognome}`,
-      avatar: chat.immagine_profilo || '',
-      lastMessageText: chat.lastMessageText || '',
-      lastMessageTime: chat.lastMessageTime
+      utenteId: chat.id,
+      nome: `${chat.nome} ${chat.cognome}`,
+      immagineProfilo: chat.immagine_profilo || '',
+      ultimoMessaggioTesto: chat.lastMessageText || '',
+      ultimoMessaggioOrario: chat.lastMessageTime
         ? new Date(chat.lastMessageTime).toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
           })
         : '',
-      lastMessageAt: chat.lastMessageTime || '',
-      unread: Number(chat.unreadCount || 0) > 0,
-      messages: [],
+      ultimoMessaggioData: chat.lastMessageTime || '',
+      nonLetta: Number(chat.unreadCount || 0) > 0,
+      messaggi: [],
     }));
     this.ordinaConversazioni();
     this.filteredChats = [...this.chats];
@@ -126,16 +111,16 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
       this.filteredChats = [...this.chats];
     } else {
       this.filteredChats = this.chats.filter(chat =>
-        chat.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        chat.lastMessageText.toLowerCase().includes(this.searchQuery.toLowerCase())
+        chat.nome.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        chat.ultimoMessaggioTesto.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     }
   }
 
-  async selezionaChat(chat: Chat) {
-    const messages = await this.platformService.getMessages(chat.userId);
-    chat.messages = messages.map((msg) => this.mappaMessaggio(msg));
-    chat.unread = false;
+  async selezionaChat(chat: ConversazioneChat) {
+    const messages = await this.platformService.getMessages(chat.utenteId);
+    chat.messaggi = messages.map((msg) => this.mappaMessaggio(msg));
+    chat.nonLetta = false;
     this.activeChat = chat;
     this.isChatOpen = true; 
     this.notificaMessaggiNonLetti();
@@ -152,21 +137,21 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
 
     const testo = this.newMessageText.trim();
     const messages = await this.platformService.sendMessage(
-      this.activeChat.userId,
+      this.activeChat.utenteId,
       testo,
     );
-    this.activeChat.messages = messages.map((msg) => this.mappaMessaggio(msg));
-    this.activeChat.lastMessageText = testo;
+    this.activeChat.messaggi = messages.map((msg) => this.mappaMessaggio(msg));
+    this.activeChat.ultimoMessaggioTesto = testo;
     const ultimoMessaggio = messages[messages.length - 1];
-    this.activeChat.lastMessageAt =
+    this.activeChat.ultimoMessaggioData =
       ultimoMessaggio?.data_invio || new Date().toISOString();
-    this.activeChat.lastMessageTime = new Date(
-      this.activeChat.lastMessageAt,
+    this.activeChat.ultimoMessaggioOrario = new Date(
+      this.activeChat.ultimoMessaggioData,
     ).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
-    this.activeChat.unread = false;
+    this.activeChat.nonLetta = false;
     this.aggiungiChatSeMancante(this.activeChat);
     this.ordinaConversazioni();
     this.filtraChat();
@@ -192,17 +177,17 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  private mappaMessaggio(msg: any): Message {
+  private mappaMessaggio(msg: any): MessaggioChat {
     return {
       id: msg.id,
-      text: msg.contenuto,
-      time: new Date(msg.data_invio).toLocaleTimeString([], {
+      testo: msg.contenuto,
+      orario: new Date(msg.data_invio).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
       }),
-      sender:
+      mittente:
         Number(msg.mittente_id) === Number(this.currentUserId)
-          ? 'student'
+          ? 'studente'
           : 'tutor',
     };
   }
@@ -223,34 +208,34 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
         ? Number(msg.destinatario_id)
         : Number(msg.mittente_id);
 
-    let chat: Chat | null | undefined = this.chats.find(
-      (item) => Number(item.userId) === otherUserId,
+    let chat: ConversazioneChat | null | undefined = this.chats.find(
+      (item) => Number(item.utenteId) === otherUserId,
     );
     if (!chat) {
       chat = await this.creaChatDaUtente(otherUserId);
     }
     if (!chat) return;
 
-    chat.lastMessageText = msg.contenuto;
-    chat.lastMessageAt = msg.data_invio || new Date().toISOString();
-    chat.lastMessageTime = new Date(msg.data_invio).toLocaleTimeString([], {
+    chat.ultimoMessaggioTesto = msg.contenuto;
+    chat.ultimoMessaggioData = msg.data_invio || new Date().toISOString();
+    chat.ultimoMessaggioOrario = new Date(msg.data_invio).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
 
-    const isActive = Number(this.activeChat?.userId) === otherUserId;
+    const isActive = Number(this.activeChat?.utenteId) === otherUserId;
     if (isActive) {
-      const exists = this.activeChat!.messages.some(
+      const exists = this.activeChat!.messaggi.some(
         (message) => Number(message.id) === Number(msg.id),
       );
       if (!exists) {
-        this.activeChat!.messages.push(this.mappaMessaggio(msg));
+        this.activeChat!.messaggi.push(this.mappaMessaggio(msg));
       }
-      chat.unread = false;
+      chat.nonLetta = false;
       await this.platformService.markMessagesRead(otherUserId);
       setTimeout(() => this.scrollToBottom(), 50);
     } else if (Number(msg.mittente_id) !== Number(this.currentUserId)) {
-      chat.unread = true;
+      chat.nonLetta = true;
     }
 
     this.notificaMessaggiNonLetti();
@@ -261,8 +246,8 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   private async apriChatDaUserId(userId: number | string) {
     if (Number(userId) === Number(this.currentUserId)) return;
 
-    let chatDaAprire: Chat | null | undefined = this.chats.find(
-      (chat) => Number(chat.userId) === Number(userId),
+    let chatDaAprire: ConversazioneChat | null | undefined = this.chats.find(
+      (chat) => Number(chat.utenteId) === Number(userId),
     );
 
     if (!chatDaAprire) {
@@ -277,19 +262,19 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   private async creaChatDaUtente(
     userId: number | string,
     aggiungiAllaLista = true,
-  ): Promise<Chat | null> {
+  ): Promise<ConversazioneChat | null> {
     try {
       const user = await this.platformService.getUser(userId);
-      const chat: Chat = {
+      const chat: ConversazioneChat = {
         id: user.id,
-        userId: user.id,
-        name: `${user.nome} ${user.cognome}`,
-        avatar: user.immagine_profilo || '',
-        lastMessageText: '',
-        lastMessageTime: '',
-        lastMessageAt: '',
-        unread: false,
-        messages: [],
+        utenteId: user.id,
+        nome: `${user.nome} ${user.cognome}`,
+        immagineProfilo: user.immagine_profilo || '',
+        ultimoMessaggioTesto: '',
+        ultimoMessaggioOrario: '',
+        ultimoMessaggioData: '',
+        nonLetta: false,
+        messaggi: [],
       };
       if (aggiungiAllaLista) {
         this.aggiungiChatSeMancante(chat);
@@ -304,28 +289,28 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
 
   private ordinaConversazioni() {
     this.chats = [...this.chats].sort((a, b) => {
-      if (a.unread !== b.unread) return a.unread ? -1 : 1;
+      if (a.nonLetta !== b.nonLetta) return a.nonLetta ? -1 : 1;
       return this.timestampChat(b) - this.timestampChat(a);
     });
   }
 
-  private aggiungiChatSeMancante(chat: Chat) {
+  private aggiungiChatSeMancante(chat: ConversazioneChat) {
     const exists = this.chats.some(
-      (item) => Number(item.userId) === Number(chat.userId),
+      (item) => Number(item.utenteId) === Number(chat.utenteId),
     );
     if (!exists) {
       this.chats = [chat, ...this.chats];
     }
   }
 
-  private timestampChat(chat: Chat): number {
-    if (!chat.lastMessageAt) return 0;
-    const timestamp = new Date(chat.lastMessageAt).getTime();
+  private timestampChat(chat: ConversazioneChat): number {
+    if (!chat.ultimoMessaggioData) return 0;
+    const timestamp = new Date(chat.ultimoMessaggioData).getTime();
     return Number.isNaN(timestamp) ? 0 : timestamp;
   }
 
   private notificaMessaggiNonLetti() {
-    const hasUnread = this.chats.some((chat) => chat.unread);
+    const hasUnread = this.chats.some((chat) => chat.nonLetta);
     localStorage.setItem('skillup_messaggi_non_letti', hasUnread ? '1' : '0');
     window.dispatchEvent(
       new CustomEvent('skillup-messaggi-non-letti', {

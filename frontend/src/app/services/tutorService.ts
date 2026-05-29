@@ -2,40 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import type {
+  DatiMaterialeDidattico,
+  DisponibilitaTutor,
+  FiltriRicerca,
+} from '../interfaces/tutor.interfaces';
 
-export interface FiltriRicerca {
-  testo: string;
-  materie: string[];
-  lingue: string[];
-  prezzoMin: number;
-  prezzoMax: number;
-  dataDa: string;
-  dataA: string;
-}
-
-export interface DisponibilitaTutor {
-  id?: number;
-  data: string;
-  giorno_settimana?: string;
-  materia_id?: number;
-  materia?: string;
-  attivo?: boolean;
-  dalle?: string;
-  alle?: string;
-  ora_inizio?: string;
-  ora_fine?: string;
-  tariffa_oraria?: number;
-}
-
-export interface MaterialeDidatticoPayload {
-  titolo: string;
-  descrizione: string;
-  materia?: string;
-  file_url: string;
-  anteprima_url?: string;
-  copertina_url?: string;
-  importo: number;
-}
+export type {
+  DatiMaterialeDidattico,
+  DisponibilitaTutor,
+  FiltriRicerca,
+} from '../interfaces/tutor.interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -73,9 +50,17 @@ export class TutorService {
     );
   }
 
-  createMaterial(payload: MaterialeDidatticoPayload) {
+  createMaterial(payload: DatiMaterialeDidattico) {
     return firstValueFrom(
-      this.http.post<any>(`${environment.apiUrl}/api/materials`, payload),
+      this.http.post<any>(`${environment.apiUrl}/api/materials`, {
+        titolo: payload.titolo,
+        descrizione: payload.descrizione,
+        materia: payload.materia,
+        file_url: payload.urlFile,
+        anteprima_url: payload.urlAnteprima,
+        copertina_url: payload.urlCopertina,
+        importo: payload.importo,
+      }),
     );
   }
 

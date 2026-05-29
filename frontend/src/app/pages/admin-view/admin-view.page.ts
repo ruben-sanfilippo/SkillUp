@@ -17,18 +17,7 @@ import {
   logOutOutline,
 } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
-
-interface AdminUser {
-  id: string | number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  avatar: string;
-  role: 'Studente' | 'Tutor';
-  registrationDate: Date;
-  formattedRegistrationDate: string;
-  status: 'Attivo' | 'Bloccato';
-}
+import type { UtenteAdmin } from 'src/app/interfaces/admin.interfaces';
 
 @Component({
   selector: 'app-filter-popover',
@@ -123,7 +112,7 @@ export class AdminViewPage implements OnInit {
   mostraStudenti = signal(true);
   mostraTutor = signal(true);
 
-  masterUsersList = signal<AdminUser[]>([]);
+  masterUsersList = signal<UtenteAdmin[]>([]);
 
   constructor(
     private popoverCtrl: PopoverController,
@@ -155,7 +144,7 @@ export class AdminViewPage implements OnInit {
 
   totalUsersCount = computed(() => this.masterUsersList().length);
   blockedUsersCount = computed(
-    () => this.masterUsersList().filter((u) => u.status === 'Bloccato').length,
+    () => this.masterUsersList().filter((u) => u.stato === 'Bloccato').length,
   );
 
   filteredUsersList = computed(() => {
@@ -163,19 +152,19 @@ export class AdminViewPage implements OnInit {
     const s = this.mostraStudenti();
     const t = this.mostraTutor();
     return this.masterUsersList().filter((u) => {
-      if (u.role === 'Studente' && !s) return false;
-      if (u.role === 'Tutor' && !t) return false;
+      if (u.ruolo === 'Studente' && !s) return false;
+      if (u.ruolo === 'Tutor' && !t) return false;
       if (!q) return true;
       return (
-        u.firstName.toLowerCase().includes(q) ||
-        u.lastName.toLowerCase().includes(q) ||
+        u.nome.toLowerCase().includes(q) ||
+        u.cognome.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
-        u.role.toLowerCase().includes(q)
+        u.ruolo.toLowerCase().includes(q)
       );
     });
   });
 
-  async cambiaStatoUtente(user: AdminUser, nuovoStato: 'Attivo' | 'Bloccato') {
+  async cambiaStatoUtente(user: UtenteAdmin, nuovoStato: 'Attivo' | 'Bloccato') {
     const stato = nuovoStato === 'Attivo' ? 'attivo' : 'bloccato';
     const users = await this.platformService.updateUserStatus(user.id, stato);
     this.masterUsersList.set(users.map((u) => this.mappaUtente(u)));
@@ -203,7 +192,7 @@ export class AdminViewPage implements OnInit {
     }
   }
 
-  async apriMenuOpzioni(user: AdminUser, event: Event) {
+  async apriMenuOpzioni(user: UtenteAdmin, event: Event) {
     event.stopPropagation();
     const pop = await this.popoverCtrl.create({
       component: OptionsPopoverComponent,
@@ -224,24 +213,24 @@ export class AdminViewPage implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  private mappaUtente(user: any): AdminUser {
+  private mappaUtente(user: any): UtenteAdmin {
     const data = user.data_iscrizione
       ? new Date(user.data_iscrizione)
       : new Date();
     return {
       id: user.id,
-      firstName: user.nome,
-      lastName: user.cognome,
+      nome: user.nome,
+      cognome: user.cognome,
       email: user.email,
-      avatar: user.immagine_profilo || '',
-      role: user.tipologia_utente === 'tutor' ? 'Tutor' : 'Studente',
-      registrationDate: data,
-      formattedRegistrationDate: data.toLocaleDateString('it-IT', {
+      immagineProfilo: user.immagine_profilo || '',
+      ruolo: user.tipologia_utente === 'tutor' ? 'Tutor' : 'Studente',
+      dataIscrizione: data,
+      dataIscrizioneFormattata: data.toLocaleDateString('it-IT', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
       }),
-      status: user.stato === 'bloccato' ? 'Bloccato' : 'Attivo',
+      stato: user.stato === 'bloccato' ? 'Bloccato' : 'Attivo',
     };
   }
 }

@@ -80,39 +80,39 @@
                   <div class="td-cell col-user">
                     <div class="user-cell">
                       <div class="avatar-holder">
-                        @if (user.avatar) {
-                          <img [src]="user.avatar" alt="Avatar" />
+                        @if (user.immagineProfilo) {
+                          <img [src]="user.immagineProfilo" alt="Avatar" />
                         } @else {
                           <div class="avatar-placeholder">
-                            {{ user.firstName[0] }}{{ user.lastName[0] }}
+                            {{ user.nome[0] }}{{ user.cognome[0] }}
                           </div>
                         }
                       </div>
                       <div class="user-meta">
-                        <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+                        <h4>{{ user.nome }} {{ user.cognome }}</h4>
                         <p>{{ user.email }}</p>
                       </div>
                     </div>
                   </div>
                   
                   <div class="td-cell col-role">
-                    <span class="role-text">{{ user.role }}</span>
+                    <span class="role-text">{{ user.ruolo }}</span>
                   </div>
                   
                   <div class="td-cell col-date">
-                    <span class="date-text">{{ user.formattedRegistrationDate }}</span>
+                    <span class="date-text">{{ user.dataIscrizioneFormattata }}</span>
                   </div>
                   
                   <div class="td-cell col-status">
-                    <span class="status-badge" [class.status-active]="user.status === 'Attivo'" [class.status-blocked]="user.status === 'Bloccato'">
+                    <span class="status-badge" [class.status-active]="user.stato === 'Attivo'" [class.status-blocked]="user.stato === 'Bloccato'">
                       <span class="dot"></span>
-                      {{ user.status }}
+                      {{ user.stato }}
                     </span>
                   </div>
                   
                   <div class="td-cell col-actions">
                     <div class="actions-cell">
-                      @if (user.status === 'Attivo') {
+                      @if (user.stato === 'Attivo') {
                         <button class="btn-table-action btn-danger-action" (click)="cambiaStatoUtente(user, 'Bloccato')">
                           Disabilita
                         </button>

@@ -127,16 +127,16 @@
               @for (vuoto of spaziVuotiIniziali; track $index) {
                 <div class="calendar-day-wrapper empty-cell"></div>
               }
-              @for (giorno of giorniDelMese; track giorno.dataString) {
+              @for (giorno of giorniDelMese; track giorno.dataIso) {
                 <div class="calendar-day-wrapper">
                   <div
                     class="calendar-day-circle"
                     [class.is-available]="giorno.info.attivo"
-                    [class.is-selected]="giorno.dataString === giornoSelezionato?.dataString"
+                    [class.is-selected]="giorno.dataIso === giornoSelezionato?.dataIso"
                     (click)="selezionaGiorno(giorno)"
                   >
                     <span class="day-number-text">{{ giorno.giorno }}</span>
-                    @if (giorno.info.attivo && giorno.dataString !== giornoSelezionato?.dataString) {
+                    @if (giorno.info.attivo && giorno.dataIso !== giornoSelezionato?.dataIso) {
                       <span class="time-dot-indicator"></span>
                     }
                   </div>
@@ -256,8 +256,8 @@
               <div class="dispensa-item-card layout-between">
                 <div class="dispensa-main-info">
                   <div class="dispensa-cover-preview">
-                    @if (dispensa.copertinaUrl) {
-                      <img [src]="dispensa.copertinaUrl" alt="Copertina dispensa" />
+                    @if (dispensa.urlCopertina) {
+                      <img [src]="dispensa.urlCopertina" alt="Copertina dispensa" />
                     } @else {
                       <ion-icon name="document-outline"></ion-icon>
                     }
@@ -335,10 +335,10 @@
           </div>
 
           <div class="document-preview-render structural-clean">
-            @if (dispensaInEvidenza?.isPdfPreview) {
+            @if (dispensaInEvidenza?.anteprimaPdf) {
               <div class="pdf-frame-container">
                 <iframe
-                  [src]="dispensaInEvidenza?.anteprimaUrl"
+                  [src]="dispensaInEvidenza?.urlAnteprima"
                   width="100%"
                   height="500px"
                   style="border: none; border-radius: 8px"
@@ -346,17 +346,17 @@
               </div>
             }
 
-            @if (!dispensaInEvidenza?.isPdfPreview && dispensaInEvidenza?.anteprimaUrl) {
+            @if (!dispensaInEvidenza?.anteprimaPdf && dispensaInEvidenza?.urlAnteprima) {
               <div class="image-preview-clean-container">
                 <img
-                  [src]="dispensaInEvidenza?.anteprimaUrl"
+                  [src]="dispensaInEvidenza?.urlAnteprima"
                   alt="Anteprima Immagine"
                   class="real-preview-img-solid"
                 />
               </div>
             }
 
-            @if (!dispensaInEvidenza?.anteprimaUrl) {
+            @if (!dispensaInEvidenza?.urlAnteprima) {
               <div class="mock-page-sheet">
                 <p style="text-align: center; color: var(--neutral-color)">
                   Nessuna anteprima disponibile.
@@ -388,3 +388,4 @@
     </ng-template>
   </ion-modal>
 </ion-content>
+

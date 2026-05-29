@@ -1,14 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-
-type DatiRegistrazione = {
-  nome: string;
-  cognome: string;
-  email: string;
-  password: string;
-  tipologia_utente: string;
-};
+import type { DatiRegistrazione } from '../interfaces/auth.interfaces';
 
 @Injectable({
   providedIn: 'root',

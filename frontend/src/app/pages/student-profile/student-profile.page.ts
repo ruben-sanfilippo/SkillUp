@@ -24,42 +24,11 @@ import {
   keyOutline,
 } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
-
-interface StudentData {
-  firstName: string;
-  lastName: string;
-  avatar: string;
-  about: string;
-  sessionsCompleted: number;
-  studyHours: number;
-}
-
-interface Booking {
-  id: string | number;
-  tutorName: string;
-  tutorAvatar: string;
-  subject: string;
-  date: Date;
-  dataItaliana: string;
-  startTime: string;
-  endTime: string;
-  status: 'IN PROGRAMMA' | 'COMPLETATA';
-  hasReviewed: boolean;
-}
-
-interface Material {
-  id: string | number;
-  title: string;
-  author: string;
-  type: 'pdf' | 'notes';
-  fileLabel: string;
-  sizeInMb: string;
-  fileUrl?: string;
-  coverUrl?: string;
-  previewUrl?: string | SafeResourceUrl;
-  rawPreviewUrl?: string;
-  isPdfPreview?: boolean;
-}
+import type {
+  PrenotazioneProfilo,
+  MaterialeAcquistato,
+  DatiStudente,
+} from 'src/app/interfaces/profile.interfaces';
 
 @Component({
   selector: 'app-student-profile',
@@ -75,20 +44,20 @@ export class StudentProfilePage implements OnInit {
   isAvatarActionSheetOpen = false;
   isPreviewModalOpen = false;
 
-  selectedBookingForReview: Booking | null = null;
-  selectedMaterialPreview: Material | null = null;
+  selectedBookingForReview: PrenotazioneProfilo | null = null;
+  selectedMaterialPreview: MaterialeAcquistato | null = null;
   currentRating: number = 0;
   tempBio: string = '';
   email = '';
 
-  student: StudentData = {
-    firstName: 'Alessandro',
-    lastName: 'Rossi',
-    avatar: '',
-    about:
+  student: DatiStudente = {
+    nome: 'Alessandro',
+    cognome: 'Rossi',
+    immagineProfilo: '',
+    biografia:
       "Appassionato di intelligenza artificiale e machine learning. Sviluppo algoritmi efficienti per l'analisi dati.",
-    sessionsCompleted: 24,
-    studyHours: 112,
+    sessioniCompletate: 24,
+    oreStudio: 112,
   };
 
   public avatarActionSheetButtons = [
@@ -116,9 +85,9 @@ export class StudentProfilePage implements OnInit {
     },
   ];
 
-  recentBookings: Booking[] = [];
-  allBookings: Booking[] = [];
-  purchasedMaterials: Material[] = [];
+  recentBookings: PrenotazioneProfilo[] = [];
+  allBookings: PrenotazioneProfilo[] = [];
+  purchasedMaterials: MaterialeAcquistato[] = [];
 
   constructor(
     private platformService: PlatformService,
@@ -162,42 +131,42 @@ export class StudentProfilePage implements OnInit {
 
     this.email = utente.email || '';
     this.student = {
-      firstName: utente.nome,
-      lastName: utente.cognome,
-      avatar: utente.immagine_profilo || '',
-      about: utente.bio || '',
-      sessionsCompleted: prenotazioni.length,
-      studyHours: prenotazioni.length,
+      nome: utente.nome,
+      cognome: utente.cognome,
+      immagineProfilo: utente.immagine_profilo || '',
+      biografia: utente.bio || '',
+      sessioniCompletate: prenotazioni.length,
+      oreStudio: prenotazioni.length,
     };
 
-    this.allBookings = prenotazioni.map((booking) =>
-      this.mappaPrenotazione(booking),
+    this.allBookings = prenotazioni.map((prenotazione) =>
+      this.mappaPrenotazione(prenotazione),
     );
     this.recentBookings = this.allBookingsSorted.slice(0, 2);
     this.purchasedMaterials = materiali.map((materiale) => ({
       id: materiale.id,
-      title: materiale.titolo,
-      author: materiale.autore,
-      type: this.tipoMateriale(materiale.file_url),
-      fileLabel: this.etichettaFile(materiale.file_url),
-      sizeInMb: this.dimensioneFile(materiale.file_url),
-      fileUrl: materiale.file_url,
-      coverUrl: materiale.copertina_url,
-      rawPreviewUrl: materiale.anteprima_url,
-      previewUrl: this.preparaAnteprima(materiale.anteprima_url),
-      isPdfPreview: this.isPdfDataUrl(materiale.anteprima_url),
+      titolo: materiale.titolo,
+      autore: materiale.autore,
+      tipo: this.tipoMateriale(materiale.file_url),
+      etichettaFile: this.etichettaFile(materiale.file_url),
+      dimensioneMb: this.dimensioneFile(materiale.file_url),
+      urlFile: materiale.file_url,
+      urlCopertina: materiale.copertina_url,
+      urlAnteprimaRaw: materiale.anteprima_url,
+      urlAnteprima: this.preparaAnteprima(materiale.anteprima_url),
+      anteprimaPdf: this.isPdfDataUrl(materiale.anteprima_url),
     }));
   }
 
-  get allBookingsSorted(): Booking[] {
+  get allBookingsSorted(): PrenotazioneProfilo[] {
     const adesso = Date.now();
     return [...this.allBookings].sort((a, b) => {
-      const aFuture = a.date.getTime() >= adesso;
-      const bFuture = b.date.getTime() >= adesso;
+      const aFuture = a.dataOra.getTime() >= adesso;
+      const bFuture = b.dataOra.getTime() >= adesso;
       if (aFuture !== bFuture) return aFuture ? -1 : 1;
       return aFuture
-        ? a.date.getTime() - b.date.getTime()
-        : b.date.getTime() - a.date.getTime();
+        ? a.dataOra.getTime() - b.dataOra.getTime()
+        : b.dataOra.getTime() - a.dataOra.getTime();
     });
   }
 
@@ -205,8 +174,8 @@ export class StudentProfilePage implements OnInit {
     this.isModalOpen = true;
   }
 
-  apriModalRecensione(booking: Booking) {
-    this.selectedBookingForReview = booking;
+  apriModalRecensione(prenotazione: PrenotazioneProfilo) {
+    this.selectedBookingForReview = prenotazione;
     this.currentRating = 0;
     this.isReviewModalOpen = true;
   }
@@ -232,12 +201,12 @@ export class StudentProfilePage implements OnInit {
 
     const bookingInAll = this.allBookings.find((b) => b.id === targetId);
     if (bookingInAll) {
-      bookingInAll.hasReviewed = true;
+      bookingInAll.recensita = true;
     }
 
     const bookingInRecent = this.recentBookings.find((b) => b.id === targetId);
     if (bookingInRecent) {
-      bookingInRecent.hasReviewed = true;
+      bookingInRecent.recensita = true;
     }
 
     localStorage.setItem(
@@ -266,9 +235,9 @@ export class StudentProfilePage implements OnInit {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        this.student.avatar = reader.result as string;
+        this.student.immagineProfilo = reader.result as string;
         this.platformService.updateMe({
-          immagine_profilo: this.student.avatar,
+          immagine_profilo: this.student.immagineProfilo,
         });
       };
       reader.readAsDataURL(file);
@@ -276,13 +245,13 @@ export class StudentProfilePage implements OnInit {
   }
 
   rimuoviAvatar() {
-    this.student.avatar = '';
+    this.student.immagineProfilo = '';
     this.platformService.updateMe({ immagine_profilo: '' });
   }
 
   apriModalBio() {
-    this.tempBio = this.student.about
-      ? this.student.about.substring(0, 200)
+    this.tempBio = this.student.biografia
+      ? this.student.biografia.substring(0, 200)
       : '';
     this.isBioModalOpen = true;
   }
@@ -294,14 +263,14 @@ export class StudentProfilePage implements OnInit {
 
   async salvaBio() {
     if (this.tempBio && this.tempBio.trim() && this.tempBio.length <= 200) {
-      this.student.about = this.tempBio.trim();
-      await this.platformService.updateMe({ bio: this.student.about });
+      this.student.biografia = this.tempBio.trim();
+      await this.platformService.updateMe({ bio: this.student.biografia });
       this.chiudiModalBio();
     }
   }
 
-  apriAnteprimaMateriale(item: Material) {
-    if (!item.previewUrl) return;
+  apriAnteprimaMateriale(item: MaterialeAcquistato) {
+    if (!item.urlAnteprima) return;
     this.selectedMaterialPreview = item;
     this.isPreviewModalOpen = true;
   }
@@ -311,9 +280,9 @@ export class StudentProfilePage implements OnInit {
     setTimeout(() => (this.selectedMaterialPreview = null), 250);
   }
 
-  async scaricaMateriale(item: Material) {
-    const estensione = this.estensioneFile(item.fileUrl);
-    const nomeFile = `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
+  async scaricaMateriale(item: MaterialeAcquistato) {
+    const estensione = this.estensioneFile(item.urlFile);
+    const nomeFile = `${item.titolo.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
     const blob = await this.creaBlobDownload(item);
     const url = window.URL.createObjectURL(blob);
 
@@ -348,28 +317,40 @@ export class StudentProfilePage implements OnInit {
     });
   }
 
-  private mappaPrenotazione(booking: any): Booking {
-    const data = new Date(`${booking.data}T${booking.ora_inizio}:00`);
+  private mappaPrenotazione(prenotazione: any): PrenotazioneProfilo {
+    const data = new Date(`${prenotazione.data}T${prenotazione.ora_inizio}:00`);
+    const nomeTutor =
+      prenotazione.nomeTutor ||
+      prenotazione.tutorName ||
+      [prenotazione.tutor_nome, prenotazione.tutor_cognome].filter(Boolean).join(' ') ||
+      'Tutor';
+    const avatarTutor =
+      prenotazione.avatarTutor ||
+      prenotazione.tutorAvatar ||
+      prenotazione.immagine_profilo_tutor ||
+      prenotazione.tutor_immagine_profilo ||
+      this.avatarTutorPredefinito(nomeTutor);
+
     return {
-      id: booking.id,
-      tutorName: booking.tutorName,
-      tutorAvatar: booking.tutorAvatar || this.avatarTutorPredefinito(booking),
-      subject: booking.materia,
-      date: data,
+      id: prenotazione.id,
+      nomeTutor,
+      avatarTutor,
+      materia: prenotazione.materia,
+      dataOra: data,
       dataItaliana: data.toLocaleDateString('it-IT', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
       }),
-      startTime: booking.ora_inizio,
-      endTime: booking.ora_fine,
-      status: data >= new Date() ? 'IN PROGRAMMA' : 'COMPLETATA',
-      hasReviewed: !!booking.hasReviewed,
+      oraInizio: prenotazione.ora_inizio,
+      oraFine: prenotazione.ora_fine,
+      stato: data >= new Date() ? 'IN PROGRAMMA' : 'COMPLETATA',
+      recensita: !!(prenotazione.recensita || prenotazione.hasReviewed),
     };
   }
 
-  private avatarTutorPredefinito(booking: any): string {
-    const nome = encodeURIComponent(booking.tutorName || 'Tutor');
+  private avatarTutorPredefinito(nomeTutor: string): string {
+    const nome = encodeURIComponent(nomeTutor || 'Tutor');
     return `https://ui-avatars.com/api/?name=${nome}&background=1e40af&color=fff`;
   }
 
@@ -385,8 +366,8 @@ export class StudentProfilePage implements OnInit {
     return !!url && url.startsWith('data:application/pdf');
   }
 
-  private tipoMateriale(url?: string): 'pdf' | 'notes' {
-    return this.mimeDaDataUrl(url).includes('pdf') ? 'pdf' : 'notes';
+  private tipoMateriale(url?: string): 'pdf' | 'appunti' {
+    return this.mimeDaDataUrl(url).includes('pdf') ? 'pdf' : 'appunti';
   }
 
   private etichettaFile(url?: string): string {
@@ -419,14 +400,15 @@ export class StudentProfilePage implements OnInit {
     return match?.[1] || 'text/plain';
   }
 
-  private async creaBlobDownload(item: Material): Promise<Blob> {
-    if (item.fileUrl?.startsWith('data:')) {
-      const response = await fetch(item.fileUrl);
+  private async creaBlobDownload(item: MaterialeAcquistato): Promise<Blob> {
+    if (item.urlFile?.startsWith('data:')) {
+      const response = await fetch(item.urlFile);
       return response.blob();
     }
 
-    return new Blob([`Titolo: ${item.title}\nAutore: ${item.author}`], {
+    return new Blob([`Titolo: ${item.titolo}\nAutore: ${item.autore}`], {
       type: 'text/plain;charset=utf-8',
     });
   }
 }
+

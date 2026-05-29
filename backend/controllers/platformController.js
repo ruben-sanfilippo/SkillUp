@@ -163,7 +163,10 @@ exports.createBooking = async (req, res) => {
     if (!requireRole(req, res, ["studente"])) return;
     const booking = await Platform.createBooking(req.user.id, req.body);
     if (!booking) {
-      return res.status(400).json({ message: "Disponibilità non valida" });
+      return res.status(400).json({
+        message:
+          "La disponibilita scelta non e piu disponibile. Seleziona un altro orario.",
+      });
     }
     if (booking.invalidTime) {
       return res.status(400).json({
@@ -173,7 +176,8 @@ exports.createBooking = async (req, res) => {
     }
     if (booking.invalidSlot) {
       return res.status(400).json({
-        message: "La fascia oraria scelta non rientra nella disponibilita del tutor.",
+        message:
+          "La fascia oraria scelta non e piu disponibile. Seleziona un altro orario.",
       });
     }
     if (booking.invalidSubject) {

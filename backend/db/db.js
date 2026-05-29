@@ -113,6 +113,10 @@ function creaTabelle() {
     );
 
     db.run(`ALTER TABLE Disponibilita_Tutor ADD COLUMN data TEXT`, () => {});
+    db.run(
+      `ALTER TABLE Disponibilita_Tutor ADD COLUMN eliminato INTEGER DEFAULT 0`,
+      () => {},
+    );
 
     //Tabella Prenotazioni
     db.run(

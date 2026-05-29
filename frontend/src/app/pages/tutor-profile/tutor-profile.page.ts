@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
 import {
   personOutline,
@@ -39,33 +39,11 @@ import {
   keyOutline,
 } from 'ionicons/icons';
 import { TutorService } from 'src/app/services/tutorService';
-
-interface Dispensa {
-  id?: number | string;
-  titolo: string;
-  descrizione: string;
-  prezzo: number | null;
-  copertinaUrl?: string;
-  anteprimaUrl?: string | SafeResourceUrl;
-  anteprimaRawUrl?: string;
-  isPdfPreview?: boolean;
-  fileCompleto?: File | null;
-  fileUrl?: string;
-  haAnteprima: boolean;
-  haFileCompleto: boolean;
-}
-
-interface InfoDisponibilita {
-  attivo: boolean;
-  dalle: string;
-  alle: string;
-}
-
-interface GiornoCalendario {
-  giorno: number;
-  dataString: string;
-  info: InfoDisponibilita;
-}
+import type { Dispensa } from 'src/app/interfaces/profile.interfaces';
+import type {
+  GiornoCalendario,
+  InfoDisponibilita,
+} from 'src/app/interfaces/tutor.interfaces';
 
 @Component({
   selector: 'app-tutor-profile',
@@ -75,16 +53,16 @@ interface GiornoCalendario {
   imports: [CommonModule, FormsModule, IonicModule],
 })
 export class TutorProfilePage implements OnInit {
-  nome = 'Ruben';
-  cognome = 'Sanfilippo';
-  biografia = "Ingegnere informatico con passione per l'insegnamento delle materie scientifiche.";
-  mediaRecensioni = 4.8;
-  numeroRecensioni = 24;
-  prezzoOrario = 15;
+  nome = '';
+  cognome = '';
+  biografia = '';
+  mediaRecensioni = 0;
+  numeroRecensioni = 0;
+  prezzoOrario = 0;
   email = '';
 
-  materieSelezionate: string[] = ['Matematica', 'Fisica'];
-  lingueSelezionate: string[] = ['Italiano'];
+  materieSelezionate: string[] = [];
+  lingueSelezionate: string[] = [];
 
   isEditingBiografia = false;
   isEditingLingue = false;
@@ -107,38 +85,58 @@ export class TutorProfilePage implements OnInit {
   databaseDisponibilitaTmp: { [key: string]: InfoDisponibilita } = {};
 
   mesiNomi = [
-    'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    'Gennaio',
+    'Febbraio',
+    'Marzo',
+    'Aprile',
+    'Maggio',
+    'Giugno',
+    'Luglio',
+    'Agosto',
+    'Settembre',
+    'Ottobre',
+    'Novembre',
+    'Dicembre',
   ];
 
   materieDisponibili = [
-    'Matematica', 'Fisica', 'Analisi Matematica 1', 'Informatica', 'Chimica', 'Geometria'
+    'Matematica',
+    'Fisica',
+    'Analisi Matematica 1',
+    'Informatica',
+    'Chimica',
+    'Geometria',
   ];
   materieFiltrate: string[] = [];
   mostraListaMaterie = false;
 
   lingueDisponibili = [
-    'Italiano', 'Inglese', 'Spagnolo', 'Francese', 'Tedesco'
+    'Italiano',
+    'Inglese',
+    'Spagnolo',
+    'Francese',
+    'Tedesco',
   ];
   lingueFiltrate: string[] = [];
   mostraListaLingue = false;
 
   avatarUrl = '';
-  
+
   // Stati per la gestione del menu contestuale dell'avatar
   isActionSheetAvatarOpen = false;
-  @ViewChild('avatarInputHidden') avatarInputHidden!: ElementRef<HTMLInputElement>;
+  @ViewChild('avatarInputHidden')
+  avatarInputHidden!: ElementRef<HTMLInputElement>;
 
   nuovaDispensa: Dispensa = {
     titolo: '',
     descrizione: '',
     prezzo: null,
-    copertinaUrl: '',
-    anteprimaUrl: '',
+    urlCopertina: '',
+    urlAnteprima: '',
     fileCompleto: null,
     haAnteprima: false,
     haFileCompleto: false,
-    isPdfPreview: false,
+    anteprimaPdf: false,
   };
   listaDispense: Dispensa[] = [];
 
@@ -221,11 +219,11 @@ export class TutorProfilePage implements OnInit {
       titolo: materiale.titolo,
       descrizione: materiale.descrizione,
       prezzo: materiale.importo,
-      copertinaUrl: materiale.copertina_url,
-      anteprimaRawUrl: materiale.anteprima_url,
-      anteprimaUrl: this.preparaAnteprima(materiale.anteprima_url),
-      isPdfPreview: this.isPdfDataUrl(materiale.anteprima_url),
-      fileUrl: materiale.file_url,
+      urlCopertina: materiale.copertina_url,
+      urlAnteprimaRaw: materiale.anteprima_url,
+      urlAnteprima: this.preparaAnteprima(materiale.anteprima_url),
+      anteprimaPdf: this.isPdfDataUrl(materiale.anteprima_url),
+      urlFile: materiale.file_url,
       haAnteprima: !!materiale.anteprima_url,
       haFileCompleto: !!materiale.file_url,
       fileCompleto: null,
@@ -258,7 +256,7 @@ export class TutorProfilePage implements OnInit {
 
   get dataFormattataPannello(): string {
     if (!this.giornoSelezionato) return '';
-    const parti = this.giornoSelezionato.dataString.split('-');
+    const parti = this.giornoSelezionato.dataIso.split('-');
     return `${parti[2]} ${this.mesiNomi[parseInt(parti[1]) - 1]} ${parti[0]}`;
   }
 
@@ -318,7 +316,9 @@ export class TutorProfilePage implements OnInit {
     this.spaziVuotiIniziali = Array(nSpaziVuoti).fill(0);
 
     const totaleGiorni = new Date(anno, mese + 1, 0).getDate();
-    const dbAttivo = this.isEditingDisponibilita ? this.databaseDisponibilitaTmp : this.databaseDisponibilita;
+    const dbAttivo = this.isEditingDisponibilita
+      ? this.databaseDisponibilitaTmp
+      : this.databaseDisponibilita;
 
     this.giorniDelMese = [];
     for (let g = 1; g <= totaleGiorni; g++) {
@@ -332,21 +332,24 @@ export class TutorProfilePage implements OnInit {
 
       this.giorniDelMese.push({
         giorno: g,
-        dataString: dataStr,
+        dataIso: dataStr,
         info: dbAttivo[dataStr],
       });
     }
 
     if (this.giornoSelezionato) {
-      const trovato = this.giorniDelMese.find(d => d.dataString === this.giornoSelezionato!.dataString);
+      const trovato = this.giorniDelMese.find(
+        (d) => d.dataIso === this.giornoSelezionato!.dataIso,
+      );
       if (trovato) {
         this.giornoSelezionato = trovato;
       } else {
-        const dataStr = this.giornoSelezionato.dataString;
-        if (!dbAttivo[dataStr]) dbAttivo[dataStr] = { attivo: false, dalle: '09:00', alle: '18:00' };
+        const dataStr = this.giornoSelezionato.dataIso;
+        if (!dbAttivo[dataStr])
+          dbAttivo[dataStr] = { attivo: false, dalle: '09:00', alle: '18:00' };
         this.giornoSelezionato = {
           giorno: parseInt(dataStr.split('-')[2]),
-          dataString: dataStr,
+          dataIso: dataStr,
           info: dbAttivo[dataStr],
         };
       }
@@ -355,7 +358,11 @@ export class TutorProfilePage implements OnInit {
 
   cambiaMese(direzione: number) {
     const nuovoMese = this.dataCorrenteCalendario.getMonth() + direzione;
-    this.dataCorrenteCalendario = new Date(this.dataCorrenteCalendario.getFullYear(), nuovoMese, 1);
+    this.dataCorrenteCalendario = new Date(
+      this.dataCorrenteCalendario.getFullYear(),
+      nuovoMese,
+      1,
+    );
     this.costruisciCalendarioMensile();
   }
 
@@ -365,7 +372,7 @@ export class TutorProfilePage implements OnInit {
 
   isGiornoPassato(giorno: GiornoCalendario | null): boolean {
     if (!giorno) return false;
-    return giorno.dataString < this.dataLocale(new Date());
+    return giorno.dataIso < this.dataLocale(new Date());
   }
 
   attivaModificaLingue() {
@@ -382,7 +389,9 @@ export class TutorProfilePage implements OnInit {
     this.databaseDisponibilitaTmp = {};
 
     for (const key in this.databaseDisponibilita) {
-      this.databaseDisponibilitaTmp[key] = { ...this.databaseDisponibilita[key] };
+      this.databaseDisponibilitaTmp[key] = {
+        ...this.databaseDisponibilita[key],
+      };
     }
 
     this.isEditingDisponibilita = true;
@@ -391,35 +400,48 @@ export class TutorProfilePage implements OnInit {
 
   filtraMaterie(ev: any) {
     const val = ev.target.value.toLowerCase();
-    this.materieFiltrate = this.materieDisponibili.filter(m => m.toLowerCase().includes(val));
+    this.materieFiltrate = this.materieDisponibili.filter((m) =>
+      m.toLowerCase().includes(val),
+    );
   }
 
   filtraLingue(ev: any) {
     const val = ev.target.value.toLowerCase();
-    this.lingueFiltrate = this.lingueDisponibili.filter(l => l.toLowerCase().includes(val));
+    this.lingueFiltrate = this.lingueDisponibili.filter((l) =>
+      l.toLowerCase().includes(val),
+    );
   }
 
   aggiungiMateria(m: string) {
-    if (!this.materieSelezionateTmp.includes(m)) this.materieSelezionateTmp.push(m);
+    if (!this.materieSelezionateTmp.includes(m))
+      this.materieSelezionateTmp.push(m);
     this.mostraListaMaterie = false;
   }
   rimuoviMateria(m: string) {
-    this.materieSelezionateTmp = this.materieSelezionateTmp.filter(item => item !== m);
+    this.materieSelezionateTmp = this.materieSelezionateTmp.filter(
+      (item) => item !== m,
+    );
   }
   aggiungiLingua(l: string) {
-    if (!this.lingueSelezionateTmp.includes(l)) this.lingueSelezionateTmp.push(l);
+    if (!this.lingueSelezionateTmp.includes(l))
+      this.lingueSelezionateTmp.push(l);
     this.mostraListaLingue = false;
   }
   rimuoviLingua(l: string) {
-    this.lingueSelezionateTmp = this.lingueSelezionateTmp.filter(item => item !== l);
+    this.lingueSelezionateTmp = this.lingueSelezionateTmp.filter(
+      (item) => item !== l,
+    );
   }
 
   async mostraPopupErroreOrario() {
     const alert = await this.alertController.create({
       header: 'Orario non valido',
       subHeader: 'Controlla le fasce orarie',
-      message: "L'orario di inizio non può essere successivo o uguale all'orario di fine. Correggi le giornate configurate errate prima di procedere.",
-      buttons: [{ text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' }],
+      message:
+        "L'orario di inizio non può essere successivo o uguale all'orario di fine. Correggi le giornate configurate errate prima di procedere.",
+      buttons: [
+        { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
+      ],
     });
     await alert.present();
   }
@@ -428,8 +450,11 @@ export class TutorProfilePage implements OnInit {
     const alert = await this.alertController.create({
       header: 'Campi incompleti',
       subHeader: 'Impossibile pubblicare',
-      message: 'Per caricare una nuova dispensa devi compilare obbligatoriamente il Titolo, impostare un Prezzo e inserire il File Completo (PDF o ZIP).',
-      buttons: [{ text: 'Ho capito', role: 'cancel', cssClass: 'alert-button-primary' }],
+      message:
+        'Per caricare una nuova dispensa devi compilare obbligatoriamente il Titolo, impostare un Prezzo e inserire il File Completo (PDF o ZIP).',
+      buttons: [
+        { text: 'Ho capito', role: 'cancel', cssClass: 'alert-button-primary' },
+      ],
     });
     await alert.present();
   }
@@ -438,7 +463,9 @@ export class TutorProfilePage implements OnInit {
     const alert = await this.alertController.create({
       header: 'Data non valida',
       message: 'Non puoi aggiungere disponibilita per giorni gia passati.',
-      buttons: [{ text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' }],
+      buttons: [
+        { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
+      ],
     });
     await alert.present();
   }
@@ -453,7 +480,9 @@ export class TutorProfilePage implements OnInit {
     const alert = await this.alertController.create({
       header: 'Disponibilita non salvata',
       message,
-      buttons: [{ text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' }],
+      buttons: [
+        { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
+      ],
     });
     await alert.present();
   }
@@ -462,14 +491,18 @@ export class TutorProfilePage implements OnInit {
     const alert = await this.alertController.create({
       header: 'Disponibilita salvata',
       message: 'Le tue fasce orarie sono state aggiornate correttamente.',
-      buttons: [{ text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' }],
+      buttons: [
+        { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
+      ],
     });
     await alert.present();
   }
 
   async salvaSezione(sezione: string) {
     if (sezione === 'biografia') {
-      this.biografia = this.biografiaTmp ? this.biografiaTmp.substring(0, 200) : '';
+      this.biografia = this.biografiaTmp
+        ? this.biografiaTmp.substring(0, 200)
+        : '';
       await this.tutorService.updateTutorMe({ bio: this.biografia });
       this.isEditingBiografia = false;
     } else if (sezione === 'lingue') {
@@ -478,7 +511,9 @@ export class TutorProfilePage implements OnInit {
       this.isEditingLingue = false;
     } else if (sezione === 'materie') {
       this.materieSelezionate = [...this.materieSelezionateTmp];
-      await this.tutorService.updateTutorMe({ materie: this.materieSelezionate });
+      await this.tutorService.updateTutorMe({
+        materie: this.materieSelezionate,
+      });
       if (this.materieSelezionate.length === 0) {
         this.databaseDisponibilita = {};
         this.databaseDisponibilitaTmp = {};
@@ -508,7 +543,9 @@ export class TutorProfilePage implements OnInit {
       this.databaseDisponibilita = {};
 
       for (const key in this.databaseDisponibilitaTmp) {
-        this.databaseDisponibilita[key] = { ...this.databaseDisponibilitaTmp[key] };
+        this.databaseDisponibilita[key] = {
+          ...this.databaseDisponibilitaTmp[key],
+        };
       }
 
       const disponibilita = Object.entries(this.databaseDisponibilita).map(
@@ -568,7 +605,8 @@ export class TutorProfilePage implements OnInit {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => (this.nuovaDispensa.copertinaUrl = reader.result as string);
+      reader.onload = () =>
+        (this.nuovaDispensa.urlCopertina = reader.result as string);
       reader.readAsDataURL(file);
     }
   }
@@ -580,19 +618,19 @@ export class TutorProfilePage implements OnInit {
         const reader = new FileReader();
         reader.onload = () => {
           const dataUrl = reader.result as string;
-          this.nuovaDispensa.anteprimaRawUrl = dataUrl;
-          this.nuovaDispensa.anteprimaUrl =
+          this.nuovaDispensa.urlAnteprimaRaw = dataUrl;
+          this.nuovaDispensa.urlAnteprima =
             this.sanitizer.bypassSecurityTrustResourceUrl(dataUrl);
-          this.nuovaDispensa.isPdfPreview = true;
+          this.nuovaDispensa.anteprimaPdf = true;
           this.nuovaDispensa.haAnteprima = true;
         };
         reader.readAsDataURL(file);
       } else if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = () => {
-          this.nuovaDispensa.anteprimaRawUrl = reader.result as string;
-          this.nuovaDispensa.anteprimaUrl = this.nuovaDispensa.anteprimaRawUrl;
-          this.nuovaDispensa.isPdfPreview = false;
+          this.nuovaDispensa.urlAnteprimaRaw = reader.result as string;
+          this.nuovaDispensa.urlAnteprima = this.nuovaDispensa.urlAnteprimaRaw;
+          this.nuovaDispensa.anteprimaPdf = false;
           this.nuovaDispensa.haAnteprima = true;
         };
         reader.readAsDataURL(file);
@@ -606,7 +644,7 @@ export class TutorProfilePage implements OnInit {
       const reader = new FileReader();
       reader.onload = () => {
         this.nuovaDispensa.fileCompleto = file;
-        this.nuovaDispensa.fileUrl = reader.result as string;
+        this.nuovaDispensa.urlFile = reader.result as string;
         this.nuovaDispensa.haFileCompleto = true;
       };
       reader.readAsDataURL(file);
@@ -618,7 +656,11 @@ export class TutorProfilePage implements OnInit {
     anteprimaEl: HTMLInputElement,
     fileCompletoEl: HTMLInputElement,
   ) {
-    if (!this.nuovaDispensa.titolo || this.nuovaDispensa.prezzo === null || !this.nuovaDispensa.haFileCompleto) {
+    if (
+      !this.nuovaDispensa.titolo ||
+      this.nuovaDispensa.prezzo === null ||
+      !this.nuovaDispensa.haFileCompleto
+    ) {
       await this.mostraPopupErroreDispensa();
       return;
     }
@@ -627,12 +669,12 @@ export class TutorProfilePage implements OnInit {
       titolo: this.nuovaDispensa.titolo,
       descrizione: this.nuovaDispensa.descrizione,
       prezzo: this.nuovaDispensa.prezzo,
-      copertinaUrl: this.nuovaDispensa.copertinaUrl,
-      anteprimaUrl: this.nuovaDispensa.anteprimaUrl,
-      anteprimaRawUrl: this.nuovaDispensa.anteprimaRawUrl,
-      isPdfPreview: this.nuovaDispensa.isPdfPreview,
+      urlCopertina: this.nuovaDispensa.urlCopertina,
+      urlAnteprima: this.nuovaDispensa.urlAnteprima,
+      urlAnteprimaRaw: this.nuovaDispensa.urlAnteprimaRaw,
+      anteprimaPdf: this.nuovaDispensa.anteprimaPdf,
       fileCompleto: this.nuovaDispensa.fileCompleto,
-      fileUrl: this.nuovaDispensa.fileUrl,
+      urlFile: this.nuovaDispensa.urlFile,
       haAnteprima: this.nuovaDispensa.haAnteprima,
       haFileCompleto: this.nuovaDispensa.haFileCompleto,
     };
@@ -642,19 +684,21 @@ export class TutorProfilePage implements OnInit {
         titolo: dispensaDaSalvare.titolo,
         descrizione: dispensaDaSalvare.descrizione,
         materia: this.materieSelezionate[0],
-        file_url: dispensaDaSalvare.fileUrl || '',
-        anteprima_url: dispensaDaSalvare.anteprimaRawUrl || '',
-        copertina_url: dispensaDaSalvare.copertinaUrl || '',
+        urlFile: dispensaDaSalvare.urlFile || '',
+        urlAnteprima: dispensaDaSalvare.urlAnteprimaRaw || '',
+        urlCopertina: dispensaDaSalvare.urlCopertina || '',
         importo: dispensaDaSalvare.prezzo || 0,
       });
 
-      dispensaDaSalvare.fileUrl = materialeCreato.file_url || dispensaDaSalvare.fileUrl;
+      dispensaDaSalvare.urlFile =
+        materialeCreato.file_url || dispensaDaSalvare.urlFile;
       dispensaDaSalvare.id = materialeCreato.id;
     } catch (error: any) {
       const message =
         error?.status === 413
           ? 'Il file e troppo grande per essere caricato.'
-          : error?.error?.message || 'Non e stato possibile salvare la dispensa.';
+          : error?.error?.message ||
+            'Non e stato possibile salvare la dispensa.';
       await this.mostraPopupErrorePersonalizzato(message);
       return;
     }
@@ -669,14 +713,14 @@ export class TutorProfilePage implements OnInit {
       titolo: '',
       descrizione: '',
       prezzo: null,
-      copertinaUrl: '',
-      anteprimaUrl: '',
-      anteprimaRawUrl: '',
+      urlCopertina: '',
+      urlAnteprima: '',
+      urlAnteprimaRaw: '',
       fileCompleto: null,
-      fileUrl: '',
+      urlFile: '',
       haAnteprima: false,
       haFileCompleto: false,
-      isPdfPreview: false,
+      anteprimaPdf: false,
     };
   }
 
@@ -700,7 +744,8 @@ export class TutorProfilePage implements OnInit {
               );
             } catch (error: any) {
               const message =
-                error?.error?.message || 'Non e stato possibile eliminare la dispensa.';
+                error?.error?.message ||
+                'Non e stato possibile eliminare la dispensa.';
               await this.mostraPopupErrorePersonalizzato(message);
             }
           },
@@ -711,13 +756,13 @@ export class TutorProfilePage implements OnInit {
   }
 
   scaricaFileCompleto(dispensa: Dispensa) {
-    if (!dispensa.fileUrl && !dispensa.fileCompleto) {
+    if (!dispensa.urlFile && !dispensa.fileCompleto) {
       alert('Nessun file scaricabile trovato.');
       return;
     }
 
-    const url = dispensa.fileUrl?.startsWith('data:')
-      ? dispensa.fileUrl
+    const url = dispensa.urlFile?.startsWith('data:')
+      ? dispensa.urlFile
       : URL.createObjectURL(dispensa.fileCompleto as File);
     const link = document.createElement('a');
     link.href = url;
@@ -727,7 +772,7 @@ export class TutorProfilePage implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    if (!dispensa.fileUrl?.startsWith('data:')) {
+    if (!dispensa.urlFile?.startsWith('data:')) {
       URL.revokeObjectURL(url);
     }
   }

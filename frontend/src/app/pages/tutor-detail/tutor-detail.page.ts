@@ -25,39 +25,12 @@ import {
   closeOutline,
 } from 'ionicons/icons';
 import { TutorService } from 'src/app/services/tutorService';
-
-interface InfoDisponibilita {
-  id?: number;
-  attivo: boolean;
-  dalle: string;
-  alle: string;
-  fasce?: FasciaDisponibilita[];
-}
-
-interface MateriaTutor {
-  id: number;
-  nome: string;
-}
-
-interface FasciaDisponibilita {
-  id?: number;
-  dalle: string;
-  alle: string;
-  orariInizio?: string[];
-  orariFinePerInizio?: Record<string, string[]>;
-}
-
-interface SlotPrenotato {
-  materia_id: number;
-  data: string;
-  ora_inizio: string;
-  ora_fine: string;
-}
-interface GiornoCalendario {
-  giorno: number;
-  dataString: string;
-  info: InfoDisponibilita;
-}
+import type {
+  FasciaDisponibilita,
+  GiornoCalendario,
+  MateriaTutor,
+  SlotPrenotato,
+} from 'src/app/interfaces/tutor.interfaces';
 
 @Component({
   selector: 'app-tutor-detail',
@@ -67,18 +40,17 @@ interface GiornoCalendario {
   imports: [CommonModule, FormsModule, IonicModule],
 })
 export class TutorDetailPage implements OnInit {
-  nome = 'Ruben';
-  cognome = 'Sanfilippo';
-  biografia =
-    "Ingegnere informatico con passione per l'insegnamento delle materie scientifiche.";
-  mediaRecensioni = 4.8;
-  numeroRecensioni = 24;
-  prezzoOrario = 15;
+  nome = '';
+  cognome = '';
+  biografia = '';
+  mediaRecensioni = 0;
+  numeroRecensioni = 0;
+  prezzoOrario = 0;
   avatarUrl = '';
-  materie: string[] = ['Matematica', 'Fisica', 'Informatica'];
+  materie: string[] = [];
   materiePrenotabili: MateriaTutor[] = [];
   materiaSelezionataId: number | null = null;
-  lingue: string[] = ['Italiano', 'Inglese'];
+  lingue: string[] = [];
   ruoloUtente = localStorage.getItem('tipologia_utente') || '';
   tutorId: string | null = null;
 
@@ -166,7 +138,12 @@ export class TutorDetailPage implements OnInit {
     this.materiePrenotabili = this.normalizzaMateriePrenotabili(tutor);
     this.materiaSelezionataId = this.materiePrenotabili[0]?.id || null;
     this.lingue = tutor.languages || [];
-    this.slotPrenotati = tutor.bookedSlots || [];
+    this.slotPrenotati = (tutor.bookedSlots || []).map((slot: any) => ({
+      materiaId: slot.materia_id,
+      data: slot.data,
+      oraInizio: slot.ora_inizio,
+      oraFine: slot.ora_fine,
+    }));
 
     this.databaseDisponibilita = this.creaDisponibilitaDaSchedule(
       tutor.availableSchedule || [],
@@ -177,10 +154,10 @@ export class TutorDetailPage implements OnInit {
       titolo: materiale.titolo,
       descrizione: materiale.descrizione,
       prezzo: materiale.importo,
-      copertinaUrl: materiale.copertina_url,
+      urlCopertina: materiale.copertina_url,
       haAnteprima: !!materiale.anteprima_url,
-      isPdfPreview: this.isPdfDataUrl(materiale.anteprima_url),
-      anteprimaUrl: this.preparaAnteprima(materiale.anteprima_url),
+      anteprimaPdf: this.isPdfDataUrl(materiale.anteprima_url),
+      urlAnteprima: this.preparaAnteprima(materiale.anteprima_url),
       acquistato: !!materiale.acquistato,
     }));
   }
@@ -289,7 +266,7 @@ export class TutorDetailPage implements OnInit {
   }
   get dataFormattataPannello(): string {
     if (!this.giornoSelezionato) return '';
-    const parti = this.giornoSelezionato.dataString.split('-');
+    const parti = this.giornoSelezionato.dataIso.split('-');
     return `${parti[2]} ${this.mesiNomi[parseInt(parti[1]) - 1]} ${parti[0]}`;
   }
 
@@ -326,7 +303,7 @@ export class TutorDetailPage implements OnInit {
 
       this.giorniDelMese.push({
         giorno: g,
-        dataString: dataStr,
+        dataIso: dataStr,
         info,
       });
     }
@@ -378,11 +355,13 @@ export class TutorDetailPage implements OnInit {
       if (fascia.orariInizio?.length) {
         orari.push(...fascia.orariInizio);
       } else {
-        orari.push(...this.generaOrariInizioDisponibili(
-          this.giornoSelezionato!.dataString,
-          fascia.dalle,
-          fascia.alle,
-        ));
+        orari.push(
+          ...this.generaOrariInizioDisponibili(
+            this.giornoSelezionato!.dataIso,
+            fascia.dalle,
+            fascia.alle,
+          ),
+        );
       }
     }
 
@@ -452,7 +431,8 @@ export class TutorDetailPage implements OnInit {
               }
               const toast = await this.toastController.create({
                 message:
-                  error?.error?.message || 'Non è stato possibile completare l\'acquisto.',
+                  error?.error?.message ||
+                  "Non è stato possibile completare l'acquisto.",
                 duration: 2500,
                 position: 'bottom',
                 color: error?.status === 409 ? 'primary' : 'danger',
@@ -508,6 +488,10 @@ export class TutorDetailPage implements OnInit {
       return;
     }
 
+    const disponibilitaAncoraValida =
+      await this.verificaDisponibilitaPrimaPrenotazione();
+    if (!disponibilitaAncoraValida) return;
+
     const prezzoLezione = this.calcolaPrezzoLezione();
     const alert = await this.alertController.create({
       header: 'Conferma Prenotazione',
@@ -519,14 +503,18 @@ export class TutorDetailPage implements OnInit {
           cssClass: 'alert-button-primary',
           handler: async () => {
             try {
+              const disponibilitaConfermata =
+                await this.verificaDisponibilitaPrimaPrenotazione();
+              if (!disponibilitaConfermata) return;
+
               await this.tutorService.createBooking({
                 disponibilita_id: this.disponibilitaIdPerPrenotazione(),
                 materia_id: this.materiaSelezionataId,
-                data: this.giornoSelezionato?.dataString,
+                data: this.giornoSelezionato?.dataIso,
                 ora_inizio: this.oraInizioSelezionata,
                 ora_fine: this.oraFineSelezionata,
               });
-              const dataPrenotata = this.giornoSelezionato?.dataString;
+              const dataPrenotata = this.giornoSelezionato?.dataIso;
               const toast = await this.toastController.create({
                 message: 'Prenotazione effettuata con successo.',
                 duration: 2500,
@@ -538,13 +526,15 @@ export class TutorDetailPage implements OnInit {
               this.costruisciCalendarioMensile();
               if (dataPrenotata) {
                 const giornoAggiornato = this.giorniDelMese.find(
-                  (giorno) => giorno.dataString === dataPrenotata,
+                  (giorno) => giorno.dataIso === dataPrenotata,
                 );
                 if (giornoAggiornato) {
                   this.selezionaGiorno(giornoAggiornato);
                 }
               }
             } catch (error: any) {
+              await this.caricaTutor();
+              this.costruisciCalendarioMensile();
               const alertErrore = await this.alertController.create({
                 header: 'Prenotazione non riuscita',
                 message:
@@ -561,9 +551,72 @@ export class TutorDetailPage implements OnInit {
     await alert.present();
   }
 
+  private async verificaDisponibilitaPrimaPrenotazione(): Promise<boolean> {
+    const dataSelezionata = this.giornoSelezionato?.dataIso;
+    const oraInizio = this.oraInizioSelezionata;
+    const oraFine = this.oraFineSelezionata;
+    const materiaId = this.materiaSelezionataId;
+
+    if (!dataSelezionata || !oraInizio || !oraFine || !materiaId) {
+      await this.mostraErroreDisponibilitaNonDisponibile();
+      return false;
+    }
+
+    await this.caricaTutor();
+    this.materiaSelezionataId = this.materiePrenotabili.some(
+      (materia) => Number(materia.id) === Number(materiaId),
+    )
+      ? materiaId
+      : this.materiePrenotabili[0]?.id || null;
+
+    this.costruisciCalendarioMensile();
+
+    const giornoAggiornato = this.giorniDelMese.find(
+      (giorno) => giorno.dataIso === dataSelezionata,
+    );
+
+    if (!giornoAggiornato?.info.attivo) {
+      this.giornoSelezionato = giornoAggiornato || null;
+      this.orariGenerati = [];
+      this.oraInizioSelezionata = '';
+      this.oraFineSelezionata = '';
+      await this.mostraErroreDisponibilitaNonDisponibile();
+      return false;
+    }
+
+    this.selezionaGiorno(giornoAggiornato);
+    this.oraInizioSelezionata = oraInizio;
+
+    const orarioInizioDisponibile = this.orariGenerati.includes(oraInizio);
+    const orarioFineDisponibile = this.orariFineDisponibili.includes(oraFine);
+    const disponibilitaId = this.disponibilitaIdPerPrenotazione();
+
+    if (!orarioInizioDisponibile || !orarioFineDisponibile || !disponibilitaId) {
+      this.sincronizzaOraFine();
+      await this.mostraErroreDisponibilitaNonDisponibile();
+      return false;
+    }
+
+    this.oraFineSelezionata = oraFine;
+    return true;
+  }
+
+  private async mostraErroreDisponibilitaNonDisponibile() {
+    const alertErrore = await this.alertController.create({
+      header: 'Disponibilita non disponibile',
+      message:
+        'La disponibilita scelta non e piu disponibile. Seleziona un altro giorno o un altro orario.',
+      buttons: ['OK'],
+    });
+    await alertErrore.present();
+  }
+
   private puoPrenotareOrario(orario: string): boolean {
     if (!this.giornoSelezionato) return false;
-    return this.puoPrenotareOrarioPerData(this.giornoSelezionato.dataString, orario);
+    return this.puoPrenotareOrarioPerData(
+      this.giornoSelezionato.dataIso,
+      orario,
+    );
   }
 
   private puoPrenotareOrarioPerData(data: string, orario: string): boolean {
@@ -592,7 +645,7 @@ export class TutorDetailPage implements OnInit {
     }
 
     return this.generaOrariFineDisponibili(
-      this.giornoSelezionato.dataString,
+      this.giornoSelezionato.dataIso,
       this.oraInizioSelezionata,
       fascia.alle,
     );
@@ -604,8 +657,13 @@ export class TutorDetailPage implements OnInit {
     }
   }
 
-  private esisteSlotDisponibile(data: string, info: FasciaDisponibilita): boolean {
-    return this.generaOrariInizioDisponibili(data, info.dalle, info.alle).length > 0;
+  private esisteSlotDisponibile(
+    data: string,
+    info: FasciaDisponibilita,
+  ): boolean {
+    return (
+      this.generaOrariInizioDisponibili(data, info.dalle, info.alle).length > 0
+    );
   }
 
   private generaOrariInizioDisponibili(
@@ -668,15 +726,11 @@ export class TutorDetailPage implements OnInit {
 
     return this.slotPrenotati.some((slot) => {
       const stessaData = this.normalizzaData(slot.data) === dataNormalizzata;
-      const slotInizio = this.minutiDaOrario(slot.ora_inizio);
-      const slotFine = this.minutiDaOrario(slot.ora_fine);
+      const slotInizio = this.minutiDaOrario(slot.oraInizio);
+      const slotFine = this.minutiDaOrario(slot.oraFine);
       if (slotInizio === null || slotFine === null) return false;
 
-      return (
-        stessaData &&
-        slotInizio < fineMinuti &&
-        slotFine > inizioMinuti
-      );
+      return stessaData && slotInizio < fineMinuti && slotFine > inizioMinuti;
     });
   }
 
@@ -690,7 +744,12 @@ export class TutorDetailPage implements OnInit {
       this.giornoSelezionato.info.fasce?.find((fascia) => {
         const dalle = this.minutiDaOrario(fascia.dalle);
         const alle = this.minutiDaOrario(fascia.alle);
-        return dalle !== null && alle !== null && orarioMinuti >= dalle && orarioMinuti < alle;
+        return (
+          dalle !== null &&
+          alle !== null &&
+          orarioMinuti >= dalle &&
+          orarioMinuti < alle
+        );
       }) || null
     );
   }
@@ -718,7 +777,10 @@ export class TutorDetailPage implements OnInit {
   }
 
   private minutiDaOrario(orario: string): number | null {
-    const parti = String(orario || '').split(':').slice(0, 2).map(Number);
+    const parti = String(orario || '')
+      .split(':')
+      .slice(0, 2)
+      .map(Number);
     if (parti.length < 2 || parti.some((parte) => Number.isNaN(parte))) {
       return null;
     }
@@ -735,7 +797,9 @@ export class TutorDetailPage implements OnInit {
   }
 
   private orarioDaMinuti(minutiTotali: number): string {
-    const ore = Math.floor(minutiTotali / 60).toString().padStart(2, '0');
+    const ore = Math.floor(minutiTotali / 60)
+      .toString()
+      .padStart(2, '0');
     const minuti = (minutiTotali % 60).toString().padStart(2, '0');
     return `${ore}:${minuti}`;
   }

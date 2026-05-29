@@ -139,7 +139,7 @@ export class TutorDashboardPage implements OnInit {
 
   contattaStudente(lezione: ProssimaLezione) {
     this.router.navigate(['/tabs/messages'], {
-      queryParams: { userId: lezione.studente_id },
+      queryParams: { userId: lezione.studenteId },
     });
   }
 

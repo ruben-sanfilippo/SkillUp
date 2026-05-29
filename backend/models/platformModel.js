@@ -218,7 +218,9 @@ const Platform = {
       LEFT JOIN Materie m ON m.id = tm.materia_id
       LEFT JOIN Tutor_Lingue tl ON tl.tutor_id = t.utente_id
       LEFT JOIN Lingue l ON l.id = tl.lingua_id
-      LEFT JOIN Disponibilita_Tutor dt ON dt.tutor_id = t.utente_id
+      LEFT JOIN Disponibilita_Tutor dt
+        ON dt.tutor_id = t.utente_id
+       AND COALESCE(dt.eliminato, 0) = 0
       LEFT JOIN Recensione r ON r.tutor_id = t.utente_id
       WHERE u.stato = 'attivo'
       GROUP BY u.id
@@ -292,6 +294,7 @@ const Platform = {
         FROM Disponibilita_Tutor dt
         JOIN Materie m ON m.id = dt.materia_id
         WHERE dt.tutor_id = ?
+          AND COALESCE(dt.eliminato, 0) = 0
         GROUP BY dt.data, dt.giorno_settimana, dt.ora_inizio, dt.ora_fine,
                  dt.tariffa_oraria, m.id, m.nome
         ORDER BY dt.data ASC, dt.ora_inizio ASC
@@ -443,9 +446,15 @@ const Platform = {
     }
 
     await run(
+      `UPDATE Disponibilita_Tutor SET eliminato = 1 WHERE tutor_id = ?`,
+      [tutorId],
+    );
+
+    await run(
       `
         DELETE FROM Disponibilita_Tutor
         WHERE tutor_id = ?
+          AND COALESCE(eliminato, 0) = 1
           AND id NOT IN (
             SELECT DISTINCT disponibilita_id
             FROM Prenotazioni
@@ -464,8 +473,8 @@ const Platform = {
         await run(
           `
             INSERT INTO Disponibilita_Tutor
-            (tutor_id, materia_id, data, giorno_settimana, ora_inizio, ora_fine, tariffa_oraria)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (tutor_id, materia_id, data, giorno_settimana, ora_inizio, ora_fine, tariffa_oraria, eliminato)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
           `,
           [
             tutorId,
@@ -506,7 +515,23 @@ const Platform = {
       }
 
       if (data.materie.length === 0) {
-        await run(`DELETE FROM Disponibilita_Tutor WHERE tutor_id = ?`, [tutorId]);
+        await run(
+          `UPDATE Disponibilita_Tutor SET eliminato = 1 WHERE tutor_id = ?`,
+          [tutorId],
+        );
+        await run(
+          `
+            DELETE FROM Disponibilita_Tutor
+            WHERE tutor_id = ?
+              AND COALESCE(eliminato, 0) = 1
+              AND id NOT IN (
+                SELECT DISTINCT disponibilita_id
+                FROM Prenotazioni
+                WHERE disponibilita_id IS NOT NULL
+              )
+          `,
+          [tutorId],
+        );
       }
     }
 
@@ -638,7 +663,12 @@ const Platform = {
 
   async createBooking(studenteId, data) {
     const disponibilitaRichiesta = await get(
-      `SELECT * FROM Disponibilita_Tutor WHERE id = ?`,
+      `
+        SELECT *
+        FROM Disponibilita_Tutor
+        WHERE id = ?
+          AND COALESCE(eliminato, 0) = 0
+      `,
       [data.disponibilita_id],
     );
     if (!disponibilitaRichiesta) return null;
@@ -674,6 +704,7 @@ const Platform = {
           AND data = ?
           AND ora_inizio <= ?
           AND ora_fine >= ?
+          AND COALESCE(eliminato, 0) = 0
         LIMIT 1
       `,
       [
