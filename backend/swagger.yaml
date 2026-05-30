@@ -2,93 +2,1489 @@ openapi: 3.0.0
 info:
   title: API SkillUp
   version: 1.0.0
-  description: Documentazione dei servizi di autenticazione per SkillUp
+  description: Documentazione completa delle API SkillUp con esempi in italiano.
 servers:
   - url: http://localhost:3000
     description: Server di sviluppo locale
+
+tags:
+  - name: Autenticazione
+  - name: Utenti
+  - name: Tutor
+  - name: Materiali didattici
+  - name: Prenotazioni
+  - name: Recensioni
+  - name: Messaggi
+  - name: Amministrazione
+  - name: Dashboard
 
 paths:
   /api/auth/register:
     post:
       summary: Registra un nuovo utente
-      tags:
-        - Autenticazione
+      tags: [Autenticazione]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RegisterInput"
+              $ref: "#/components/schemas/RegistrazioneInput"
+            example:
+              nome: salvo
+              cognome: rossi
+              email: salvo.rossi@example.com
+              password: Password123
+              tipologia_utente: studente
       responses:
         "201":
-          description: Utente creato con successo
+          description: Registrazione completata
+          content:
+            application/json:
+              example:
+                message: Registrazione completata!
         "400":
-          description: Dati non validi o utente già esistente
+          $ref: "#/components/responses/RichiestaNonValida"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
 
   /api/auth/login:
     post:
       summary: Effettua il login
-      tags:
-        - Autenticazione
+      tags: [Autenticazione]
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/LoginInput"
+            example:
+              email: admin@admin.com
+              password: admin
       responses:
         "200":
-          description: Login effettuato, ritorna il token JWT
+          description: Login effettuato
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
+                $ref: "#/components/schemas/LoginResponse"
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                tipologia_utente: amministratore
+        "400":
+          description: Credenziali non valide
+          content:
+            application/json:
+              example:
+                message: Credenziali non valide
+        "403":
+          $ref: "#/components/responses/AccountBloccato"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/auth/password/otp:
+    post:
+      summary: Richiede un codice OTP per recupero o modifica password
+      tags: [Autenticazione]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RichiestaOtpInput"
+            example:
+              email: studente@example.com
+      responses:
+        "200":
+          description: OTP inviato
+          content:
+            application/json:
+              example:
+                message: Codice OTP inviato alla tua email.
+        "404":
+          description: Email non trovata
+          content:
+            application/json:
+              example:
+                message: Email non trovata.
+        "403":
+          $ref: "#/components/responses/AccountBloccato"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/auth/password/verify-otp:
+    post:
+      summary: Verifica il codice OTP
+      tags: [Autenticazione]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificaOtpInput"
+            example:
+              email: studente@example.com
+              otp: "123456"
+      responses:
+        "200":
+          description: OTP verificato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificaOtpResponse"
+              example:
+                message: Codice OTP verificato.
+                resetToken: 6c9f3b2e...
+                email: studente@example.com
+        "400":
+          $ref: "#/components/responses/RichiestaNonValida"
+        "403":
+          $ref: "#/components/responses/AccountBloccato"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/auth/password/reset:
+    post:
+      summary: Aggiorna la password dopo la verifica OTP
+      tags: [Autenticazione]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordInput"
+            example:
+              email: studente@example.com
+              resetToken: 6c9f3b2e...
+              nuovaPassword: NuovaPassword123
+      responses:
+        "200":
+          description: Password modificata
+          content:
+            application/json:
+              example:
+                message: Password modificata con successo.
+        "400":
+          $ref: "#/components/responses/RichiestaNonValida"
+        "403":
+          $ref: "#/components/responses/AccountBloccato"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/users/me:
+    get:
+      summary: Restituisce il profilo dell'utente autenticato
+      tags: [Utenti]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profilo corrente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utente"
+              example:
+                id: 2
+                nome: Mario
+                cognome: Rossi
+                email: mario.rossi@example.com
+                immagine_profilo: data:image/png;base64,iVBORw0KGgo...
+                stato: attivo
+                tipologia_utente: studente
+                data_iscrizione: "2026-05-30"
+                bio: Studio informatica e cerco ripetizioni di matematica.
         "401":
-          description: Credenziali errate
+          $ref: "#/components/responses/NonAutorizzato"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+    put:
+      summary: Aggiorna il profilo dell'utente autenticato
+      tags: [Utenti]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AggiornaUtenteInput"
+            example:
+              nome: Mario
+              cognome: Rossi
+              bio: Mi sto preparando per l'esame di analisi.
+              immagine_profilo: data:image/png;base64,iVBORw0KGgo...
+      responses:
+        "200":
+          description: Profilo aggiornato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utente"
+        "401":
+          $ref: "#/components/responses/NonAutorizzato"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/users/{id}:
+    get:
+      summary: Restituisce un riepilogo pubblico di un utente attivo
+      tags: [Utenti]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Utente trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UtenteRiepilogo"
+              example:
+                id: 5
+                nome: Lucia
+                cognome: Verdi
+                email: lucia.verdi@example.com
+                immagine_profilo: ""
+                tipologia_utente: tutor
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              example:
+                message: Utente non trovato
+        "401":
+          $ref: "#/components/responses/NonAutorizzato"
+
+  /api/tutors/search:
+    post:
+      summary: Cerca tutor in base ai filtri
+      description: Se la richiesta viene fatta da un tutor autenticato, il suo profilo viene escluso dai risultati.
+      tags: [Tutor]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FiltriRicercaTutor"
+            example:
+              testo: matematica
+              materie: [Matematica, Fisica]
+              lingue: [Italiano]
+              prezzoMin: 10
+              prezzoMax: 60
+              dataDa: "2026-06-01"
+              dataA: "2026-06-30"
+      responses:
+        "200":
+          description: Lista tutor filtrata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tutor"
+              example:
+                - id: 4
+                  name: Elena Bianchi
+                  nome: Elena
+                  cognome: Bianchi
+                  email: elena.bianchi@example.com
+                  bio: Tutor di matematica per scuole superiori e universita.
+                  subjects: [Matematica, Analisi Matematica 1]
+                  subjectOptions:
+                    - id: 1
+                      nome: Matematica
+                  languages: [Italiano, Inglese]
+                  rating: "4.8"
+                  reviews: 12
+                  price: 25
+                  image: https://ui-avatars.com/api/?name=Elena%20Bianchi
+                  disponibileDal: "2026-06-02"
+                  disponibileAl: "2026-06-18"
+        "401":
+          $ref: "#/components/responses/NonAutorizzato"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/tutors/me:
+    get:
+      summary: Restituisce il profilo tutor autenticato
+      tags: [Tutor]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profilo tutor completo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TutorDettaglio"
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+    put:
+      summary: Aggiorna il profilo tutor autenticato
+      tags: [Tutor]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AggiornaTutorInput"
+            example:
+              nome: Elena
+              cognome: Bianchi
+              bio: Offro lezioni di matematica e fisica.
+              immagine_profilo: data:image/jpeg;base64,/9j/4AAQSk...
+              materie: [Matematica, Fisica]
+              lingue: [Italiano, Inglese]
+      responses:
+        "200":
+          description: Profilo tutor aggiornato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tutor"
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/tutors/me/availability:
+    put:
+      summary: Sostituisce le disponibilita del tutor autenticato
+      tags: [Tutor]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AggiornaDisponibilitaInput"
+            example:
+              tariffa_oraria: 25
+              disponibilita:
+                - data: "2026-06-03"
+                  attivo: true
+                  dalle: "09:00"
+                  alle: "12:00"
+                - data: "2026-06-05"
+                  attivo: true
+                  materia_id: 1
+                  dalle: "15:00"
+                  alle: "18:00"
+      responses:
+        "200":
+          description: Disponibilita aggiornate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DisponibilitaTutor"
+        "400":
+          description: Disponibilita non valida
+          content:
+            application/json:
+              example:
+                message: Seleziona almeno una materia prima di inserire disponibilita.
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/tutors/{id}:
+    get:
+      summary: Restituisce dettaglio tutor con disponibilita e materiali
+      tags: [Tutor]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Dettaglio tutor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TutorDettaglio"
+        "404":
+          description: Tutor non trovato
+          content:
+            application/json:
+              example:
+                message: Tutor non trovato
+
+  /api/materials:
+    post:
+      summary: Crea un materiale didattico
+      tags: [Materiali didattici]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreaMaterialeInput"
+            example:
+              titolo: Dispensa di analisi
+              descrizione: Appunti con esercizi svolti sugli integrali.
+              materia: Analisi Matematica 1
+              file_url: data:application/pdf;base64,JVBERi0xLjQK...
+              anteprima_url: data:application/pdf;base64,JVBERi0xLjQK...
+              copertina_url: data:image/png;base64,iVBORw0KGgo...
+              importo: 7.50
+      responses:
+        "201":
+          description: Materiale creato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Materiale"
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+        "500":
+          $ref: "#/components/responses/ErroreServer"
+
+  /api/materials/{id}:
+    delete:
+      summary: Elimina logicamente un materiale didattico
+      description: Il materiale non viene piu mostrato nella ricerca, ma resta disponibile agli studenti che lo avevano gia acquistato.
+      tags: [Materiali didattici]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Materiale eliminato
+          content:
+            application/json:
+              example:
+                message: Materiale eliminato
+        "404":
+          description: Materiale non trovato
+          content:
+            application/json:
+              example:
+                message: Materiale non trovato
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/materials/{id}/purchase:
+    post:
+      summary: Acquista un materiale didattico
+      tags: [Materiali didattici]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "201":
+          description: Acquisto completato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Materiale"
+        "409":
+          description: Materiale gia acquistato
+          content:
+            application/json:
+              example:
+                message: Materiale gia acquistato
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/materials/purchased/me:
+    get:
+      summary: Lista materiali acquistati dallo studente autenticato
+      tags: [Materiali didattici]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Materiali acquistati
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MaterialeAcquistato"
+              example:
+                - id: 8
+                  data_acquisto: "2026-05-30 10:15:00"
+                  importo_pagato: 7.5
+                  titolo: Dispensa di analisi
+                  descrizione: Appunti con esercizi svolti.
+                  file_url: data:application/pdf;base64,JVBERi0xLjQK...
+                  anteprima_url: data:application/pdf;base64,JVBERi0xLjQK...
+                  copertina_url: data:image/png;base64,iVBORw0KGgo...
+                  importo: 7.5
+                  autore: Elena Bianchi
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/bookings:
+    post:
+      summary: Prenota una lezione
+      tags: [Prenotazioni]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreaPrenotazioneInput"
+            example:
+              disponibilita_id: 12
+              materia_id: 1
+              data: "2026-06-03"
+              ora_inizio: "09:30"
+              ora_fine: "11:00"
+      responses:
+        "201":
+          description: Prenotazione creata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prenotazione"
+        "400":
+          description: Fascia non valida o non disponibile
+          content:
+            application/json:
+              example:
+                message: La fascia oraria scelta non e piu disponibile. Seleziona un altro orario.
+        "409":
+          description: Conflitto con altra prenotazione
+          content:
+            application/json:
+              example:
+                message: Esiste gia una prenotazione per questo giorno e questa fascia oraria.
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/bookings/me:
+    get:
+      summary: Lista prenotazioni dell'utente autenticato
+      tags: [Prenotazioni]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Prenotazioni ordinate temporalmente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrenotazioneDettaglio"
+
+  /api/reviews:
+    post:
+      summary: Lascia una recensione a un tutor
+      tags: [Recensioni]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreaRecensioneInput"
+            example:
+              prenotazione_id: 21
+              voto: 5
+              commento: Spiegazione molto chiara e utile.
+      responses:
+        "201":
+          description: Recensione creata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrenotazioneDettaglio"
+        "400":
+          description: Recensione non valida
+          content:
+            application/json:
+              example:
+                message: Puoi recensire un tutor solo dopo aver effettuato almeno una lezione.
+        "409":
+          description: Recensione gia presente per lo stesso tutor
+          content:
+            application/json:
+              example:
+                message: Hai gia lasciato una recensione per questo tutor.
+
+  /api/messages:
+    get:
+      summary: Lista conversazioni dell'utente autenticato
+      tags: [Messaggi]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Conversazioni ordinate dall'ultimo messaggio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversazione"
+    post:
+      summary: Invia un messaggio
+      tags: [Messaggi]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InviaMessaggioInput"
+            example:
+              destinatario_id: 4
+              contenuto: Ciao, vorrei informazioni sulla lezione di matematica.
+      responses:
+        "201":
+          description: Messaggio inviato, ritorna la conversazione aggiornata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Messaggio"
+
+  /api/messages/{userId}:
+    get:
+      summary: Lista messaggi con un utente specifico
+      tags: [Messaggi]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserIdPath"
+      responses:
+        "200":
+          description: Messaggi della conversazione
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Messaggio"
+
+  /api/messages/{userId}/read:
+    patch:
+      summary: Segna come letti i messaggi ricevuti da un utente
+      tags: [Messaggi]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserIdPath"
+      responses:
+        "200":
+          description: Messaggi segnati come letti
+          content:
+            application/json:
+              example:
+                ok: true
+
+  /api/admin/users:
+    get:
+      summary: Lista studenti e tutor per amministratore
+      tags: [Amministrazione]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista utenti amministrabile
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtenteAdmin"
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/admin/users/{id}/status:
+    put:
+      summary: Aggiorna lo stato di un utente
+      tags: [Amministrazione]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AggiornaStatoInput"
+            example:
+              stato: bloccato
+      responses:
+        "200":
+          description: Stato aggiornato
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtenteAdmin"
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/admin/users/{id}:
+    delete:
+      summary: Elimina un utente
+      tags: [Amministrazione]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: Utente eliminato, ritorna la lista aggiornata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtenteAdmin"
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/dashboard/tutor:
+    get:
+      summary: Statistiche dashboard del tutor autenticato
+      tags: [Dashboard]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Statistiche tutor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardTutor"
+              example:
+                anno: 2026
+                ricaviMensili:
+                  - mese: "01"
+                    ricavi: 120.5
+                  - mese: "02"
+                    ricavi: 89.99
+                materiaPiuPrenotata:
+                  nome: Matematica
+                  prenotazioni: 8
+                materialePiuAcquistato:
+                  id: 3
+                  titolo: Dispensa di analisi
+                  materia: Analisi Matematica 1
+                  acquisti: 6
+                  ricavi: 45
+                materiali:
+                  - id: 3
+                    titolo: Dispensa di analisi
+                    materia: Analisi Matematica 1
+                    acquisti: 6
+                    ricavi: 45
+                prossimeLezioni:
+                  - id: 12
+                    studente_id: 2
+                    studenteNome: Mario Rossi
+                    studenteEmail: mario.rossi@example.com
+                    studenteAvatar: ""
+                    materia: Matematica
+                    data: "2026-06-03"
+                    ora_inizio: "09:30"
+                    ora_fine: "11:00"
+                    importo: 37.5
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 4
+    UserIdPath:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 4
+
+  responses:
+    NonAutorizzato:
+      description: Token mancante o non valido
+      content:
+        application/json:
+          example:
+            message: Access denied
+    PermessiInsufficienti:
+      description: L'utente autenticato non ha i permessi richiesti
+      content:
+        application/json:
+          example:
+            message: Permessi insufficienti
+    AccountBloccato:
+      description: Account bloccato
+      content:
+        application/json:
+          example:
+            message: Account bloccato. Contatta l'amministratore per maggiori informazioni.
+    RichiestaNonValida:
+      description: Dati mancanti o non validi
+      content:
+        application/json:
+          example:
+            message: Dati mancanti.
+    ErroreServer:
+      description: Errore interno del server
+      content:
+        application/json:
+          example:
+            error: Messaggio tecnico dell'errore
+
   schemas:
-    RegisterInput:
+    RegistrazioneInput:
       type: object
-      required:
-        - nome
-        - cognome
-        - email
-        - password
-        - tipologia_utente
+      required: [nome, cognome, email, password, tipologia_utente]
       properties:
         nome:
           type: string
-          example: mario
+          example: Mario
         cognome:
           type: string
-          example: rossi
+          example: Rossi
         email:
           type: string
           format: email
-          example: mario@example.com
+          example: mario.rossi@example.com
         password:
           type: string
           format: password
-          example: PasswordSicura123!
+          example: Password123
         tipologia_utente:
           type: string
+          enum: [studente, tutor]
           example: studente
 
     LoginInput:
       type: object
-      required:
-        - email
-        - password
+      required: [email, password]
       properties:
         email:
           type: string
           format: email
-          example: mario@example.com
+          example: admin@admin.com
         password:
           type: string
           format: password
-          example: PasswordSicura123!
+          example: admin
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        tipologia_utente:
+          type: string
+          enum: [studente, tutor, amministratore]
+
+    RichiestaOtpInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          example: studente@example.com
+
+    VerificaOtpInput:
+      type: object
+      required: [email, otp]
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          example: "123456"
+
+    VerificaOtpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        resetToken:
+          type: string
+        email:
+          type: string
+          format: email
+
+    ResetPasswordInput:
+      type: object
+      required: [email, resetToken, nuovaPassword]
+      properties:
+        email:
+          type: string
+          format: email
+        resetToken:
+          type: string
+        nuovaPassword:
+          type: string
+          format: password
+          example: NuovaPassword123
+
+    Utente:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        cognome:
+          type: string
+        email:
+          type: string
+          format: email
+        immagine_profilo:
+          type: string
+          nullable: true
+        stato:
+          type: string
+          enum: [attivo, bloccato]
+        tipologia_utente:
+          type: string
+          enum: [studente, tutor, amministratore]
+        data_iscrizione:
+          type: string
+        bio:
+          type: string
+
+    UtenteRiepilogo:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        cognome:
+          type: string
+        email:
+          type: string
+        immagine_profilo:
+          type: string
+        tipologia_utente:
+          type: string
+
+    AggiornaUtenteInput:
+      type: object
+      properties:
+        nome:
+          type: string
+        cognome:
+          type: string
+        bio:
+          type: string
+        immagine_profilo:
+          type: string
+
+    FiltriRicercaTutor:
+      type: object
+      properties:
+        testo:
+          type: string
+        materie:
+          type: array
+          items:
+            type: string
+        lingue:
+          type: array
+          items:
+            type: string
+        prezzoMin:
+          type: number
+        prezzoMax:
+          type: number
+        dataDa:
+          type: string
+          format: date
+        dataA:
+          type: string
+          format: date
+
+    MateriaTutor:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+
+    Tutor:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nome:
+          type: string
+        cognome:
+          type: string
+        email:
+          type: string
+        bio:
+          type: string
+        subjects:
+          type: array
+          items:
+            type: string
+        subjectOptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/MateriaTutor"
+        languages:
+          type: array
+          items:
+            type: string
+        rating:
+          type: string
+        reviews:
+          type: integer
+        price:
+          type: number
+        image:
+          type: string
+        disponibileDal:
+          type: string
+          nullable: true
+        disponibileAl:
+          type: string
+          nullable: true
+
+    TutorDettaglio:
+      allOf:
+        - $ref: "#/components/schemas/Tutor"
+        - type: object
+          properties:
+            availability:
+              type: array
+              items:
+                $ref: "#/components/schemas/DisponibilitaTutor"
+            bookedSlots:
+              type: array
+              items:
+                $ref: "#/components/schemas/SlotPrenotato"
+            availableSchedule:
+              type: array
+              items:
+                $ref: "#/components/schemas/FasciaPrenotabile"
+            materials:
+              type: array
+              items:
+                $ref: "#/components/schemas/Materiale"
+
+    AggiornaTutorInput:
+      type: object
+      properties:
+        nome:
+          type: string
+        cognome:
+          type: string
+        bio:
+          type: string
+        immagine_profilo:
+          type: string
+        materie:
+          type: array
+          items:
+            type: string
+        lingue:
+          type: array
+          items:
+            type: string
+
+    AggiornaDisponibilitaInput:
+      type: object
+      required: [disponibilita, tariffa_oraria]
+      properties:
+        tariffa_oraria:
+          type: number
+        disponibilita:
+          type: array
+          items:
+            $ref: "#/components/schemas/DisponibilitaInput"
+
+    DisponibilitaInput:
+      type: object
+      properties:
+        data:
+          type: string
+          format: date
+        attivo:
+          type: boolean
+        materia_id:
+          type: integer
+        dalle:
+          type: string
+          example: "09:00"
+        alle:
+          type: string
+          example: "12:00"
+
+    DisponibilitaTutor:
+      type: object
+      properties:
+        id:
+          type: integer
+        tutor_id:
+          type: integer
+        materia_id:
+          type: integer
+        materia:
+          type: string
+        data:
+          type: string
+          format: date
+        giorno_settimana:
+          type: string
+        ora_inizio:
+          type: string
+        ora_fine:
+          type: string
+        tariffa_oraria:
+          type: number
+
+    SlotPrenotato:
+      type: object
+      properties:
+        id:
+          type: integer
+        disponibilita_id:
+          type: integer
+        materia_id:
+          type: integer
+        data:
+          type: string
+        ora_inizio:
+          type: string
+        ora_fine:
+          type: string
+        tutor_id:
+          type: integer
+        studente_id:
+          type: integer
+
+    FasciaPrenotabile:
+      type: object
+      properties:
+        data:
+          type: string
+        disponibilita_id:
+          type: integer
+        ora_inizio:
+          type: string
+        ora_fine:
+          type: string
+        availableStarts:
+          type: array
+          items:
+            type: string
+        availableEndsByStart:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    CreaMaterialeInput:
+      type: object
+      required: [titolo, file_url, importo]
+      properties:
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        materia:
+          type: string
+        file_url:
+          type: string
+        anteprima_url:
+          type: string
+        copertina_url:
+          type: string
+        importo:
+          type: number
+
+    Materiale:
+      type: object
+      properties:
+        id:
+          type: integer
+        tutor_id:
+          type: integer
+        materia_id:
+          type: integer
+        materia:
+          type: string
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        file_url:
+          type: string
+        anteprima_url:
+          type: string
+        copertina_url:
+          type: string
+        importo:
+          type: number
+        acquistato:
+          type: boolean
+
+    MaterialeAcquistato:
+      allOf:
+        - $ref: "#/components/schemas/Materiale"
+        - type: object
+          properties:
+            data_acquisto:
+              type: string
+            importo_pagato:
+              type: number
+            autore:
+              type: string
+
+    CreaPrenotazioneInput:
+      type: object
+      required: [disponibilita_id, data, ora_inizio, ora_fine]
+      properties:
+        disponibilita_id:
+          type: integer
+        materia_id:
+          type: integer
+        data:
+          type: string
+          format: date
+        ora_inizio:
+          type: string
+        ora_fine:
+          type: string
+
+    Prenotazione:
+      type: object
+      properties:
+        id:
+          type: integer
+        disponibilita_id:
+          type: integer
+        studente_id:
+          type: integer
+        tutor_id:
+          type: integer
+        materia_id:
+          type: integer
+        data:
+          type: string
+        ora_inizio:
+          type: string
+        ora_fine:
+          type: string
+        importo:
+          type: number
+
+    PrenotazioneDettaglio:
+      allOf:
+        - $ref: "#/components/schemas/Prenotazione"
+        - type: object
+          properties:
+            materia:
+              type: string
+            tutorName:
+              type: string
+            tutorAvatar:
+              type: string
+            studentName:
+              type: string
+            hasReviewed:
+              type: boolean
+
+    CreaRecensioneInput:
+      type: object
+      required: [prenotazione_id, voto]
+      properties:
+        prenotazione_id:
+          type: integer
+        voto:
+          type: integer
+          minimum: 1
+          maximum: 5
+        commento:
+          type: string
+
+    InviaMessaggioInput:
+      type: object
+      required: [destinatario_id, contenuto]
+      properties:
+        destinatario_id:
+          type: integer
+        contenuto:
+          type: string
+
+    Messaggio:
+      type: object
+      properties:
+        id:
+          type: integer
+        mittente_id:
+          type: integer
+        destinatario_id:
+          type: integer
+        contenuto:
+          type: string
+        data_invio:
+          type: string
+          example: "2026-05-30 12:30:00"
+        letto:
+          type: integer
+          enum: [0, 1]
+
+    Conversazione:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        cognome:
+          type: string
+        email:
+          type: string
+        immagine_profilo:
+          type: string
+        lastMessageTime:
+          type: string
+        lastMessageText:
+          type: string
+        unreadCount:
+          type: integer
+
+    UtenteAdmin:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        cognome:
+          type: string
+        email:
+          type: string
+        immagine_profilo:
+          type: string
+        stato:
+          type: string
+          enum: [attivo, bloccato]
+        tipologia_utente:
+          type: string
+          enum: [studente, tutor]
+        data_iscrizione:
+          type: string
+
+    AggiornaStatoInput:
+      type: object
+      required: [stato]
+      properties:
+        stato:
+          type: string
+          enum: [attivo, bloccato]
+
+    DashboardTutor:
+      type: object
+      properties:
+        anno:
+          type: integer
+        ricaviMensili:
+          type: array
+          items:
+            type: object
+            properties:
+              mese:
+                type: string
+              ricavi:
+                type: number
+        materiaPiuPrenotata:
+          type: object
+          nullable: true
+          properties:
+            nome:
+              type: string
+            prenotazioni:
+              type: integer
+        materialePiuAcquistato:
+          $ref: "#/components/schemas/StatisticaMateriale"
+        materiali:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatisticaMateriale"
+        prossimeLezioni:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              studente_id:
+                type: integer
+              studenteNome:
+                type: string
+              studenteEmail:
+                type: string
+              studenteAvatar:
+                type: string
+              materia:
+                type: string
+              data:
+                type: string
+              ora_inizio:
+                type: string
+              ora_fine:
+                type: string
+              importo:
+                type: number
+
+    StatisticaMateriale:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: integer
+        titolo:
+          type: string
+        materia:
+          type: string
+        acquisti:
+          type: integer
+        ricavi:
+          type: number
