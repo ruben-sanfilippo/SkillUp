@@ -1,57 +1,39 @@
-const db = require("../db/db");
+const { get, run } = require("../db/query");
 
 const User = {
-  create: (nome, cognome, email, password, tipologia_utente) => {
-    return new Promise((resolve, reject) => {
-      const query = `
+  create: async (nome, cognome, email, password, tipologia_utente) => {
+    const query = `
         INSERT INTO Utente
           (nome, cognome, email, password, tipologia_utente, data_iscrizione)
         VALUES (?, ?, ?, ?, ?, datetime('now','localtime'))
       `;
-      db.run(
-        query,
-        [nome, cognome, email, password, tipologia_utente],
-        function (err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({
-              id: this.lastID,
-              nome: nome,
-              cognome: cognome,
-              email: email,
-              tipologia_utente: tipologia_utente,
-            });
-          }
-        },
-      );
-    });
+
+    const result = await run(query, [
+      nome,
+      cognome,
+      email,
+      password,
+      tipologia_utente,
+    ]);
+
+    return {
+      id: result.id,
+      nome,
+      cognome,
+      email,
+      tipologia_utente,
+    };
   },
 
   findByEmail: (email) => {
-    return new Promise((resolve, reject) => {
-      const query = `SELECT * FROM Utente WHERE email = ?`;
-      db.get(query, [email], (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row);
-        }
-      });
-    });
+    return get(`SELECT * FROM Utente WHERE email = ?`, [email]);
   },
 
   updatePassword: (userId, hashedPassword) => {
-    return new Promise((resolve, reject) => {
-      const query = `UPDATE Utente SET password = ? WHERE id = ?`;
-      db.run(query, [hashedPassword, userId], function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({ changes: this.changes });
-        }
-      });
-    });
+    return run(`UPDATE Utente SET password = ? WHERE id = ?`, [
+      hashedPassword,
+      userId,
+    ]);
   },
 };
 

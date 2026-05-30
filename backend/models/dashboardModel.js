@@ -1,9 +1,8 @@
-const db = require("../db/db");
+const { all, get } = require("../db/query");
 
 const Dashboard = {
   getRicaviMensili: (tutorId, anno) => {
-    return new Promise((resolve, reject) => {
-      const query = `
+    const query = `
         SELECT mese, SUM(ricavi) AS ricavi
         FROM (
           SELECT strftime('%m', data) AS mese, SUM(importo) AS ricavi
@@ -24,16 +23,11 @@ const Dashboard = {
         ORDER BY mese
       `;
 
-      db.all(query, [tutorId, String(anno), tutorId, String(anno)], (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return all(query, [tutorId, String(anno), tutorId, String(anno)]);
   },
 
   getMateriaPiuPrenotata: (tutorId) => {
-    return new Promise((resolve, reject) => {
-      const query = `
+    const query = `
         SELECT m.nome, COUNT(*) AS prenotazioni
         FROM Prenotazioni p
         JOIN Materie m ON m.id = p.materia_id
@@ -43,16 +37,11 @@ const Dashboard = {
         LIMIT 1
       `;
 
-      db.get(query, [tutorId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row || null);
-      });
-    });
+    return get(query, [tutorId]).then((row) => row || null);
   },
 
   getStatisticheMateriali: (tutorId) => {
-    return new Promise((resolve, reject) => {
-      const query = `
+    const query = `
         SELECT
           md.id,
           md.titolo,
@@ -67,16 +56,11 @@ const Dashboard = {
         ORDER BY acquisti DESC, ricavi DESC, md.titolo ASC
       `;
 
-      db.all(query, [tutorId], (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return all(query, [tutorId]);
   },
 
   getProssimeLezioni: (tutorId) => {
-    return new Promise((resolve, reject) => {
-      const query = `
+    const query = `
         SELECT
           p.id,
           p.studente_id,
@@ -96,11 +80,7 @@ const Dashboard = {
         ORDER BY p.data ASC, p.ora_inizio ASC
       `;
 
-      db.all(query, [tutorId], (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return all(query, [tutorId]);
   },
 };
 

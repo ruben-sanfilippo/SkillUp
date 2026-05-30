@@ -73,8 +73,7 @@ export class LoginPage implements OnInit {
       localStorage.removeItem('token');
       localStorage.removeItem('tipologia_utente');
 
-      // Usiamo firstValueFrom per aspettare la risposta HTTP del servizio
-      const risposta: any = await firstValueFrom(
+      const risposta = await firstValueFrom(
         this.authService.login(this.email.toLowerCase(), this.password),
       );
       const tipologiaUtente = risposta.tipologia_utente?.toLowerCase();
@@ -84,9 +83,6 @@ export class LoginPage implements OnInit {
         return;
       }
 
-      console.log('Login riuscito, ecco i dati:', tipologiaUtente);
-
-      // salvo il token e la tipologia nel localStorage:
       localStorage.setItem('token', risposta.token);
       localStorage.setItem('tipologia_utente', tipologiaUtente);
 

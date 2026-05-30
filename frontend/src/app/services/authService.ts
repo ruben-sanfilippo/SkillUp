@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import type { DatiRegistrazione } from '../interfaces/auth.interfaces';
+import type {
+  DatiRegistrazione,
+  RispostaLogin,
+  RispostaMessaggio,
+  RispostaOtpVerificato,
+} from '../interfaces/auth.interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -11,12 +16,12 @@ export class AuthService {
 
   login(email: string, password: string) {
     const url = `${environment.apiUrl}/api/auth/login`;
-    return this.httpClient.post(url, { email: email, password: password });
+    return this.httpClient.post<RispostaLogin>(url, { email, password });
   }
 
   register(datiRegistrazione: DatiRegistrazione) {
     const url = `${environment.apiUrl}/api/auth/register`;
-    return this.httpClient.post(url, {
+    return this.httpClient.post<RispostaMessaggio>(url, {
       nome: datiRegistrazione.nome,
       cognome: datiRegistrazione.cognome,
       email: datiRegistrazione.email,
@@ -26,23 +31,27 @@ export class AuthService {
   }
 
   richiediOtpPassword(email: string) {
-    return this.httpClient.post(`${environment.apiUrl}/api/auth/password/otp`, {
-      email,
-    });
+    return this.httpClient.post<RispostaMessaggio>(
+      `${environment.apiUrl}/api/auth/password/otp`,
+      { email },
+    );
   }
 
   verificaOtpPassword(email: string, otp: string) {
-    return this.httpClient.post<any>(
+    return this.httpClient.post<RispostaOtpVerificato>(
       `${environment.apiUrl}/api/auth/password/verify-otp`,
       { email, otp },
     );
   }
 
   modificaPassword(email: string, resetToken: string, nuovaPassword: string) {
-    return this.httpClient.post(`${environment.apiUrl}/api/auth/password/reset`, {
-      email,
-      resetToken,
-      nuovaPassword,
-    });
+    return this.httpClient.post<RispostaMessaggio>(
+      `${environment.apiUrl}/api/auth/password/reset`,
+      {
+        email,
+        resetToken,
+        nuovaPassword,
+      },
+    );
   }
 }

@@ -130,7 +130,7 @@ export class TutorDetailPage implements OnInit {
     this.nome = tutor.nome;
     this.cognome = tutor.cognome;
     this.biografia = tutor.bio || '';
-    this.mediaRecensioni = tutor.rating;
+    this.mediaRecensioni = Number(tutor.rating || 0);
     this.numeroRecensioni = tutor.reviews;
     this.prezzoOrario = tutor.price;
     this.avatarUrl = tutor.image;

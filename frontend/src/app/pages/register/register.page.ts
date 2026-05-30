@@ -110,14 +110,12 @@ export class RegisterPage implements OnInit {
     };
 
     try {
-      const risposta: any = await firstValueFrom(
+      await firstValueFrom(
         this.authService.register({
           ...datiRegistrazione,
           email: datiRegistrazione.email.toLowerCase(),
         }),
       );
-
-      console.log('Registrazione riuscita');
 
       this.router.navigate(['/login']);
     } catch (error: any) {

@@ -2,6 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import type { UtenteAdmin } from '../interfaces/admin.interfaces';
+import type {
+  AggiornamentoUtentePayload,
+  ConversazioneApi,
+  MaterialeAcquistatoApi,
+  MessaggioApi,
+  PrenotazioneApi,
+  RecensionePayload,
+  RispostaOperazione,
+  UtenteApi,
+} from '../interfaces/api.interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -10,56 +21,67 @@ export class PlatformService {
   constructor(private http: HttpClient) {}
 
   getMe() {
-    return firstValueFrom(this.http.get<any>(`${environment.apiUrl}/api/users/me`));
+    return firstValueFrom(
+      this.http.get<UtenteApi>(`${environment.apiUrl}/api/users/me`),
+    );
   }
 
-  updateMe(payload: any) {
+  updateMe(payload: AggiornamentoUtentePayload) {
     return firstValueFrom(
-      this.http.put<any>(`${environment.apiUrl}/api/users/me`, payload),
+      this.http.put<UtenteApi>(`${environment.apiUrl}/api/users/me`, payload),
     );
   }
 
   getUser(id: number | string) {
-    return firstValueFrom(this.http.get<any>(`${environment.apiUrl}/api/users/${id}`));
+    return firstValueFrom(
+      this.http.get<UtenteApi>(`${environment.apiUrl}/api/users/${id}`),
+    );
   }
 
   getBookingsMe() {
     return firstValueFrom(
-      this.http.get<any[]>(`${environment.apiUrl}/api/bookings/me`),
+      this.http.get<PrenotazioneApi[]>(`${environment.apiUrl}/api/bookings/me`),
     );
   }
 
-  createReview(payload: any) {
+  createReview(payload: RecensionePayload) {
     return firstValueFrom(
-      this.http.post<any[]>(`${environment.apiUrl}/api/reviews`, payload),
+      this.http.post<PrenotazioneApi[]>(`${environment.apiUrl}/api/reviews`, payload),
     );
   }
 
   getPurchasedMaterials() {
     return firstValueFrom(
-      this.http.get<any[]>(`${environment.apiUrl}/api/materials/purchased/me`),
+      this.http.get<MaterialeAcquistatoApi[]>(
+        `${environment.apiUrl}/api/materials/purchased/me`,
+      ),
     );
   }
 
   getConversations() {
-    return firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/api/messages`));
+    return firstValueFrom(
+      this.http.get<ConversazioneApi[]>(`${environment.apiUrl}/api/messages`),
+    );
   }
 
   getMessages(userId: number | string) {
     return firstValueFrom(
-      this.http.get<any[]>(`${environment.apiUrl}/api/messages/${userId}`),
+      this.http.get<MessaggioApi[]>(`${environment.apiUrl}/api/messages/${userId}`),
     );
   }
 
   markMessagesRead(userId: number | string) {
     return firstValueFrom(
-      this.http.patch<any>(`${environment.apiUrl}/api/messages/${userId}/read`, {}),
+      this.http.patch<RispostaOperazione>(
+        `${environment.apiUrl}/api/messages/${userId}/read`,
+        {},
+      ),
     );
   }
 
   sendMessage(destinatarioId: number | string, contenuto: string) {
     return firstValueFrom(
-      this.http.post<any[]>(`${environment.apiUrl}/api/messages`, {
+      this.http.post<MessaggioApi[]>(`${environment.apiUrl}/api/messages`, {
         destinatario_id: destinatarioId,
         contenuto,
       }),
@@ -67,20 +89,23 @@ export class PlatformService {
   }
 
   getAdminUsers() {
-    return firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/api/admin/users`));
+    return firstValueFrom(
+      this.http.get<UtenteAdmin[]>(`${environment.apiUrl}/api/admin/users`),
+    );
   }
 
   updateUserStatus(id: number | string, stato: 'attivo' | 'bloccato') {
     return firstValueFrom(
-      this.http.put<any[]>(`${environment.apiUrl}/api/admin/users/${id}/status`, {
-        stato,
-      }),
+      this.http.put<UtenteAdmin[]>(
+        `${environment.apiUrl}/api/admin/users/${id}/status`,
+        { stato },
+      ),
     );
   }
 
   deleteUser(id: number | string) {
     return firstValueFrom(
-      this.http.delete<any[]>(`${environment.apiUrl}/api/admin/users/${id}`),
+      this.http.delete<UtenteAdmin[]>(`${environment.apiUrl}/api/admin/users/${id}`),
     );
   }
 }

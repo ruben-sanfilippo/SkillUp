@@ -12,14 +12,19 @@ export interface DisponibilitaTutor {
   id?: number;
   data: string;
   giornoSettimana?: string;
+  giorno_settimana?: string;
   materiaId?: number;
+  materia_id?: number;
   materia?: string;
   attivo?: boolean;
   dalle?: string;
   alle?: string;
   oraInizio?: string;
   oraFine?: string;
+  ora_inizio?: string;
+  ora_fine?: string;
   tariffaOraria?: number;
+  tariffa_oraria?: number;
 }
 
 export interface DatiMaterialeDidattico {
@@ -30,6 +35,58 @@ export interface DatiMaterialeDidattico {
   urlAnteprima?: string;
   urlCopertina?: string;
   importo: number;
+}
+
+export interface TutorApi {
+  id: number;
+  name: string;
+  nome: string;
+  cognome: string;
+  email: string;
+  bio: string;
+  subjects: string[];
+  subjectOptions: MateriaTutor[];
+  languages: string[];
+  rating: number | string;
+  reviews: number;
+  price: number;
+  image: string;
+  disponibileDal?: string;
+  disponibileAl?: string;
+  availability?: DisponibilitaTutor[];
+  schedule?: DisponibilitaTutor[];
+  availableSchedule?: DisponibilitaTutor[];
+  bookedSlots?: SlotPrenotato[];
+  materials?: MaterialeDidatticoApi[];
+}
+
+export interface AggiornamentoTutorPayload {
+  nome?: string;
+  cognome?: string;
+  bio?: string;
+  immagine_profilo?: string;
+  materie?: string[];
+  lingue?: string[];
+}
+
+export interface MaterialeDidatticoApi {
+  id: number;
+  titolo: string;
+  descrizione?: string;
+  file_url: string;
+  anteprima_url?: string;
+  copertina_url?: string;
+  importo: number;
+  materia?: string;
+  acquistato?: number | boolean;
+}
+
+export interface PrenotazionePayload {
+  disponibilita_id: number | string | undefined;
+  materia_id?: number | string | null;
+  data: string | undefined;
+  ora_inizio: string;
+  ora_fine: string;
 }
 
 export interface MateriaTutor {
@@ -54,10 +111,13 @@ export interface InfoDisponibilita {
 }
 
 export interface SlotPrenotato {
-  materiaId: number;
+  materiaId?: number;
+  materia_id?: number;
   data: string;
   oraInizio: string;
   oraFine: string;
+  ora_inizio?: string;
+  ora_fine?: string;
 }
 
 export interface GiornoCalendario {

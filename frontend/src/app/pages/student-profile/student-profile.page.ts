@@ -29,6 +29,7 @@ import type {
   MaterialeAcquistato,
   DatiStudente,
 } from 'src/app/interfaces/profile.interfaces';
+import type { PrenotazioneApi } from 'src/app/interfaces/api.interfaces';
 
 @Component({
   selector: 'app-student-profile',
@@ -244,8 +245,9 @@ export class StudentProfilePage implements OnInit {
     }
   }
 
-  onAvatarSelected(event: any) {
-    const file = event.target.files[0];
+  onAvatarSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -311,10 +313,6 @@ export class StudentProfilePage implements OnInit {
     window.URL.revokeObjectURL(url);
   }
 
-  eseguiAzione(azione: string, id?: string) {
-    console.log(`Azione: ${azione}${id ? ' ID: ' + id : ''}`);
-  }
-
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('tipologia_utente');
@@ -331,7 +329,7 @@ export class StudentProfilePage implements OnInit {
     });
   }
 
-  private mappaPrenotazione(prenotazione: any): PrenotazioneProfilo {
+  private mappaPrenotazione(prenotazione: PrenotazioneApi): PrenotazioneProfilo {
     const data = new Date(`${prenotazione.data}T${prenotazione.ora_inizio}:00`);
     const nomeTutor =
       prenotazione.nomeTutor ||
@@ -347,7 +345,7 @@ export class StudentProfilePage implements OnInit {
 
     return {
       id: prenotazione.id,
-      tutorId: prenotazione.tutor_id || prenotazione.tutorId,
+      tutorId: prenotazione.tutor_id ?? prenotazione.tutorId ?? 0,
       nomeTutor,
       avatarTutor,
       materia: prenotazione.materia,

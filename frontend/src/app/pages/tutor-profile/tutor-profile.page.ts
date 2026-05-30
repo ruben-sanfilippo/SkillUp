@@ -228,7 +228,7 @@ export class TutorProfilePage implements OnInit {
     this.email = tutor.email || '';
     this.biografia = tutor.bio || '';
     this.avatarUrl = tutor.image || '';
-    this.mediaRecensioni = tutor.rating;
+    this.mediaRecensioni = Number(tutor.rating || 0);
     this.numeroRecensioni = tutor.reviews;
     this.prezzoOrario = tutor.price || this.prezzoOrario;
     this.materieSelezionate = tutor.subjects || [];
@@ -239,8 +239,8 @@ export class TutorProfilePage implements OnInit {
       if (!item.data) continue;
       this.databaseDisponibilita[item.data] = {
         attivo: true,
-        dalle: item.ora_inizio,
-        alle: item.ora_fine,
+        dalle: item.ora_inizio || item.oraInizio || '',
+        alle: item.ora_fine || item.oraFine || '',
       };
     }
 

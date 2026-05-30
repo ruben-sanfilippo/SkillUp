@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt"); // per criptare le informazioni
 const jwt = require("jsonwebtoken"); // per creare token di autenticazione, che permettono di mantenere la sessione dell'utente dopo il login
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const db = require("../db/db");
+const { get, run } = require("../db/query");
 const User = require("../models/userModel");
 const Tutor = require("../models/tutorModel");
 const Student = require("../models/studentModel");
@@ -17,24 +17,6 @@ function capitalizzaNome(value) {
     .replace(/(^|[\s'-])([a-zàèéìòù])/g, (_, separatore, iniziale) => {
       return separatore + iniziale.toLocaleUpperCase("it-IT");
     });
-}
-
-function run(query, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(query, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
-}
-
-function get(query, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(query, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
 }
 
 function generaOtp() {
