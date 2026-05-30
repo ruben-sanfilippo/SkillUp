@@ -25,6 +25,7 @@ import {
   closeOutline,
 } from 'ionicons/icons';
 import { TutorService } from 'src/app/services/tutorService';
+import { PlatformService } from 'src/app/services/platformService';
 import type {
   FasciaDisponibilita,
   GiornoCalendario,
@@ -94,6 +95,7 @@ export class TutorDetailPage implements OnInit {
     private toastController: ToastController,
     private sanitizer: DomSanitizer,
     private tutorService: TutorService,
+    private platformService: PlatformService,
   ) {
     addIcons({
       personOutline,
@@ -400,6 +402,15 @@ export class TutorDetailPage implements OnInit {
       return;
     }
 
+    if (
+      Number(dispensa?.prezzo || 0) > 0 &&
+      !(await this.verificaMetodoPagamentoStudente(
+        'Per acquistare materiali didattici a pagamento devi prima inserire un metodo di pagamento.',
+      ))
+    ) {
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: 'Conferma Acquisto',
       message: `Confermi l'acquisto di "${dispensa.titolo}" per ${dispensa.prezzo}€?`,
@@ -493,6 +504,15 @@ export class TutorDetailPage implements OnInit {
     if (!disponibilitaAncoraValida) return;
 
     const prezzoLezione = this.calcolaPrezzoLezione();
+    if (
+      prezzoLezione > 0 &&
+      !(await this.verificaMetodoPagamentoStudente(
+        'Per prenotare lezioni a pagamento devi prima inserire un metodo di pagamento.',
+      ))
+    ) {
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: 'Conferma Prenotazione',
       message: `Vuoi prenotare una lezione per il ${this.dataFormattataPannello} dalle ${this.oraInizioSelezionata} alle ${this.oraFineSelezionata}? Prezzo totale: ${this.formatEuro(prezzoLezione)}.`,
@@ -549,6 +569,30 @@ export class TutorDetailPage implements OnInit {
       ],
     });
     await alert.present();
+  }
+
+  private async verificaMetodoPagamentoStudente(message: string): Promise<boolean> {
+    try {
+      const utente = await this.platformService.getMe();
+      if (utente.metodo_pagamento?.presente) {
+        return true;
+      }
+    } catch {}
+
+    const alert = await this.alertController.create({
+      header: 'Metodo di pagamento richiesto',
+      message,
+      buttons: [
+        { text: 'Annulla', role: 'cancel' },
+        {
+          text: 'Vai al profilo',
+          cssClass: 'alert-button-primary',
+          handler: () => this.router.navigate(['/tabs/student-profile']),
+        },
+      ],
+    });
+    await alert.present();
+    return false;
   }
 
   private async verificaDisponibilitaPrimaPrenotazione(): Promise<boolean> {

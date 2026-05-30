@@ -43,6 +43,8 @@ import type { Dispensa } from 'src/app/interfaces/profile.interfaces';
 import type {
   GiornoCalendario,
   InfoDisponibilita,
+  OpzioneTrasferimentoPayload,
+  OpzioneTrasferimentoTutor,
 } from 'src/app/interfaces/tutor.interfaces';
 
 @Component({
@@ -69,12 +71,18 @@ export class TutorProfilePage implements OnInit {
   isEditingMaterie = false;
   isEditingDisponibilita = false;
   isViewingAnteprima = false;
+  isTransferModalOpen = false;
 
   biografiaTmp = '';
   prezzoOrarioTmp = 0;
   materieSelezionateTmp: string[] = [];
   lingueSelezionateTmp: string[] = [];
   dispensaInEvidenza: Dispensa | null = null;
+  opzioneTrasferimento: OpzioneTrasferimentoTutor = { presente: false };
+  opzioneTrasferimentoForm: OpzioneTrasferimentoPayload = {
+    titolare_conto: '',
+    iban: '',
+  };
 
   dataCorrenteCalendario: Date = new Date();
   giorniDelMese: GiornoCalendario[] = [];
@@ -257,6 +265,9 @@ export class TutorProfilePage implements OnInit {
     this.prezzoOrario = tutor.price || this.prezzoOrario;
     this.materieSelezionate = tutor.subjects || [];
     this.lingueSelezionate = tutor.languages || [];
+    this.opzioneTrasferimento = tutor.opzione_trasferimento || {
+      presente: false,
+    };
     this.databaseDisponibilita = {};
 
     for (const item of tutor.availability || []) {
@@ -298,6 +309,76 @@ export class TutorProfilePage implements OnInit {
         returnUrl: '/tabs/tutor-profile',
       },
     });
+  }
+
+  apriModalOpzioniTrasferimento() {
+    this.opzioneTrasferimentoForm = {
+      titolare_conto: this.opzioneTrasferimento.titolare_conto || '',
+      iban: this.opzioneTrasferimento.iban || '',
+    };
+    this.isTransferModalOpen = true;
+  }
+
+  chiudiModalOpzioniTrasferimento() {
+    this.isTransferModalOpen = false;
+    this.opzioneTrasferimentoForm = {
+      titolare_conto: '',
+      iban: '',
+    };
+  }
+
+  formattaIbanTrasferimento() {
+    const iban = this.opzioneTrasferimentoForm.iban
+      .replace(/\s+/g, '')
+      .toUpperCase()
+      .slice(0, 34);
+    this.opzioneTrasferimentoForm.iban = iban.replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  opzioneTrasferimentoValida(): boolean {
+    const iban = this.opzioneTrasferimentoForm.iban.replace(/\s+/g, '');
+    return (
+      this.opzioneTrasferimentoForm.titolare_conto.trim().length >= 3 &&
+      /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)
+    );
+  }
+
+  async salvaOpzioniTrasferimento() {
+    if (!this.opzioneTrasferimentoValida()) {
+      await this.mostraPopupErrorePersonalizzato(
+        'Inserisci un titolare del conto e un IBAN validi.',
+      );
+      return;
+    }
+
+    try {
+      const tutorAggiornato = await this.tutorService.updateTutorMe({
+        opzione_trasferimento: {
+          titolare_conto: this.opzioneTrasferimentoForm.titolare_conto,
+          iban: this.opzioneTrasferimentoForm.iban,
+        },
+      });
+      this.opzioneTrasferimento =
+        tutorAggiornato.opzione_trasferimento || {
+          presente: true,
+          titolare_conto: this.opzioneTrasferimentoForm.titolare_conto
+            .trim()
+            .toUpperCase(),
+          iban: this.opzioneTrasferimentoForm.iban
+            .replace(/\s+/g, '')
+            .toUpperCase(),
+        };
+      this.chiudiModalOpzioniTrasferimento();
+      await this.mostraPopupSuccesso(
+        'Opzioni salvate',
+        'Le opzioni di trasferimento sono state aggiornate correttamente.',
+      );
+    } catch (error: any) {
+      await this.mostraPopupErrorePersonalizzato(
+        error?.error?.message ||
+          'Non e stato possibile salvare le opzioni di trasferimento.',
+      );
+    }
   }
 
   get nomeMeseCorrente(): string {
@@ -534,6 +615,33 @@ export class TutorProfilePage implements OnInit {
     await alert.present();
   }
 
+  async mostraPopupSuccesso(header: string, message: string) {
+    const alert = await this.alertController.create({
+      header,
+      message,
+      buttons: [
+        { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
+      ],
+    });
+    await alert.present();
+  }
+
+  async mostraPopupOpzioniTrasferimentoRichieste(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Opzioni di trasferimento richieste',
+      message,
+      buttons: [
+        { text: 'Annulla', role: 'cancel' },
+        {
+          text: 'Inserisci ora',
+          cssClass: 'alert-button-primary',
+          handler: () => this.apriModalOpzioniTrasferimento(),
+        },
+      ],
+    });
+    await alert.present();
+  }
+
   async salvaSezione(sezione: string) {
     if (sezione === 'biografia') {
       this.biografia = this.biografiaTmp
@@ -558,6 +666,16 @@ export class TutorProfilePage implements OnInit {
     } else if (sezione === 'disponibilita') {
       if (this.materieSelezionate.length === 0) {
         await this.mostraPopupErroreMaterieMancanti();
+        return;
+      }
+
+      if (
+        Number(this.prezzoOrarioTmp || 0) > 0 &&
+        !this.opzioneTrasferimento.presente
+      ) {
+        await this.mostraPopupOpzioniTrasferimentoRichieste(
+          'Per salvare lezioni a pagamento devi prima inserire titolare del conto e IBAN.',
+        );
         return;
       }
 
@@ -698,6 +816,16 @@ export class TutorProfilePage implements OnInit {
       !this.nuovaDispensa.haFileCompleto
     ) {
       await this.mostraPopupErroreDispensa();
+      return;
+    }
+
+    if (
+      Number(this.nuovaDispensa.prezzo || 0) > 0 &&
+      !this.opzioneTrasferimento.presente
+    ) {
+      await this.mostraPopupOpzioniTrasferimentoRichieste(
+        'Per pubblicare materiali didattici a pagamento devi prima inserire titolare del conto e IBAN.',
+      );
       return;
     }
 

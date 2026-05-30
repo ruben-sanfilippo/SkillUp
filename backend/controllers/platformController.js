@@ -20,6 +20,12 @@ exports.getMe = async (req, res) => {
 exports.updateMe = async (req, res) => {
   try {
     const user = await Platform.updateCurrentUser(req.user.id, req.body);
+    if (user.invalidPaymentMethod) {
+      return res.status(400).json({
+        message:
+          "Inserisci un metodo di pagamento valido con titolare, numero carta, scadenza e CVV.",
+      });
+    }
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -62,14 +68,43 @@ exports.getTutor = async (req, res) => {
 
 exports.getTutorMe = async (req, res) => {
   if (!requireRole(req, res, ["tutor"])) return;
-  req.params.id = req.user.id;
-  return exports.getTutor(req, res);
+  try {
+    const tutor = await Platform.getTutorById(req.user.id);
+    if (!tutor) return res.status(404).json({ message: "Tutor non trovato" });
+
+    const [availability, materials, bookedSlots, availableSchedule, transferOption] =
+      await Promise.all([
+        Platform.getAvailability(req.user.id),
+        Platform.getTutorMaterials(req.user.id),
+        Platform.getBookedSlots(req.user.id),
+        Platform.getAvailableSchedule(req.user.id),
+        Platform.getTutorTransferOption(req.user.id),
+      ]);
+
+    res.json({
+      ...tutor,
+      availability,
+      materials,
+      bookedSlots,
+      availableSchedule,
+      opzione_trasferimento: transferOption,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.updateTutorMe = async (req, res) => {
   try {
     if (!requireRole(req, res, ["tutor"])) return;
-    res.json(await Platform.updateTutorProfile(req.user.id, req.body));
+    const tutor = await Platform.updateTutorProfile(req.user.id, req.body);
+    if (tutor.invalidTransferOption) {
+      return res.status(400).json({
+        message: "Inserisci un titolare del conto e un IBAN validi.",
+      });
+    }
+    const transferOption = await Platform.getTutorTransferOption(req.user.id);
+    res.json({ ...tutor, opzione_trasferimento: transferOption });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -99,6 +134,12 @@ exports.updateAvailabilityMe = async (req, res) => {
           "Seleziona almeno una materia prima di inserire disponibilita.",
       });
     }
+    if (availability.missingTransferOption) {
+      return res.status(400).json({
+        message:
+          "Inserisci le opzioni di trasferimento prima di impostare lezioni a pagamento.",
+      });
+    }
     res.json(availability);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -118,7 +159,14 @@ exports.getUser = async (req, res) => {
 exports.createMaterial = async (req, res) => {
   try {
     if (!requireRole(req, res, ["tutor"])) return;
-    res.status(201).json(await Platform.createMaterial(req.user.id, req.body));
+    const material = await Platform.createMaterial(req.user.id, req.body);
+    if (material.missingTransferOption) {
+      return res.status(400).json({
+        message:
+          "Inserisci le opzioni di trasferimento prima di pubblicare materiali a pagamento.",
+      });
+    }
+    res.status(201).json(material);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -147,6 +195,18 @@ exports.purchaseMaterial = async (req, res) => {
       return res.status(404).json({ message: "Materiale non trovato" });
     if (material.alreadyPurchased) {
       return res.status(409).json({ message: "Materiale già acquistato" });
+    }
+    if (material.missingPaymentMethod) {
+      return res.status(400).json({
+        message:
+          "Inserisci un metodo di pagamento prima di acquistare materiali a pagamento.",
+      });
+    }
+    if (material.tutorMissingTransferOption) {
+      return res.status(400).json({
+        message:
+          "Il tutor deve inserire le opzioni di trasferimento prima di vendere materiali a pagamento.",
+      });
     }
     res.status(201).json(material);
   } catch (err) {
@@ -194,6 +254,18 @@ exports.createBooking = async (req, res) => {
       return res.status(409).json({
         message:
           "Esiste già una prenotazione per questo giorno e questa fascia oraria.",
+      });
+    }
+    if (booking.missingPaymentMethod) {
+      return res.status(400).json({
+        message:
+          "Inserisci un metodo di pagamento prima di prenotare lezioni a pagamento.",
+      });
+    }
+    if (booking.tutorMissingTransferOption) {
+      return res.status(400).json({
+        message:
+          "Il tutor deve inserire le opzioni di trasferimento prima di svolgere lezioni a pagamento.",
       });
     }
     res.status(201).json(booking);

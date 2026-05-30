@@ -20,6 +20,32 @@ function normalizzaData(data) {
   return String(data || "").slice(0, 10);
 }
 
+function soloCifre(valore) {
+  return String(valore || "").replace(/\D/g, "");
+}
+
+function normalizzaScadenzaCarta(valore) {
+  const parti = String(valore || "").trim().match(/^(\d{2})\/(\d{2}|\d{4})$/);
+  if (!parti) return null;
+
+  const mese = Number(parti[1]);
+  if (mese < 1 || mese > 12) return null;
+
+  const anno = parti[2].length === 2 ? Number(`20${parti[2]}`) : Number(parti[2]);
+  if (!Number.isInteger(anno)) return null;
+
+  const ultimoGiornoMese = new Date(anno, mese, 0, 23, 59, 59);
+  if (ultimoGiornoMese < new Date()) return null;
+
+  return `${String(mese).padStart(2, "0")}/${String(anno).slice(-2)}`;
+}
+
+function normalizzaIban(valore) {
+  const iban = String(valore || "").replace(/\s+/g, "").toUpperCase();
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)) return null;
+  return iban;
+}
+
 function slotPrenotabilePerData(data, orario) {
   const dataNorm = normalizzaData(data);
   const oggi = dataLocale();
@@ -87,7 +113,141 @@ function immagineProfiloPredefinita(row) {
   return `https://ui-avatars.com/api/?name=${nome}&background=1e40af&color=fff`;
 }
 
+function mappaMetodoPagamento(row) {
+  if (!row) return { presente: false };
+
+  return {
+    presente: true,
+    titolare: row.titolare,
+    scadenza: row.scadenza,
+    ultime_quattro: row.ultime_quattro,
+    carta_mascherata: `**** **** **** ${row.ultime_quattro}`,
+  };
+}
+
+function mappaOpzioneTrasferimento(row) {
+  if (!row) return { presente: false };
+
+  return {
+    presente: true,
+    titolare_conto: row.titolare_conto,
+    iban: row.iban,
+  };
+}
+
 const Platform = {
+  async getStudentPaymentMethod(studenteId) {
+    const row = await get(
+      `
+        SELECT titolare, ultime_quattro, scadenza
+        FROM Metodo_Pagamento_Studente
+        WHERE studente_id = ?
+      `,
+      [studenteId],
+    );
+
+    return mappaMetodoPagamento(row);
+  },
+
+  async hasStudentPaymentMethod(studenteId) {
+    const row = await get(
+      `SELECT 1 FROM Metodo_Pagamento_Studente WHERE studente_id = ? LIMIT 1`,
+      [studenteId],
+    );
+    return !!row;
+  },
+
+  async saveStudentPaymentMethod(studenteId, data) {
+    data = data || {};
+    const numeroCarta = soloCifre(
+      data.numero_carta || data.numeroCarta || data.numero || "",
+    );
+    const cvv = soloCifre(data.cvv || "");
+    const scadenza = normalizzaScadenzaCarta(
+      data.scadenza || data.data_scadenza || "",
+    );
+    const titolare = String(data.titolare || data.titolare_carta || "")
+      .trim()
+      .toUpperCase();
+
+    if (
+      !titolare ||
+      numeroCarta.length < 13 ||
+      numeroCarta.length > 19 ||
+      !scadenza ||
+      cvv.length < 3 ||
+      cvv.length > 4
+    ) {
+      return { invalidPaymentMethod: true };
+    }
+
+    await run(
+      `
+        INSERT INTO Metodo_Pagamento_Studente
+        (studente_id, titolare, ultime_quattro, scadenza, aggiornato_il)
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(studente_id) DO UPDATE SET
+          titolare = excluded.titolare,
+          ultime_quattro = excluded.ultime_quattro,
+          scadenza = excluded.scadenza,
+          aggiornato_il = CURRENT_TIMESTAMP
+      `,
+      [studenteId, titolare, numeroCarta.slice(-4), scadenza],
+    );
+
+    return this.getStudentPaymentMethod(studenteId);
+  },
+
+  async getTutorTransferOption(tutorId) {
+    const row = await get(
+      `
+        SELECT titolare_conto, iban
+        FROM Opzione_Trasferimento_Tutor
+        WHERE tutor_id = ?
+      `,
+      [tutorId],
+    );
+
+    return mappaOpzioneTrasferimento(row);
+  },
+
+  async hasTutorTransferOption(tutorId) {
+    const row = await get(
+      `SELECT 1 FROM Opzione_Trasferimento_Tutor WHERE tutor_id = ? LIMIT 1`,
+      [tutorId],
+    );
+    return !!row;
+  },
+
+  async saveTutorTransferOption(tutorId, data) {
+    data = data || {};
+    const titolareConto = String(
+      data.titolare_conto || data.titolareConto || "",
+    )
+      .trim()
+      .toUpperCase();
+    const iban = normalizzaIban(data.iban || "");
+
+    if (!titolareConto || !iban) {
+      return { invalidTransferOption: true };
+    }
+
+    await run(
+      `
+        INSERT INTO Opzione_Trasferimento_Tutor
+        (tutor_id, titolare_conto, iban, aggiornato_il)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(tutor_id) DO UPDATE SET
+          titolare_conto = excluded.titolare_conto,
+          iban = excluded.iban,
+          aggiornato_il = CURRENT_TIMESTAMP
+      `,
+      [tutorId, titolareConto, iban],
+    );
+
+    return this.getTutorTransferOption(tutorId);
+  },
+
   async getCurrentUser(userId) {
     const user = await get(
       `
@@ -107,6 +267,7 @@ const Platform = {
         [userId],
       );
       user.bio = studente?.bio_studente || "";
+      user.metodo_pagamento = await this.getStudentPaymentMethod(userId);
     }
 
     if (user.tipologia_utente === "tutor") {
@@ -163,6 +324,19 @@ const Platform = {
           userId,
         ]);
       }
+    }
+
+    if (data.metodo_pagamento !== undefined) {
+      const user = await this.getCurrentUser(userId);
+      if (user.tipologia_utente !== "studente") {
+        return { invalidPaymentMethod: true };
+      }
+
+      const result = await this.saveStudentPaymentMethod(
+        userId,
+        data.metodo_pagamento,
+      );
+      if (result.invalidPaymentMethod) return result;
     }
 
     return this.getCurrentUser(userId);
@@ -425,6 +599,11 @@ const Platform = {
       }
     }
 
+    const tariffa = Number(tariffaOraria) || 0;
+    if (tariffa > 0 && !(await this.hasTutorTransferOption(tutorId))) {
+      return { missingTransferOption: true };
+    }
+
     await run(
       `UPDATE Disponibilita_Tutor SET eliminato = 1 WHERE tutor_id = ?`,
       [tutorId],
@@ -526,6 +705,14 @@ const Platform = {
       }
     }
 
+    if (data.opzione_trasferimento !== undefined) {
+      const result = await this.saveTutorTransferOption(
+        tutorId,
+        data.opzione_trasferimento,
+      );
+      if (result.invalidTransferOption) return result;
+    }
+
     return this.getTutorById(tutorId);
   },
 
@@ -554,6 +741,11 @@ const Platform = {
   },
 
   async createMaterial(tutorId, data) {
+    const importo = Number(data.importo) || 0;
+    if (importo > 0 && !(await this.hasTutorTransferOption(tutorId))) {
+      return { missingTransferOption: true };
+    }
+
     const materiaId = data.materia ? await idMateria(data.materia) : null;
     const fallback = await get(
       `SELECT materia_id FROM Tutor_Materie WHERE tutor_id = ? LIMIT 1`,
@@ -573,7 +765,7 @@ const Platform = {
         data.file_url || "",
         data.anteprima_url || "",
         data.copertina_url || "",
-        Number(data.importo) || 0,
+        importo,
       ],
     );
     return get(`SELECT * FROM Materiale_Didattico WHERE id = ?`, [result.id]);
@@ -597,6 +789,16 @@ const Platform = {
 
     if (acquistoEsistente) {
       return { alreadyPurchased: true, material: materiale };
+    }
+
+    if (Number(materiale.importo) > 0) {
+      if (!(await this.hasStudentPaymentMethod(studenteId))) {
+        return { missingPaymentMethod: true };
+      }
+
+      if (!(await this.hasTutorTransferOption(materiale.tutor_id))) {
+        return { tutorMissingTransferOption: true };
+      }
     }
 
     await run(
@@ -727,6 +929,15 @@ const Platform = {
           Number(data.ora_inizio.split(":")[1]))) /
       60;
     const importo = Math.max(0, ore * disponibilita.tariffa_oraria);
+    if (importo > 0) {
+      if (!(await this.hasStudentPaymentMethod(studenteId))) {
+        return { missingPaymentMethod: true };
+      }
+
+      if (!(await this.hasTutorTransferOption(disponibilita.tutor_id))) {
+        return { tutorMissingTransferOption: true };
+      }
+    }
 
     const result = await run(
       `

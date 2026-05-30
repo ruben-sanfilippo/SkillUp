@@ -51,6 +51,16 @@
                 <span class="val">{{ student.oreStudio }}h</span>
               </div>
             </div>
+            <button class="payment-profile-btn" (click)="apriModalMetodoPagamento()">
+              <ion-icon name="card-outline"></ion-icon>
+              {{ metodoPagamento.presente ? 'Modifica metodo di pagamento' : 'Aggiungi metodo di pagamento' }}
+            </button>
+            @if (metodoPagamento.presente) {
+              <div class="payment-summary">
+                <span>{{ metodoPagamento.carta_mascherata }}</span>
+                <small>Scadenza {{ metodoPagamento.scadenza }}</small>
+              </div>
+            }
             <button class="change-password-profile-btn" (click)="vaiAModificaPassword()">
               <ion-icon name="key-outline"></ion-icon>
               Modifica password
@@ -348,6 +358,79 @@
               Salva Modifiche
             </ion-button>
           </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="isPaymentModalOpen" (didDismiss)="chiudiModalMetodoPagamento()" class="payment-modal">
+    <ng-template>
+      <ion-header class="ion-no-border modal-header">
+        <ion-toolbar>
+          <ion-title>{{ metodoPagamento.presente ? 'Modifica metodo di pagamento' : 'Aggiungi metodo di pagamento' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="chiudiModalMetodoPagamento()" class="close-modal-btn">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-bg" scroll-y="false">
+        <div class="payment-modal-body">
+          <div class="payment-field full">
+            <label>Titolare carta</label>
+            <input
+              type="text"
+              autocomplete="cc-name"
+              [(ngModel)]="metodoPagamentoForm.titolare"
+              placeholder="Mario Rossi" />
+          </div>
+
+          <div class="payment-field full">
+            <label>Numero carta</label>
+            <input
+              type="text"
+              inputmode="numeric"
+              autocomplete="cc-number"
+              maxlength="23"
+              [(ngModel)]="metodoPagamentoForm.numero_carta"
+              (input)="formattaNumeroCarta()"
+              placeholder="1234 5678 9012 3456" />
+          </div>
+
+          <div class="payment-fields-row">
+            <div class="payment-field">
+              <label>Scadenza</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                autocomplete="cc-exp"
+                maxlength="5"
+                [(ngModel)]="metodoPagamentoForm.scadenza"
+                (input)="formattaScadenzaCarta()"
+                placeholder="MM/AA" />
+            </div>
+            <div class="payment-field">
+              <label>CVV</label>
+              <input
+                type="password"
+                inputmode="numeric"
+                autocomplete="cc-csc"
+                maxlength="4"
+                [(ngModel)]="metodoPagamentoForm.cvv"
+                (input)="formattaCvv()"
+                placeholder="123" />
+            </div>
+          </div>
+
+          <ion-button
+            expand="block"
+            class="btn-submit-bio"
+            [disabled]="!metodoPagamentoValido()"
+            (click)="salvaMetodoPagamento()">
+            Salva metodo di pagamento
+          </ion-button>
         </div>
       </ion-content>
     </ng-template>

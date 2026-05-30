@@ -193,6 +193,12 @@ paths:
                 tipologia_utente: studente
                 data_iscrizione: "2026-05-30"
                 bio: Studio informatica e cerco ripetizioni di matematica.
+                metodo_pagamento:
+                  presente: true
+                  titolare: MARIO ROSSI
+                  scadenza: "12/28"
+                  ultime_quattro: "3456"
+                  carta_mascherata: "**** **** **** 3456"
         "401":
           $ref: "#/components/responses/NonAutorizzato"
         "500":
@@ -213,6 +219,11 @@ paths:
               cognome: Rossi
               bio: Mi sto preparando per l'esame di analisi.
               immagine_profilo: data:image/png;base64,iVBORw0KGgo...
+              metodo_pagamento:
+                titolare: Mario Rossi
+                numero_carta: "4111 1111 1111 1111"
+                scadenza: "12/28"
+                cvv: "123"
       responses:
         "200":
           description: Profilo aggiornato
@@ -342,6 +353,9 @@ paths:
               immagine_profilo: data:image/jpeg;base64,/9j/4AAQSk...
               materie: [Matematica, Fisica]
               lingue: [Italiano, Inglese]
+              opzione_trasferimento:
+                titolare_conto: Elena Bianchi
+                iban: IT60X0542811101000000123456
       responses:
         "200":
           description: Profilo tutor aggiornato
@@ -981,6 +995,44 @@ components:
           type: string
         bio:
           type: string
+        metodo_pagamento:
+          $ref: "#/components/schemas/MetodoPagamentoStudente"
+
+    MetodoPagamentoStudente:
+      type: object
+      properties:
+        presente:
+          type: boolean
+          example: true
+        titolare:
+          type: string
+          example: MARIO ROSSI
+        scadenza:
+          type: string
+          example: "12/28"
+        ultime_quattro:
+          type: string
+          example: "3456"
+        carta_mascherata:
+          type: string
+          example: "**** **** **** 3456"
+
+    MetodoPagamentoInput:
+      type: object
+      required: [titolare, numero_carta, scadenza, cvv]
+      properties:
+        titolare:
+          type: string
+          example: Mario Rossi
+        numero_carta:
+          type: string
+          example: "4111 1111 1111 1111"
+        scadenza:
+          type: string
+          example: "12/28"
+        cvv:
+          type: string
+          example: "123"
 
     UtenteRiepilogo:
       type: object
@@ -1009,6 +1061,8 @@ components:
           type: string
         immagine_profilo:
           type: string
+        metodo_pagamento:
+          $ref: "#/components/schemas/MetodoPagamentoInput"
 
     FiltriRicercaTutor:
       type: object
@@ -1105,6 +1159,8 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Materiale"
+            opzione_trasferimento:
+              $ref: "#/components/schemas/OpzioneTrasferimentoTutor"
 
     AggiornaTutorInput:
       type: object
@@ -1125,6 +1181,32 @@ components:
           type: array
           items:
             type: string
+        opzione_trasferimento:
+          $ref: "#/components/schemas/OpzioneTrasferimentoInput"
+
+    OpzioneTrasferimentoTutor:
+      type: object
+      properties:
+        presente:
+          type: boolean
+          example: true
+        titolare_conto:
+          type: string
+          example: ELENA BIANCHI
+        iban:
+          type: string
+          example: IT60X0542811101000000123456
+
+    OpzioneTrasferimentoInput:
+      type: object
+      required: [titolare_conto, iban]
+      properties:
+        titolare_conto:
+          type: string
+          example: Elena Bianchi
+        iban:
+          type: string
+          example: IT60X0542811101000000123456
 
     AggiornaDisponibilitaInput:
       type: object

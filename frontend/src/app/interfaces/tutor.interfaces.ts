@@ -58,6 +58,7 @@ export interface TutorApi {
   availableSchedule?: DisponibilitaTutor[];
   bookedSlots?: SlotPrenotato[];
   materials?: MaterialeDidatticoApi[];
+  opzione_trasferimento?: OpzioneTrasferimentoTutor;
 }
 
 export interface AggiornamentoTutorPayload {
@@ -67,6 +68,18 @@ export interface AggiornamentoTutorPayload {
   immagine_profilo?: string;
   materie?: string[];
   lingue?: string[];
+  opzione_trasferimento?: OpzioneTrasferimentoPayload;
+}
+
+export interface OpzioneTrasferimentoTutor {
+  presente: boolean;
+  titolare_conto?: string;
+  iban?: string;
+}
+
+export interface OpzioneTrasferimentoPayload {
+  titolare_conto: string;
+  iban: string;
 }
 
 export interface MaterialeDidatticoApi {

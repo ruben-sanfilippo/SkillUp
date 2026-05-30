@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
@@ -22,6 +22,7 @@ import {
   logOutOutline,
   eyeOutline,
   keyOutline,
+  cardOutline,
 } from 'ionicons/icons';
 import { PlatformService } from 'src/app/services/platformService';
 import type {
@@ -29,7 +30,11 @@ import type {
   MaterialeAcquistato,
   DatiStudente,
 } from 'src/app/interfaces/profile.interfaces';
-import type { PrenotazioneApi } from 'src/app/interfaces/api.interfaces';
+import type {
+  MetodoPagamentoPayload,
+  MetodoPagamentoStudente,
+  PrenotazioneApi,
+} from 'src/app/interfaces/api.interfaces';
 
 @Component({
   selector: 'app-student-profile',
@@ -44,12 +49,20 @@ export class StudentProfilePage implements OnInit {
   isBioModalOpen = false;
   isAvatarActionSheetOpen = false;
   isPreviewModalOpen = false;
+  isPaymentModalOpen = false;
 
   selectedBookingForReview: PrenotazioneProfilo | null = null;
   selectedMaterialPreview: MaterialeAcquistato | null = null;
   currentRating: number = 0;
   tempBio: string = '';
   email = '';
+  metodoPagamento: MetodoPagamentoStudente = { presente: false };
+  metodoPagamentoForm: MetodoPagamentoPayload = {
+    numero_carta: '',
+    scadenza: '',
+    titolare: '',
+    cvv: '',
+  };
 
   student: DatiStudente = {
     nome: 'Alessandro',
@@ -94,6 +107,7 @@ export class StudentProfilePage implements OnInit {
     private platformService: PlatformService,
     private router: Router,
     private sanitizer: DomSanitizer,
+    private toastController: ToastController,
   ) {
     addIcons({
       schoolOutline,
@@ -112,6 +126,7 @@ export class StudentProfilePage implements OnInit {
       logOutOutline,
       eyeOutline,
       keyOutline,
+      cardOutline,
     });
   }
 
@@ -135,6 +150,7 @@ export class StudentProfilePage implements OnInit {
     );
 
     this.email = utente.email || '';
+    this.metodoPagamento = utente.metodo_pagamento || { presente: false };
     this.student = {
       nome: utente.nome,
       cognome: utente.cognome,
@@ -235,6 +251,89 @@ export class StudentProfilePage implements OnInit {
     this.isAvatarActionSheetOpen = true;
   }
 
+  apriModalMetodoPagamento() {
+    this.metodoPagamentoForm = {
+      numero_carta: '',
+      scadenza: this.metodoPagamento.scadenza || '',
+      titolare: this.metodoPagamento.titolare || '',
+      cvv: '',
+    };
+    this.isPaymentModalOpen = true;
+  }
+
+  chiudiModalMetodoPagamento() {
+    this.isPaymentModalOpen = false;
+    this.metodoPagamentoForm = {
+      numero_carta: '',
+      scadenza: '',
+      titolare: '',
+      cvv: '',
+    };
+  }
+
+  formattaNumeroCarta() {
+    const cifre = this.metodoPagamentoForm.numero_carta
+      .replace(/\D/g, '')
+      .slice(0, 19);
+    this.metodoPagamentoForm.numero_carta = cifre.replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  formattaScadenzaCarta() {
+    const cifre = this.metodoPagamentoForm.scadenza.replace(/\D/g, '').slice(0, 4);
+    this.metodoPagamentoForm.scadenza =
+      cifre.length > 2 ? `${cifre.slice(0, 2)}/${cifre.slice(2)}` : cifre;
+  }
+
+  formattaCvv() {
+    this.metodoPagamentoForm.cvv = this.metodoPagamentoForm.cvv
+      .replace(/\D/g, '')
+      .slice(0, 4);
+  }
+
+  metodoPagamentoValido(): boolean {
+    const numeroCarta = this.metodoPagamentoForm.numero_carta.replace(/\D/g, '');
+    const cvv = this.metodoPagamentoForm.cvv.replace(/\D/g, '');
+    return (
+      this.metodoPagamentoForm.titolare.trim().length >= 3 &&
+      numeroCarta.length >= 13 &&
+      numeroCarta.length <= 19 &&
+      /^\d{2}\/\d{2}$/.test(this.metodoPagamentoForm.scadenza) &&
+      cvv.length >= 3 &&
+      cvv.length <= 4
+    );
+  }
+
+  async salvaMetodoPagamento() {
+    if (!this.metodoPagamentoValido()) {
+      await this.mostraToast(
+        'Completa correttamente tutti i dati della carta.',
+        'danger',
+      );
+      return;
+    }
+
+    try {
+      const utenteAggiornato = await this.platformService.updateMe({
+        metodo_pagamento: {
+          numero_carta: this.metodoPagamentoForm.numero_carta,
+          scadenza: this.metodoPagamentoForm.scadenza,
+          titolare: this.metodoPagamentoForm.titolare,
+          cvv: this.metodoPagamentoForm.cvv,
+        },
+      });
+      this.metodoPagamento =
+        utenteAggiornato.metodo_pagamento || { presente: false };
+      this.chiudiModalMetodoPagamento();
+      await this.mostraToast('Metodo di pagamento salvato.', 'success');
+    } catch (error: any) {
+      await this.mostraToast(
+        error?.error?.message ||
+          'Non e stato possibile salvare il metodo di pagamento.',
+        'danger',
+      );
+    }
+  }
+
   triggerFileInput() {
     const fileInput = document.getElementById(
       'avatarFileInput',
@@ -326,6 +425,16 @@ export class StudentProfilePage implements OnInit {
         returnUrl: '/tabs/student-profile',
       },
     });
+  }
+
+  private async mostraToast(message: string, color: 'success' | 'danger' | 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2400,
+      position: 'bottom',
+      color,
+    });
+    await toast.present();
   }
 
   private mappaPrenotazione(prenotazione: PrenotazioneApi): PrenotazioneProfilo {

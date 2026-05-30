@@ -47,7 +47,7 @@ export class SearchTutorPage implements OnInit {
 
   // Variabili dei filtri
   testoRicerca = '';
-  rangePrezzo = { lower: 10, upper: 100 };
+  rangePrezzo = { lower: 0, upper: 100 };
   dataDa = '';
   dataA = '';
 
@@ -199,7 +199,7 @@ export class SearchTutorPage implements OnInit {
     this.testoRicerca = '';
     this.materiaFiltro = [];
     this.linguaFiltro = [];
-    this.rangePrezzo = { lower: 10, upper: 100 };
+    this.rangePrezzo = { lower: 0, upper: 100 };
     this.dataDa = '';
     this.dataA = '';
     // Rifacciamo la chiamata con i filtri azzerati

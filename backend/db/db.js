@@ -97,6 +97,27 @@ function creaTabelle() {
     `);
 
     db.run(`
+      CREATE TABLE IF NOT EXISTS Metodo_Pagamento_Studente (
+        studente_id INTEGER PRIMARY KEY,
+        titolare TEXT NOT NULL,
+        ultime_quattro TEXT NOT NULL,
+        scadenza TEXT NOT NULL,
+        aggiornato_il DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (studente_id) REFERENCES Studente(utente_id) ON DELETE CASCADE
+      )
+    `);
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS Opzione_Trasferimento_Tutor (
+        tutor_id INTEGER PRIMARY KEY,
+        titolare_conto TEXT NOT NULL,
+        iban TEXT NOT NULL,
+        aggiornato_il DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id) ON DELETE CASCADE
+      )
+    `);
+
+    db.run(`
       CREATE TABLE IF NOT EXISTS Materie (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL UNIQUE

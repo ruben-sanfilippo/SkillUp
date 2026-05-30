@@ -228,6 +228,16 @@
           </div>
 
           <div class="profile-actions-after-languages">
+            <button class="transfer-profile-btn" (click)="apriModalOpzioniTrasferimento()">
+              <ion-icon name="cash-outline"></ion-icon>
+              {{ opzioneTrasferimento.presente ? 'Modifica opzioni di trasferimento' : 'Opzioni di trasferimento' }}
+            </button>
+            @if (opzioneTrasferimento.presente) {
+            <div class="transfer-summary">
+              <span>{{ opzioneTrasferimento.titolare_conto }}</span>
+              <small>{{ opzioneTrasferimento.iban }}</small>
+            </div>
+            }
             <button class="change-password-profile-btn" (click)="vaiAModificaPassword()">
               <ion-icon name="key-outline"></ion-icon>
               Modifica password
@@ -665,6 +675,64 @@
             (click)="salvaSezione('biografia')"
           >
             Salva Biografia
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal
+    [isOpen]="isTransferModalOpen"
+    class="transfer-modal"
+    (didDismiss)="chiudiModalOpzioniTrasferimento()"
+  >
+    <ng-template>
+      <div class="modal-wrapper">
+        <div class="modal-header">
+          <div class="title-left">
+            <ion-icon name="cash-outline" class="header-icon"></ion-icon>
+            <h2>{{ opzioneTrasferimento.presente ? 'Modifica opzioni di trasferimento' : 'Opzioni di trasferimento' }}</h2>
+          </div>
+          <ion-button
+            fill="clear"
+            color="medium"
+            class="close-modal-btn"
+            (click)="chiudiModalOpzioniTrasferimento()"
+          >
+            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="modal-content transfer-modal-content">
+          <div class="transfer-field">
+            <label>Titolare del conto</label>
+            <input
+              type="text"
+              [(ngModel)]="opzioneTrasferimentoForm.titolare_conto"
+              placeholder="Mario Rossi"
+            />
+          </div>
+
+          <div class="transfer-field">
+            <label>IBAN</label>
+            <input
+              type="text"
+              maxlength="42"
+              [(ngModel)]="opzioneTrasferimentoForm.iban"
+              (input)="formattaIbanTrasferimento()"
+              placeholder="IT60 X054 2811 1010 0000 0123 456"
+            />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <ion-button
+            expand="block"
+            class="save-modal-btn"
+            [disabled]="!opzioneTrasferimentoValida()"
+            (click)="salvaOpzioniTrasferimento()"
+          >
+            Salva opzioni di trasferimento
           </ion-button>
         </div>
       </div>
