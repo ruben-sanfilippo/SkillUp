@@ -11,8 +11,6 @@ export interface FiltriRicerca {
 export interface DisponibilitaTutor {
   id?: number;
   data: string;
-  giornoSettimana?: string;
-  giorno_settimana?: string;
   materiaId?: number;
   materia_id?: number;
   materia?: string;

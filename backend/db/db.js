@@ -102,7 +102,6 @@ function creaTabelle() {
         titolare TEXT NOT NULL,
         ultime_quattro TEXT NOT NULL,
         scadenza TEXT NOT NULL,
-        aggiornato_il DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (studente_id) REFERENCES Studente(utente_id) ON DELETE CASCADE
       )
     `);
@@ -112,7 +111,6 @@ function creaTabelle() {
         tutor_id INTEGER PRIMARY KEY,
         titolare_conto TEXT NOT NULL,
         iban TEXT NOT NULL,
-        aggiornato_il DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id) ON DELETE CASCADE
       )
     `);
@@ -157,7 +155,6 @@ function creaTabelle() {
         tutor_id INTEGER NOT NULL,
         materia_id INTEGER NOT NULL,
         data TEXT,
-        giorno_settimana TEXT NOT NULL,
         ora_inizio TEXT NOT NULL,
         ora_fine TEXT NOT NULL,
         tariffa_oraria REAL NOT NULL,
@@ -191,7 +188,6 @@ function creaTabelle() {
         studente_id INTEGER NOT NULL,
         tutor_id INTEGER NOT NULL,
         voto INTEGER CHECK(voto >= 1 AND voto <= 5) NOT NULL,
-        commento TEXT,
         FOREIGN KEY (studente_id) REFERENCES Studente(utente_id) ON DELETE CASCADE,
         FOREIGN KEY (tutor_id) REFERENCES Tutor(utente_id) ON DELETE CASCADE
       )
@@ -225,7 +221,6 @@ function creaTabelle() {
         scadenza DATETIME NOT NULL,
         verificato INTEGER DEFAULT 0,
         usato INTEGER DEFAULT 0,
-        creato_il DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES Utente(id) ON DELETE CASCADE
       )
     `);

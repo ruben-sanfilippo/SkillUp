@@ -64,7 +64,6 @@ export interface PrenotazioneApi {
 export interface RecensionePayload {
   prenotazione_id: string | number;
   voto: number;
-  commento?: string;
 }
 
 export interface MaterialeAcquistatoApi {

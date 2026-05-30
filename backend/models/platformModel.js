@@ -184,13 +184,12 @@ const Platform = {
     await run(
       `
         INSERT INTO Metodo_Pagamento_Studente
-        (studente_id, titolare, ultime_quattro, scadenza, aggiornato_il)
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        (studente_id, titolare, ultime_quattro, scadenza)
+        VALUES (?, ?, ?, ?)
         ON CONFLICT(studente_id) DO UPDATE SET
           titolare = excluded.titolare,
           ultime_quattro = excluded.ultime_quattro,
-          scadenza = excluded.scadenza,
-          aggiornato_il = CURRENT_TIMESTAMP
+          scadenza = excluded.scadenza
       `,
       [studenteId, titolare, numeroCarta.slice(-4), scadenza],
     );
@@ -235,12 +234,11 @@ const Platform = {
     await run(
       `
         INSERT INTO Opzione_Trasferimento_Tutor
-        (tutor_id, titolare_conto, iban, aggiornato_il)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        (tutor_id, titolare_conto, iban)
+        VALUES (?, ?, ?)
         ON CONFLICT(tutor_id) DO UPDATE SET
           titolare_conto = excluded.titolare_conto,
-          iban = excluded.iban,
-          aggiornato_il = CURRENT_TIMESTAMP
+          iban = excluded.iban
       `,
       [tutorId, titolareConto, iban],
     );
@@ -443,14 +441,13 @@ const Platform = {
   async getAvailability(tutorId) {
     return all(
       `
-        SELECT MIN(dt.id) AS id, dt.data, dt.giorno_settimana, dt.ora_inizio, dt.ora_fine,
+        SELECT MIN(dt.id) AS id, dt.data, dt.ora_inizio, dt.ora_fine,
                dt.tariffa_oraria, m.id AS materia_id, m.nome AS materia
         FROM Disponibilita_Tutor dt
         JOIN Materie m ON m.id = dt.materia_id
         WHERE dt.tutor_id = ?
           AND COALESCE(dt.eliminato, 0) = 0
-        GROUP BY dt.data, dt.giorno_settimana, dt.ora_inizio, dt.ora_fine,
-                 dt.tariffa_oraria, m.id, m.nome
+        GROUP BY dt.data, dt.ora_inizio, dt.ora_fine, dt.tariffa_oraria, m.id, m.nome
         ORDER BY dt.data ASC, dt.ora_inizio ASC
       `,
       [tutorId],
@@ -632,14 +629,13 @@ const Platform = {
         await run(
           `
             INSERT INTO Disponibilita_Tutor
-            (tutor_id, materia_id, data, giorno_settimana, ora_inizio, ora_fine, tariffa_oraria, eliminato)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+            (tutor_id, materia_id, data, ora_inizio, ora_fine, tariffa_oraria, eliminato)
+            VALUES (?, ?, ?, ?, ?, ?, 0)
           `,
           [
             tutorId,
             materiaId,
             data,
-            item.giorno_settimana || data || "da definire",
             item.dalle || item.ora_inizio,
             item.alle || item.ora_fine,
             tariffaOraria || item.tariffa_oraria || 0,
@@ -1038,10 +1034,10 @@ const Platform = {
 
     await run(
       `
-        INSERT INTO Recensione (studente_id, tutor_id, voto, commento)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO Recensione (studente_id, tutor_id, voto)
+        VALUES (?, ?, ?)
       `,
-      [studenteId, booking.tutor_id, voto, data.commento || ""],
+      [studenteId, booking.tutor_id, voto],
     );
 
     await run(
