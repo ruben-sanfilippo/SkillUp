@@ -405,6 +405,11 @@
     background: rgba(3, 105, 161, 0.1);
     color: var(--tertiary-color);
   }
+
+  &.ongoing {
+    background: rgba(245, 158, 11, 0.14);
+    color: #b45309;
+  }
 }
 
 .empty-state-card {

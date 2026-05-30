@@ -16,10 +16,11 @@ export interface PrenotazioneProfilo {
   avatarTutor: string;
   materia: string;
   dataOra: Date;
+  dataFine: Date;
   dataItaliana: string;
   oraInizio: string;
   oraFine: string;
-  stato: 'IN PROGRAMMA' | 'COMPLETATA';
+  stato: 'IN PROGRAMMA' | 'IN CORSO' | 'COMPLETATA';
   recensita: boolean;
 }
 

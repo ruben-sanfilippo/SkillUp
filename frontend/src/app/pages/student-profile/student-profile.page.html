@@ -86,7 +86,10 @@
                     <p>{{ prenotazione.materia }}</p>
                   </div>
                 </div>
-                <div class="status-chip" [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'">
+                <div
+                  class="status-chip"
+                  [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'"
+                  [class.ongoing]="prenotazione.stato === 'IN CORSO'">
                   {{ prenotazione.stato }}
                 </div>
               </div>
@@ -205,7 +208,10 @@
                   }
                 </div>
               </div>
-              <div class="status-chip" [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'">
+              <div
+                class="status-chip"
+                [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'"
+                [class.ongoing]="prenotazione.stato === 'IN CORSO'">
                 {{ prenotazione.stato }}
               </div>
             </div>

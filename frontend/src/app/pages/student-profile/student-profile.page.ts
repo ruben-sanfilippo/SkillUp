@@ -162,12 +162,11 @@ export class StudentProfilePage implements OnInit {
   }
 
   get allBookingsSorted(): PrenotazioneProfilo[] {
-    const adesso = Date.now();
     return [...this.allBookings].sort((a, b) => {
-      const aFuture = a.dataOra.getTime() >= adesso;
-      const bFuture = b.dataOra.getTime() >= adesso;
-      if (aFuture !== bFuture) return aFuture ? -1 : 1;
-      return aFuture
+      const aAttiva = a.stato !== 'COMPLETATA';
+      const bAttiva = b.stato !== 'COMPLETATA';
+      if (aAttiva !== bAttiva) return aAttiva ? -1 : 1;
+      return aAttiva
         ? a.dataOra.getTime() - b.dataOra.getTime()
         : b.dataOra.getTime() - a.dataOra.getTime();
     });
@@ -331,6 +330,7 @@ export class StudentProfilePage implements OnInit {
 
   private mappaPrenotazione(prenotazione: PrenotazioneApi): PrenotazioneProfilo {
     const data = new Date(`${prenotazione.data}T${prenotazione.ora_inizio}:00`);
+    const dataFine = new Date(`${prenotazione.data}T${prenotazione.ora_fine}:00`);
     const nomeTutor =
       prenotazione.nomeTutor ||
       prenotazione.tutorName ||
@@ -350,6 +350,7 @@ export class StudentProfilePage implements OnInit {
       avatarTutor,
       materia: prenotazione.materia,
       dataOra: data,
+      dataFine,
       dataItaliana: data.toLocaleDateString('it-IT', {
         day: '2-digit',
         month: 'short',
@@ -357,9 +358,19 @@ export class StudentProfilePage implements OnInit {
       }),
       oraInizio: prenotazione.ora_inizio,
       oraFine: prenotazione.ora_fine,
-      stato: data >= new Date() ? 'IN PROGRAMMA' : 'COMPLETATA',
+      stato: this.statoPrenotazione(data, dataFine),
       recensita: !!(prenotazione.recensita || prenotazione.hasReviewed),
     };
+  }
+
+  private statoPrenotazione(
+    dataInizio: Date,
+    dataFine: Date,
+  ): PrenotazioneProfilo['stato'] {
+    const adesso = new Date();
+    if (adesso < dataInizio) return 'IN PROGRAMMA';
+    if (adesso >= dataInizio && adesso < dataFine) return 'IN CORSO';
+    return 'COMPLETATA';
   }
 
   private calcolaOreStudio(prenotazioni: PrenotazioneProfilo[]): number {
