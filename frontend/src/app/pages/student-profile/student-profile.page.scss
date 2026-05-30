@@ -407,6 +407,35 @@
   }
 }
 
+.empty-state-card {
+  width: 100%;
+  min-height: 156px;
+  padding: 28px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  background: var(--card-background);
+  color: var(--neutral-color);
+  border: 1.5px dashed rgba(100, 116, 139, 0.22);
+  border-radius: 20px;
+
+  ion-icon {
+    font-size: 34px;
+    color: var(--primary-color);
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--neutral-color);
+  }
+}
+
 /* --- BADGE STATO RECENSITO --- */
 .reviewed-badge {
   display: flex;
@@ -466,6 +495,11 @@
   .material-list {
     display: flex;
     flex-direction: column;
+
+    .material-empty-state {
+      min-height: 180px;
+      border-radius: 16px;
+    }
 
     .material-row {
       display: flex;
@@ -607,6 +641,12 @@
     padding: 0 24px 24px 24px;
     display: flex;
     flex-direction: column;
+
+    .modal-empty-state {
+      margin-top: 18px;
+      min-height: 220px;
+      background: var(--app-background);
+    }
 
     .modal-booking-row {
       display: flex;

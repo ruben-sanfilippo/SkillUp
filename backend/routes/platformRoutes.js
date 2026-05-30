@@ -7,7 +7,7 @@ router.get("/users/me", authMiddleware, platformController.getMe);
 router.put("/users/me", authMiddleware, platformController.updateMe);
 router.get("/users/:id", authMiddleware, platformController.getUser);
 
-router.post("/tutors/search", platformController.searchTutors);
+router.post("/tutors/search", authMiddleware, platformController.searchTutors);
 router.get("/tutors/me", authMiddleware, platformController.getTutorMe);
 router.put("/tutors/me", authMiddleware, platformController.updateTutorMe);
 router.put(

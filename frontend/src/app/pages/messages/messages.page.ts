@@ -13,6 +13,7 @@ import type {
   ConversazioneChat,
   MessaggioChat,
 } from 'src/app/interfaces/messages.interfaces';
+import type { MessaggioApi } from 'src/app/interfaces/api.interfaces';
 
 @Component({
   selector: 'app-messages',
@@ -36,6 +37,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   currentUserId = 0;
   private socket?: Socket;
   private queryParamsSub?: Subscription;
+  private paginaAttiva = false;
 
   constructor(
     private platformService: PlatformService,
@@ -68,10 +70,17 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   async ionViewWillEnter() {
+    this.paginaAttiva = true;
     const userId = this.route.snapshot.queryParamMap.get('userId');
     if (userId && this.currentUserId) {
       await this.apriChatDaUserId(userId);
+    } else if (this.activeChat && this.isChatOpen) {
+      await this.selezionaChat(this.activeChat);
     }
+  }
+
+  ionViewDidLeave() {
+    this.paginaAttiva = false;
   }
 
   ngOnDestroy() {
@@ -88,10 +97,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
       immagineProfilo: chat.immagine_profilo || '',
       ultimoMessaggioTesto: chat.lastMessageText || '',
       ultimoMessaggioOrario: chat.lastMessageTime
-        ? new Date(chat.lastMessageTime).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })
+        ? this.formattaOrarioMessaggio(chat.lastMessageTime)
         : '',
       ultimoMessaggioData: chat.lastMessageTime || '',
       nonLetta: Number(chat.unreadCount || 0) > 0,
@@ -145,12 +151,9 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     const ultimoMessaggio = messages[messages.length - 1];
     this.activeChat.ultimoMessaggioData =
       ultimoMessaggio?.data_invio || new Date().toISOString();
-    this.activeChat.ultimoMessaggioOrario = new Date(
+    this.activeChat.ultimoMessaggioOrario = this.formattaOrarioMessaggio(
       this.activeChat.ultimoMessaggioData,
-    ).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    );
     this.activeChat.nonLetta = false;
     this.aggiungiChatSeMancante(this.activeChat);
     this.ordinaConversazioni();
@@ -177,14 +180,11 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  private mappaMessaggio(msg: any): MessaggioChat {
+  private mappaMessaggio(msg: MessaggioApi): MessaggioChat {
     return {
       id: msg.id,
       testo: msg.contenuto,
-      orario: new Date(msg.data_invio).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      orario: this.formattaOrarioMessaggio(msg.data_invio),
       mittente:
         Number(msg.mittente_id) === Number(this.currentUserId)
           ? 'studente'
@@ -197,12 +197,12 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
       transports: ['websocket', 'polling'],
     });
     this.socket.emit('join-user', this.currentUserId);
-    this.socket.on('message-received', (msg: any) => {
+    this.socket.on('message-received', (msg: MessaggioApi) => {
       this.gestisciMessaggioSocket(msg);
     });
   }
 
-  private async gestisciMessaggioSocket(msg: any) {
+  private async gestisciMessaggioSocket(msg: MessaggioApi) {
     const otherUserId =
       Number(msg.mittente_id) === Number(this.currentUserId)
         ? Number(msg.destinatario_id)
@@ -218,12 +218,16 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
 
     chat.ultimoMessaggioTesto = msg.contenuto;
     chat.ultimoMessaggioData = msg.data_invio || new Date().toISOString();
-    chat.ultimoMessaggioOrario = new Date(msg.data_invio).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    chat.ultimoMessaggioOrario = this.formattaOrarioMessaggio(
+      chat.ultimoMessaggioData,
+    );
 
-    const isActive = Number(this.activeChat?.utenteId) === otherUserId;
+    const messaggioRicevuto = Number(msg.mittente_id) !== Number(this.currentUserId);
+    const isActive =
+      this.paginaAttiva &&
+      this.isChatOpen &&
+      Number(this.activeChat?.utenteId) === otherUserId;
+
     if (isActive) {
       const exists = this.activeChat!.messaggi.some(
         (message) => Number(message.id) === Number(msg.id),
@@ -234,7 +238,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
       chat.nonLetta = false;
       await this.platformService.markMessagesRead(otherUserId);
       setTimeout(() => this.scrollToBottom(), 50);
-    } else if (Number(msg.mittente_id) !== Number(this.currentUserId)) {
+    } else if (messaggioRicevuto) {
       chat.nonLetta = true;
     }
 
@@ -305,8 +309,29 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
 
   private timestampChat(chat: ConversazioneChat): number {
     if (!chat.ultimoMessaggioData) return 0;
-    const timestamp = new Date(chat.ultimoMessaggioData).getTime();
+    const timestamp = this.dataMessaggioUtente(chat.ultimoMessaggioData).getTime();
     return Number.isNaN(timestamp) ? 0 : timestamp;
+  }
+
+  private formattaOrarioMessaggio(dataInvio?: string): string {
+    return this.dataMessaggioUtente(dataInvio).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  private dataMessaggioUtente(dataInvio?: string): Date {
+    const valore = String(dataInvio || '').trim();
+    if (!valore) return new Date();
+
+    if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(valore)) {
+      return new Date(valore);
+    }
+
+    const isoSenzaFuso = valore.includes('T')
+      ? valore
+      : valore.replace(' ', 'T');
+    return new Date(`${isoSenzaFuso}Z`);
   }
 
   private notificaMessaggiNonLetti() {

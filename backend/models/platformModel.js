@@ -200,6 +200,13 @@ const Platform = {
     `);
 
     return rows.map(mappaTutor).filter((tutor) => {
+      if (
+        filtri.excludeUserId &&
+        Number(tutor.id) === Number(filtri.excludeUserId)
+      ) {
+        return false;
+      }
+
       if (!filtri.includeWithoutSubjects && tutor.subjects.length === 0) {
         return false;
       }

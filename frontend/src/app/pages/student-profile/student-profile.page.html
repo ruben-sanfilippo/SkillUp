@@ -70,7 +70,13 @@
         </div>
 
         <div class="bookings-grid">
-          @for (prenotazione of recentBookings; track prenotazione.id) {
+          @if (recentBookings.length === 0) {
+            <div class="card empty-state-card">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <p>Non hai ancora effettuato prenotazioni</p>
+            </div>
+          } @else {
+            @for (prenotazione of recentBookings; track prenotazione.id) {
             <div class="card booking-card">
               <div class="booking-top">
                 <div class="tutor">
@@ -101,6 +107,7 @@
                 }
               </div>
             </div>
+            }
           }
         </div>
 
@@ -110,7 +117,13 @@
           </div>
           <div class="material-scroll-container">
             <div class="material-list">
-              @for (item of purchasedMaterials; track item.id) {
+              @if (purchasedMaterials.length === 0) {
+                <div class="empty-state-card material-empty-state">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                  <p>Non hai ancora comprato nessun materiale didattico</p>
+                </div>
+              } @else {
+                @for (item of purchasedMaterials; track item.id) {
                 <div class="material-row">
                   <div class="cover-box" [class.notes]="item.tipo === 'appunti'">
                     @if (item.urlCopertina) {
@@ -133,6 +146,7 @@
                     <ion-icon name="download-outline" slot="icon-only"></ion-icon>
                   </ion-button>
                 </div>
+                }
               }
             </div>
           </div>
@@ -157,7 +171,13 @@
 
       <ion-content class="modal-content-bg">
         <div class="modal-list-container">
-          @for (prenotazione of allBookingsSorted; track prenotazione.id) {
+          @if (allBookingsSorted.length === 0) {
+            <div class="empty-state-card modal-empty-state">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <p>Non hai ancora effettuato prenotazioni</p>
+            </div>
+          } @else {
+            @for (prenotazione of allBookingsSorted; track prenotazione.id) {
             <div class="modal-booking-row">
               <div class="modal-left-layout">
                 <div class="modal-tutor-group">
@@ -189,6 +209,7 @@
                 {{ prenotazione.stato }}
               </div>
             </div>
+            }
           }
         </div>
       </ion-content>

@@ -28,7 +28,12 @@ exports.updateMe = async (req, res) => {
 
 exports.searchTutors = async (req, res) => {
   try {
-    res.json(await Platform.searchTutors(req.body || {}));
+    const filtri = { ...(req.body || {}) };
+    if (req.user?.tipologia_utente === "tutor") {
+      filtri.excludeUserId = req.user.id;
+    }
+
+    res.json(await Platform.searchTutors(filtri));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
