@@ -128,7 +128,7 @@
 }
 
 .change-password-profile-btn {
-  margin-top: 18px;
+  margin-top: 0;
   border: 1px solid rgba(37, 99, 235, 0.22);
   background: rgba(37, 99, 235, 0.08);
   color: var(--primary-color);
@@ -136,6 +136,13 @@
   &:hover {
     background: rgba(37, 99, 235, 0.12);
   }
+}
+
+.profile-actions-after-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 24px 24px;
 }
 
 .logout-profile-btn {
@@ -285,73 +292,70 @@
   }
 }
 
-/* BLOCCO AVATAR AGGIORNATO CON TRANSIZIONI ED EFFETTI HOVER */
 .avatar-container {
   position: relative;
-  width: 110px;
-  height: 110px;
-  margin-bottom: 12px;
+  width: 124px;
+  height: 124px;
+  margin-bottom: 20px;
 
-  .avatar-placeholder {
+  .avatar-holder {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: var(--input-background);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 44px;
-    border: 3px solid var(--card-background);
+    border: 5px solid var(--card-background);
     overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    background: var(--input-background);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-    &:hover {
-      transform: scale(1.03);
-      filter: brightness(0.95);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    &:active {
-      transform: scale(0.98);
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
+      color: #FFFFFF;
+      font-family: var(--font-headline);
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
-  .avatar-img-render {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .change-avatar-btn {
+  .avatar-edit-badge {
     position: absolute;
-    bottom: -2px;
-    right: -2px;
-    margin: 0;
-    width: 34px;
-    height: 34px;
-    background: var(--primary-color) !important;
+    bottom: 2px;
+    right: 2px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    border: 3px solid var(--card-background) !important;
+    background: var(--primary-color);
+    color: #FFFFFF;
+    border: 3px solid var(--card-background);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    outline: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    padding: 0;
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease;
 
-    ion-icon {
-      color: white;
-      font-size: 14px;
-    }
-
     &:hover {
-      transform: scale(1.15);
-      background: #2563eb !important; 
+      transform: scale(1.1);
+      background: var(--tertiary-color);
     }
 
-    &:active {
-      transform: scale(0.95);
+    ion-icon {
+      font-size: 18px;
     }
   }
 }

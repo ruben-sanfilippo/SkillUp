@@ -152,10 +152,34 @@ export class TutorProfilePage implements OnInit {
 
   avatarUrl = '';
 
-  // Stati per la gestione del menu contestuale dell'avatar
-  isActionSheetAvatarOpen = false;
+  isAvatarActionSheetOpen = false;
   @ViewChild('avatarInputHidden')
   avatarInputHidden!: ElementRef<HTMLInputElement>;
+
+  public avatarActionSheetButtons = [
+    {
+      text: 'Carica / Modifica foto',
+      icon: 'image-outline',
+      handler: () => {
+        this.triggerFileInput();
+      },
+    },
+    {
+      text: 'Rimuovi foto',
+      role: 'destructive',
+      icon: 'trash-outline',
+      handler: () => {
+        this.rimuoviAvatar();
+      },
+    },
+    {
+      text: 'Annulla',
+      role: 'cancel',
+      data: {
+        action: 'cancel',
+      },
+    },
+  ];
 
   nuovaDispensa: Dispensa = {
     titolo: '',
@@ -290,40 +314,22 @@ export class TutorProfilePage implements OnInit {
     return `${parti[2]} ${this.mesiNomi[parseInt(parti[1]) - 1]} ${parti[0]}`;
   }
 
-  // Generatore pulsanti dinamici per l'Action Sheet dell'avatar
-  get actionSheetButtons() {
-    const buttons: any[] = [
-      {
-        text: this.avatarUrl ? 'Modifica foto' : 'Carica foto',
-        icon: 'cloud-upload-outline',
-        handler: () => {
-          this.avatarInputHidden.nativeElement.click();
-        },
-      },
-    ];
-
-    if (this.avatarUrl) {
-      buttons.push({
-        text: 'Rimuovi foto',
-        role: 'destructive',
-        icon: 'close-outline',
-        handler: () => {
-          this.rimuoviAvatar();
-        },
-      });
-    }
-
-    buttons.push({
-      text: 'Annulla',
-      role: 'cancel',
-      icon: 'close-circle',
-    });
-
-    return buttons;
+  apriMenuAvatar() {
+    this.isAvatarActionSheetOpen = true;
   }
 
-  apriMenuAvatar() {
-    this.isActionSheetAvatarOpen = true;
+  triggerFileInput() {
+    if (this.avatarInputHidden?.nativeElement) {
+      this.avatarInputHidden.nativeElement.click();
+      return;
+    }
+
+    const fileInput = document.getElementById(
+      'avatarTutorFileInput',
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
   }
 
   async rimuoviAvatar() {

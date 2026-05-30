@@ -7,33 +7,30 @@
 
           <div class="profile-identity-block">
             <div class="avatar-container">
+              <div class="avatar-holder">
+                @if (avatarUrl) {
+                  <img [src]="avatarUrl" alt="immagineProfilo Tutor" />
+                } @else {
+                  <div class="avatar-placeholder">
+                    {{ nome[0] }}{{ cognome[0] }}
+                  </div>
+                }
+              </div>
+              <button
+                class="avatar-edit-badge"
+                (click)="apriMenuAvatar()"
+                title="Gestisci foto profilo"
+              >
+                <ion-icon name="camera-outline"></ion-icon>
+              </button>
               <input
                 type="file"
-                #avatarInput
+                id="avatarTutorFileInput"
+                #avatarInputHidden
                 accept="image/*"
                 style="display: none"
                 (change)="onAvatarSelected($event)"
               />
-
-              <div class="avatar-placeholder" (click)="avatarInput.click()">
-                @if (avatarUrl) {
-                <img
-                  [src]="avatarUrl"
-                  alt="Avatar Tutor"
-                  class="avatar-img-render"
-                />
-                } @else {
-                <ion-icon name="person-outline"></ion-icon>
-                }
-              </div>
-              <ion-button
-                size="small"
-                fill="clear"
-                class="change-avatar-btn"
-                (click)="avatarInput.click()"
-              >
-                <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
-              </ion-button>
             </div>
 
             <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
@@ -46,15 +43,6 @@
                 <span class="stat-label">({{ numeroRecensioni }})</span>
               </div>
             </div>
-
-            <button class="change-password-profile-btn" (click)="vaiAModificaPassword()">
-              <ion-icon name="key-outline"></ion-icon>
-              Modifica password
-            </button>
-            <button class="logout-profile-btn" (click)="logout()">
-              <ion-icon name="log-out-outline"></ion-icon>
-              Esci
-            </button>
           </div>
 
           <div class="bio-section">
@@ -237,6 +225,17 @@
               </div>
               } }
             </div>
+          </div>
+
+          <div class="profile-actions-after-languages">
+            <button class="change-password-profile-btn" (click)="vaiAModificaPassword()">
+              <ion-icon name="key-outline"></ion-icon>
+              Modifica password
+            </button>
+            <button class="logout-profile-btn" (click)="logout()">
+              <ion-icon name="log-out-outline"></ion-icon>
+              Esci
+            </button>
           </div>
         </div>
       </div>
@@ -736,5 +735,13 @@
       </div>
     </ng-template>
   </ion-modal>
+
+  <ion-action-sheet
+    [isOpen]="isAvatarActionSheetOpen"
+    header="Gestisci Foto Profilo"
+    [buttons]="avatarActionSheetButtons"
+    (didDismiss)="isAvatarActionSheetOpen = false"
+  >
+  </ion-action-sheet>
 </ion-content>
 
