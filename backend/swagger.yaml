@@ -188,7 +188,7 @@ paths:
                 nome: Mario
                 cognome: Rossi
                 email: mario.rossi@example.com
-                immagine_profilo: data:image/png;base64,iVBORw0KGgo...
+                immagine_profilo: http://localhost:3000/uploads/public/profiles/mario-rossi.png
                 stato: attivo
                 tipologia_utente: studente
                 data_iscrizione: "2026-05-30"
@@ -218,7 +218,7 @@ paths:
               nome: Mario
               cognome: Rossi
               bio: Mi sto preparando per l'esame di analisi.
-              immagine_profilo: data:image/png;base64,iVBORw0KGgo...
+              immagine_profilo: ""
               metodo_pagamento:
                 titolare: Mario Rossi
                 numero_carta: "4111 1111 1111 1111"
@@ -235,6 +235,51 @@ paths:
           $ref: "#/components/responses/NonAutorizzato"
         "500":
           $ref: "#/components/responses/ErroreServer"
+
+  /api/users/me/avatar:
+    post:
+      summary: Carica o sostituisce l'immagine profilo dell'utente autenticato
+      description: Salva l'immagine in uploads/public/profiles e aggiorna il campo immagine_profilo dell'utente. Se era presente una vecchia immagine locale, il file precedente viene eliminato dalla cartella.
+      tags: [Utenti]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [immagine_profilo]
+              properties:
+                immagine_profilo:
+                  type: string
+                  format: binary
+            encoding:
+              immagine_profilo:
+                contentType: image/png, image/jpeg, image/webp
+      responses:
+        "200":
+          description: Immagine profilo aggiornata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Utente"
+              example:
+                id: 2
+                nome: Mario
+                cognome: Rossi
+                email: mario.rossi@example.com
+                immagine_profilo: http://localhost:3000/uploads/public/profiles/mario-rossi.png
+                stato: attivo
+                tipologia_utente: studente
+        "400":
+          description: Nessuna immagine caricata
+          content:
+            application/json:
+              example:
+                message: Nessuna immagine caricata.
+        "401":
+          $ref: "#/components/responses/NonAutorizzato"
 
   /api/users/{id}:
     get:
@@ -350,7 +395,7 @@ paths:
               nome: Elena
               cognome: Bianchi
               bio: Offro lezioni di matematica e fisica.
-              immagine_profilo: data:image/jpeg;base64,/9j/4AAQSk...
+              immagine_profilo: ""
               materie: [Matematica, Fisica]
               lingue: [Italiano, Inglese]
               opzione_trasferimento:
@@ -432,6 +477,71 @@ paths:
               example:
                 message: Tutor non trovato
 
+  /api/materials/upload:
+    post:
+      summary: Carica un materiale didattico con file, anteprima e copertina
+      description: Usa multipart/form-data. Il file completo viene salvato in uploads/private/materials ed e scaricabile solo tramite endpoint protetto; anteprima e copertina vengono salvate in uploads/public/materials.
+      tags: [Materiali didattici]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [titolo, file]
+              properties:
+                titolo:
+                  type: string
+                  example: Dispensa di analisi
+                descrizione:
+                  type: string
+                  example: Appunti con esercizi svolti sugli integrali.
+                materia:
+                  type: string
+                  example: Analisi Matematica 1
+                importo:
+                  type: number
+                  example: 7.5
+                file:
+                  type: string
+                  format: binary
+                  description: File completo della dispensa, salvato in area privata.
+                anteprima:
+                  type: string
+                  format: binary
+                  description: Immagine o PDF di anteprima pubblica.
+                copertina:
+                  type: string
+                  format: binary
+                  description: Immagine di copertina pubblica.
+      responses:
+        "201":
+          description: Materiale caricato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Materiale"
+              example:
+                id: 8
+                tutor_id: 4
+                materia_id: 15
+                titolo: Dispensa di analisi
+                descrizione: Appunti con esercizi svolti sugli integrali.
+                file_url: uploads/private/materials/dispensa-analisi.pdf
+                anteprima_url: http://localhost:3000/uploads/public/materials/anteprima-analisi.png
+                copertina_url: http://localhost:3000/uploads/public/materials/copertina-analisi.png
+                importo: 7.5
+        "400":
+          description: File mancante o dati non validi
+          content:
+            application/json:
+              example:
+                message: Carica il file completo della dispensa.
+        "403":
+          $ref: "#/components/responses/PermessiInsufficienti"
+
   /api/materials/{id}:
     delete:
       summary: Elimina logicamente un materiale didattico
@@ -456,6 +566,40 @@ paths:
                 message: Materiale non trovato
         "403":
           $ref: "#/components/responses/PermessiInsufficienti"
+
+  /api/materials/{id}/download:
+    get:
+      summary: Scarica il file completo di un materiale didattico
+      description: Il tutor proprietario puo scaricare il proprio materiale. Lo studente puo scaricarlo solo se lo ha acquistato.
+      tags: [Materiali didattici]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: File scaricato
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "403":
+          description: Materiale non acquistato
+          content:
+            application/json:
+              example:
+                message: Devi acquistare il materiale prima di scaricarlo.
+        "404":
+          description: Materiale o file non trovato
+          content:
+            application/json:
+              example:
+                message: File non trovato
 
   /api/materials/{id}/purchase:
     post:
