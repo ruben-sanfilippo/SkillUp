@@ -142,7 +142,7 @@ export class TabsPage implements OnInit, OnDestroy {
 
     const alert = await this.alertController.create({
       header: 'Account bloccato',
-      message: 'Il tuo profilo e stato bloccato. Verrai disconnesso.',
+      message: 'Il tuo profilo è stato bloccato. Verrai disconnesso.',
       buttons: ['OK'],
     });
     await alert.present();
