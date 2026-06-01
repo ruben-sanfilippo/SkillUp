@@ -26,6 +26,7 @@ export interface PrenotazioneProfilo {
 
 export interface MaterialeAcquistato {
   id: string | number;
+  materialeId?: string | number;
   titolo: string;
   autore: string;
   tipo: 'pdf' | 'appunti';
@@ -47,6 +48,8 @@ export interface Dispensa {
   urlAnteprima?: string | SafeResourceUrl;
   urlAnteprimaRaw?: string;
   anteprimaPdf?: boolean;
+  fileCopertina?: File | null;
+  fileAnteprima?: File | null;
   fileCompleto?: File | null;
   urlFile?: string;
   haAnteprima: boolean;

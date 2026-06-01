@@ -2,9 +2,16 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const platformController = require("../controllers/platformController");
+const { upload } = require("../middleware/uploadMiddleware");
 
 router.get("/users/me", authMiddleware, platformController.getMe);
 router.put("/users/me", authMiddleware, platformController.updateMe);
+router.post(
+  "/users/me/avatar",
+  authMiddleware,
+  upload.single("immagine_profilo"),
+  platformController.uploadMyAvatar,
+);
 router.get("/users/:id", authMiddleware, platformController.getUser);
 
 router.post("/tutors/search", authMiddleware, platformController.searchTutors);
@@ -17,8 +24,22 @@ router.put(
 );
 router.get("/tutors/:id", authMiddleware, platformController.getTutor);
 
-router.post("/materials", authMiddleware, platformController.createMaterial);
+router.post(
+  "/materials/upload",
+  authMiddleware,
+  upload.fields([
+    { name: "file", maxCount: 1 },
+    { name: "anteprima", maxCount: 1 },
+    { name: "copertina", maxCount: 1 },
+  ]),
+  platformController.uploadMaterial,
+);
 router.delete("/materials/:id", authMiddleware, platformController.deleteMaterial);
+router.get(
+  "/materials/:id/download",
+  authMiddleware,
+  platformController.downloadMaterial,
+);
 router.post(
   "/materials/:id/purchase",
   authMiddleware,

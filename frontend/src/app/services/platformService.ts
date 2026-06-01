@@ -32,6 +32,14 @@ export class PlatformService {
     );
   }
 
+  uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('immagine_profilo', file);
+    return firstValueFrom(
+      this.http.post<UtenteApi>(`${environment.apiUrl}/api/users/me/avatar`, formData),
+    );
+  }
+
   getUser(id: number | string) {
     return firstValueFrom(
       this.http.get<UtenteApi>(`${environment.apiUrl}/api/users/${id}`),
@@ -55,6 +63,14 @@ export class PlatformService {
       this.http.get<MaterialeAcquistatoApi[]>(
         `${environment.apiUrl}/api/materials/purchased/me`,
       ),
+    );
+  }
+
+  downloadMaterial(materialeId: number | string) {
+    return firstValueFrom(
+      this.http.get(`${environment.apiUrl}/api/materials/${materialeId}/download`, {
+        responseType: 'blob',
+      }),
     );
   }
 

@@ -29,9 +29,9 @@ export interface DatiMaterialeDidattico {
   titolo: string;
   descrizione: string;
   materia?: string;
-  urlFile: string;
-  urlAnteprima?: string;
-  urlCopertina?: string;
+  file: File;
+  anteprima?: File | null;
+  copertina?: File | null;
   importo: number;
 }
 
@@ -49,6 +49,7 @@ export interface TutorApi {
   reviews: number;
   price: number;
   image: string;
+  immagine_profilo?: string;
   disponibileDal?: string;
   disponibileAl?: string;
   availability?: DisponibilitaTutor[];

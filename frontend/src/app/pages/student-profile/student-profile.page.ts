@@ -164,6 +164,7 @@ export class StudentProfilePage implements OnInit {
     this.recentBookings = this.allBookingsSorted.slice(0, 2);
     this.purchasedMaterials = materiali.map((materiale) => ({
       id: materiale.id,
+      materialeId: materiale.materiale_id || materiale.id,
       titolo: materiale.titolo,
       autore: materiale.autore,
       tipo: this.tipoMateriale(materiale.file_url),
@@ -350,11 +351,11 @@ export class StudentProfilePage implements OnInit {
       const reader = new FileReader();
       reader.onload = () => {
         this.student.immagineProfilo = reader.result as string;
-        this.platformService.updateMe({
-          immagine_profilo: this.student.immagineProfilo,
-        });
       };
       reader.readAsDataURL(file);
+      void this.platformService.uploadAvatar(file).then((utente) => {
+        this.student.immagineProfilo = utente.immagine_profilo || '';
+      });
     }
   }
 
@@ -397,7 +398,7 @@ export class StudentProfilePage implements OnInit {
   async scaricaMateriale(item: MaterialeAcquistato) {
     const estensione = this.estensioneFile(item.urlFile);
     const nomeFile = `${item.titolo.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
-    const blob = await this.creaBlobDownload(item);
+    const blob = await this.platformService.downloadMaterial(item.materialeId || item.id);
     const url = window.URL.createObjectURL(blob);
 
     const ancoraDownload = document.createElement('a');
@@ -518,14 +519,20 @@ export class StudentProfilePage implements OnInit {
   }
 
   private isPdfDataUrl(url?: string): boolean {
-    return !!url && url.startsWith('data:application/pdf');
+    return !!url && (url.startsWith('data:application/pdf') || url.toLowerCase().includes('.pdf'));
   }
 
   private tipoMateriale(url?: string): 'pdf' | 'appunti' {
+    if (url && !url.startsWith('data:')) {
+      return url.toLowerCase().includes('.pdf') ? 'pdf' : 'appunti';
+    }
     return this.mimeDaDataUrl(url).includes('pdf') ? 'pdf' : 'appunti';
   }
 
   private etichettaFile(url?: string): string {
+    if (url && !url.startsWith('data:')) {
+      return this.estensioneFile(url).toUpperCase();
+    }
     const mime = this.mimeDaDataUrl(url);
     if (mime.includes('pdf')) return 'PDF';
     if (mime.includes('image')) return 'IMMAGINE';
@@ -542,6 +549,10 @@ export class StudentProfilePage implements OnInit {
   }
 
   private estensioneFile(url?: string): string {
+    const estensione = String(url || '').split('?')[0].split('.').pop();
+    if (url && !url.startsWith('data:') && estensione && estensione.length <= 5) {
+      return estensione.toLowerCase();
+    }
     const mime = this.mimeDaDataUrl(url);
     if (mime.includes('pdf')) return 'pdf';
     if (mime.includes('png')) return 'png';
@@ -555,15 +566,5 @@ export class StudentProfilePage implements OnInit {
     return match?.[1] || 'text/plain';
   }
 
-  private async creaBlobDownload(item: MaterialeAcquistato): Promise<Blob> {
-    if (item.urlFile?.startsWith('data:')) {
-      const response = await fetch(item.urlFile);
-      return response.blob();
-    }
-
-    return new Blob([`Titolo: ${item.titolo}\nAutore: ${item.autore}`], {
-      type: 'text/plain;charset=utf-8',
-    });
-  }
 }
 

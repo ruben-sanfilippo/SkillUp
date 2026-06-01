@@ -1,4 +1,7 @@
 const Platform = require("../models/platformModel");
+const fs = require("fs");
+const path = require("path");
+const { publicPath, privatePath } = require("../middleware/uploadMiddleware");
 
 function requireRole(req, res, roles) {
   if (!roles.includes(req.user.tipologia_utente)) {
@@ -19,12 +22,23 @@ exports.getMe = async (req, res) => {
 
 exports.updateMe = async (req, res) => {
   try {
+    const shouldUpdateProfileImage = req.body.immagine_profilo !== undefined;
+    const previous = shouldUpdateProfileImage
+      ? await Platform.getCurrentUser(req.user.id)
+      : null;
     const user = await Platform.updateCurrentUser(req.user.id, req.body);
     if (user.invalidPaymentMethod) {
       return res.status(400).json({
         message:
           "Inserisci un metodo di pagamento valido con titolare, numero carta, scadenza e CVV.",
       });
+    }
+    if (
+      shouldUpdateProfileImage &&
+      previous?.immagine_profilo &&
+      previous.immagine_profilo !== (user.immagine_profilo || "")
+    ) {
+      await deleteProfileImage(previous.immagine_profilo);
     }
     res.json(user);
   } catch (err) {
@@ -94,14 +108,78 @@ exports.getTutorMe = async (req, res) => {
   }
 };
 
+function publicUrl(req, file) {
+  return `${req.protocol}://${req.get("host")}${publicPath(file)}`;
+}
+
+function profileImagePath(imageUrl) {
+  if (!imageUrl || typeof imageUrl !== "string") return null;
+
+  let pathname = imageUrl;
+  try {
+    pathname = new URL(imageUrl).pathname;
+  } catch {
+    // imageUrl can already be a relative path saved by older local data.
+  }
+
+  if (!pathname.startsWith("/uploads/public/profiles/")) return null;
+
+  const absolutePath = path.resolve(__dirname, "..", pathname.replace(/^\/+/, ""));
+  const profilesRoot = path.resolve(__dirname, "..", "uploads", "public", "profiles");
+  if (!absolutePath.startsWith(`${profilesRoot}${path.sep}`)) return null;
+
+  return absolutePath;
+}
+
+async function deleteProfileImage(imageUrl) {
+  const absolutePath = profileImagePath(imageUrl);
+  if (!absolutePath) return;
+
+  try {
+    await fs.promises.unlink(absolutePath);
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
+  }
+}
+
+exports.uploadMyAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Nessuna immagine caricata." });
+    }
+
+    const previous = await Platform.getCurrentUser(req.user.id);
+    const user = await Platform.updateCurrentUser(req.user.id, {
+      immagine_profilo: publicUrl(req, req.file),
+    });
+    if (previous?.immagine_profilo !== user.immagine_profilo) {
+      await deleteProfileImage(previous?.immagine_profilo);
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.updateTutorMe = async (req, res) => {
   try {
     if (!requireRole(req, res, ["tutor"])) return;
+    const shouldUpdateProfileImage = req.body.immagine_profilo !== undefined;
+    const previous = shouldUpdateProfileImage
+      ? await Platform.getCurrentUser(req.user.id)
+      : null;
     const tutor = await Platform.updateTutorProfile(req.user.id, req.body);
     if (tutor.invalidTransferOption) {
       return res.status(400).json({
         message: "Inserisci un titolare del conto e un IBAN validi.",
       });
+    }
+    if (
+      shouldUpdateProfileImage &&
+      previous?.immagine_profilo &&
+      previous.immagine_profilo !== (req.body.immagine_profilo || "")
+    ) {
+      await deleteProfileImage(previous.immagine_profilo);
     }
     const transferOption = await Platform.getTutorTransferOption(req.user.id);
     res.json({ ...tutor, opzione_trasferimento: transferOption });
@@ -156,10 +234,26 @@ exports.getUser = async (req, res) => {
   }
 };
 
-exports.createMaterial = async (req, res) => {
+exports.uploadMaterial = async (req, res) => {
   try {
     if (!requireRole(req, res, ["tutor"])) return;
-    const material = await Platform.createMaterial(req.user.id, req.body);
+
+    const files = req.files || {};
+    const fileCompleto = files.file?.[0];
+    if (!fileCompleto) {
+      return res.status(400).json({ message: "Carica il file completo della dispensa." });
+    }
+
+    const material = await Platform.createMaterial(req.user.id, {
+      titolo: req.body.titolo,
+      descrizione: req.body.descrizione,
+      materia: req.body.materia,
+      importo: req.body.importo,
+      file_url: privatePath(fileCompleto),
+      anteprima_url: files.anteprima?.[0] ? publicUrl(req, files.anteprima[0]) : "",
+      copertina_url: files.copertina?.[0] ? publicUrl(req, files.copertina[0]) : "",
+    });
+
     if (material.missingTransferOption) {
       return res.status(400).json({
         message:
@@ -179,6 +273,30 @@ exports.deleteMaterial = async (req, res) => {
     if (!result)
       return res.status(404).json({ message: "Materiale non trovato" });
     res.json({ message: "Materiale eliminato" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.downloadMaterial = async (req, res) => {
+  try {
+    const material = await Platform.getMaterialForDownload(
+      req.user.id,
+      req.user.tipologia_utente,
+      req.params.id,
+    );
+    if (!material) return res.status(404).json({ message: "Materiale non trovato" });
+    if (material.forbidden) {
+      return res.status(403).json({ message: "Devi acquistare il materiale prima di scaricarlo." });
+    }
+
+    const absolutePath = path.resolve(__dirname, "..", material.file_url || "");
+    const privateRoot = path.resolve(__dirname, "..", "uploads", "private");
+    if (!absolutePath.startsWith(privateRoot) || !fs.existsSync(absolutePath)) {
+      return res.status(404).json({ message: "File non trovato" });
+    }
+
+    res.download(absolutePath, path.basename(absolutePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

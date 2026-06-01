@@ -225,7 +225,7 @@ export class TutorDetailPage implements OnInit {
   }
 
   private isPdfDataUrl(url?: string): boolean {
-    return !!url && url.startsWith('data:application/pdf');
+    return !!url && (url.startsWith('data:application/pdf') || url.toLowerCase().includes('.pdf'));
   }
 
   private preparaAnteprima(url?: string): string | SafeResourceUrl {

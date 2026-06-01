@@ -432,38 +432,6 @@ paths:
               example:
                 message: Tutor non trovato
 
-  /api/materials:
-    post:
-      summary: Crea un materiale didattico
-      tags: [Materiali didattici]
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreaMaterialeInput"
-            example:
-              titolo: Dispensa di analisi
-              descrizione: Appunti con esercizi svolti sugli integrali.
-              materia: Analisi Matematica 1
-              file_url: data:application/pdf;base64,JVBERi0xLjQK...
-              anteprima_url: data:application/pdf;base64,JVBERi0xLjQK...
-              copertina_url: data:image/png;base64,iVBORw0KGgo...
-              importo: 7.50
-      responses:
-        "201":
-          description: Materiale creato
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Materiale"
-        "403":
-          $ref: "#/components/responses/PermessiInsufficienti"
-        "500":
-          $ref: "#/components/responses/ErroreServer"
-
   /api/materials/{id}:
     delete:
       summary: Elimina logicamente un materiale didattico
@@ -534,9 +502,9 @@ paths:
                   importo_pagato: 7.5
                   titolo: Dispensa di analisi
                   descrizione: Appunti con esercizi svolti.
-                  file_url: data:application/pdf;base64,JVBERi0xLjQK...
-                  anteprima_url: data:application/pdf;base64,JVBERi0xLjQK...
-                  copertina_url: data:image/png;base64,iVBORw0KGgo...
+                  file_url: uploads/private/materials/dispensa-analisi.pdf
+                  anteprima_url: http://localhost:3000/uploads/public/materials/anteprima-analisi.png
+                  copertina_url: http://localhost:3000/uploads/public/materials/copertina-analisi.png
                   importo: 7.5
                   autore: Elena Bianchi
         "403":
@@ -1297,25 +1265,6 @@ components:
             type: array
             items:
               type: string
-
-    CreaMaterialeInput:
-      type: object
-      required: [titolo, file_url, importo]
-      properties:
-        titolo:
-          type: string
-        descrizione:
-          type: string
-        materia:
-          type: string
-        file_url:
-          type: string
-        anteprima_url:
-          type: string
-        copertina_url:
-          type: string
-        importo:
-          type: number
 
     Materiale:
       type: object

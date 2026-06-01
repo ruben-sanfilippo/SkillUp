@@ -52,6 +52,14 @@ export class TutorService {
     );
   }
 
+  uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('immagine_profilo', file);
+    return firstValueFrom(
+      this.http.post<TutorApi>(`${environment.apiUrl}/api/users/me/avatar`, formData),
+    );
+  }
+
   updateDisponibilitaMe(disponibilita: DisponibilitaTutor[], tariffaOraria: number) {
     return firstValueFrom(
       this.http.put<DisponibilitaTutor[] | RispostaOperazione>(
@@ -65,16 +73,20 @@ export class TutorService {
   }
 
   createMaterial(payload: DatiMaterialeDidattico) {
+    const formData = new FormData();
+    formData.append('titolo', payload.titolo);
+    formData.append('descrizione', payload.descrizione || '');
+    formData.append('materia', payload.materia || '');
+    formData.append('importo', String(payload.importo || 0));
+    formData.append('file', payload.file);
+    if (payload.anteprima) formData.append('anteprima', payload.anteprima);
+    if (payload.copertina) formData.append('copertina', payload.copertina);
+
     return firstValueFrom(
-      this.http.post<MaterialeDidatticoApi>(`${environment.apiUrl}/api/materials`, {
-        titolo: payload.titolo,
-        descrizione: payload.descrizione,
-        materia: payload.materia,
-        file_url: payload.urlFile,
-        anteprima_url: payload.urlAnteprima,
-        copertina_url: payload.urlCopertina,
-        importo: payload.importo,
-      }),
+      this.http.post<MaterialeDidatticoApi>(
+        `${environment.apiUrl}/api/materials/upload`,
+        formData,
+      ),
     );
   }
 
@@ -92,6 +104,14 @@ export class TutorService {
         `${environment.apiUrl}/api/materials/${materialeId}/purchase`,
         {},
       ),
+    );
+  }
+
+  downloadMaterial(materialeId: number | string) {
+    return firstValueFrom(
+      this.http.get(`${environment.apiUrl}/api/materials/${materialeId}/download`, {
+        responseType: 'blob',
+      }),
     );
   }
 

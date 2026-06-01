@@ -1,5 +1,6 @@
 require("dotenv").config();
 const PORT = process.env.PORT || 3000; // vera porta nel file env, porta 3000 per permettere che il server parta anche senza il file env
+const path = require("path");
 
 const swaggerUi = require("swagger-ui-express");
 
@@ -29,6 +30,7 @@ app.set("io", io);
 
 app.use(express.json({ limit: "250mb" })); // Permette al server di leggere dati in formato JSON
 app.use(express.urlencoded({ limit: "250mb", extended: true }));
+app.use("/uploads/public", express.static(path.join(__dirname, "uploads", "public")));
 
 app.use(
   cors({

@@ -825,7 +825,7 @@ const Platform = {
   async getPurchasedMaterials(studenteId) {
     return all(
       `
-        SELECT ma.id, ma.data_acquisto, ma.importo_pagato,
+        SELECT ma.id, ma.materiale_id, ma.data_acquisto, ma.importo_pagato,
                md.titolo, md.descrizione, md.file_url, md.anteprima_url,
                md.copertina_url, md.importo,
                u.nome || ' ' || u.cognome AS autore
@@ -837,6 +837,39 @@ const Platform = {
       `,
       [studenteId],
     );
+  },
+
+  async getMaterialForDownload(userId, role, materialeId) {
+    const materiale = await get(
+      `
+        SELECT *
+        FROM Materiale_Didattico
+        WHERE id = ?
+          AND COALESCE(eliminato, 0) = 0
+      `,
+      [materialeId],
+    );
+    if (!materiale) return null;
+
+    if (role === "tutor" && Number(materiale.tutor_id) === Number(userId)) {
+      return materiale;
+    }
+
+    if (role === "studente") {
+      const acquisto = await get(
+        `
+          SELECT id
+          FROM Materiale_Acquistato
+          WHERE studente_id = ?
+            AND materiale_id = ?
+        `,
+        [userId, materialeId],
+      );
+
+      if (acquisto) return materiale;
+    }
+
+    return { forbidden: true };
   },
 
   async createBooking(studenteId, data) {

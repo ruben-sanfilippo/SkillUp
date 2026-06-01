@@ -68,6 +68,7 @@ export interface RecensionePayload {
 
 export interface MaterialeAcquistatoApi {
   id: number;
+  materiale_id?: number;
   titolo: string;
   descrizione?: string;
   autore: string;

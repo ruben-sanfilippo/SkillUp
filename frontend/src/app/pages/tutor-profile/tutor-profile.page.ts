@@ -195,6 +195,8 @@ export class TutorProfilePage implements OnInit {
     prezzo: null,
     urlCopertina: '',
     urlAnteprima: '',
+    fileCopertina: null,
+    fileAnteprima: null,
     fileCompleto: null,
     haAnteprima: false,
     haFileCompleto: false,
@@ -747,9 +749,8 @@ export class TutorProfilePage implements OnInit {
       const reader = new FileReader();
       reader.onload = async () => {
         this.avatarUrl = reader.result as string;
-        await this.tutorService.updateTutorMe({
-          immagine_profilo: this.avatarUrl,
-        });
+        const tutor = await this.tutorService.uploadAvatar(file);
+        this.avatarUrl = tutor.immagine_profilo || tutor.image || this.avatarUrl;
       };
       reader.readAsDataURL(file);
     }
@@ -758,6 +759,7 @@ export class TutorProfilePage implements OnInit {
   onCopertinaSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
+      this.nuovaDispensa.fileCopertina = file;
       const reader = new FileReader();
       reader.onload = () =>
         (this.nuovaDispensa.urlCopertina = reader.result as string);
@@ -768,6 +770,7 @@ export class TutorProfilePage implements OnInit {
   onAnteprimaSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
+      this.nuovaDispensa.fileAnteprima = file;
       if (file.type === 'application/pdf') {
         const reader = new FileReader();
         reader.onload = () => {
@@ -837,6 +840,8 @@ export class TutorProfilePage implements OnInit {
       urlAnteprima: this.nuovaDispensa.urlAnteprima,
       urlAnteprimaRaw: this.nuovaDispensa.urlAnteprimaRaw,
       anteprimaPdf: this.nuovaDispensa.anteprimaPdf,
+      fileCopertina: this.nuovaDispensa.fileCopertina,
+      fileAnteprima: this.nuovaDispensa.fileAnteprima,
       fileCompleto: this.nuovaDispensa.fileCompleto,
       urlFile: this.nuovaDispensa.urlFile,
       haAnteprima: this.nuovaDispensa.haAnteprima,
@@ -848,9 +853,9 @@ export class TutorProfilePage implements OnInit {
         titolo: dispensaDaSalvare.titolo,
         descrizione: dispensaDaSalvare.descrizione,
         materia: this.materieSelezionate[0],
-        urlFile: dispensaDaSalvare.urlFile || '',
-        urlAnteprima: dispensaDaSalvare.urlAnteprimaRaw || '',
-        urlCopertina: dispensaDaSalvare.urlCopertina || '',
+        file: dispensaDaSalvare.fileCompleto as File,
+        anteprima: dispensaDaSalvare.fileAnteprima || null,
+        copertina: dispensaDaSalvare.fileCopertina || null,
         importo: dispensaDaSalvare.prezzo || 0,
       });
 
@@ -885,6 +890,8 @@ export class TutorProfilePage implements OnInit {
       haAnteprima: false,
       haFileCompleto: false,
       anteprimaPdf: false,
+      fileCopertina: null,
+      fileAnteprima: null,
     };
   }
 
@@ -919,15 +926,17 @@ export class TutorProfilePage implements OnInit {
     await alert.present();
   }
 
-  scaricaFileCompleto(dispensa: Dispensa) {
+  async scaricaFileCompleto(dispensa: Dispensa) {
     if (!dispensa.urlFile && !dispensa.fileCompleto) {
       alert('Nessun file scaricabile trovato.');
       return;
     }
 
-    const url = dispensa.urlFile?.startsWith('data:')
-      ? dispensa.urlFile
-      : URL.createObjectURL(dispensa.fileCompleto as File);
+    const blob =
+      dispensa.id && !dispensa.fileCompleto
+        ? await this.tutorService.downloadMaterial(dispensa.id)
+        : dispensa.fileCompleto || (await (await fetch(dispensa.urlFile || '')).blob());
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download =
@@ -936,9 +945,7 @@ export class TutorProfilePage implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    if (!dispensa.urlFile?.startsWith('data:')) {
-      URL.revokeObjectURL(url);
-    }
+    URL.revokeObjectURL(url);
   }
 
   apriAnteprimaStudente(dispensa: Dispensa) {
@@ -951,7 +958,7 @@ export class TutorProfilePage implements OnInit {
   }
 
   private isPdfDataUrl(url?: string): boolean {
-    return !!url && url.startsWith('data:application/pdf');
+    return !!url && (url.startsWith('data:application/pdf') || url.toLowerCase().includes('.pdf'));
   }
 
   private preparaAnteprima(url?: string) {
