@@ -24,8 +24,10 @@ import {
   eyeOutline,
   closeOutline,
 } from 'ionicons/icons';
+import { BookingService } from 'src/app/services/bookingService';
+import { MaterialService } from 'src/app/services/materialService';
 import { TutorService } from 'src/app/services/tutorService';
-import { PlatformService } from 'src/app/services/platformService';
+import { UserService } from 'src/app/services/userService';
 import type {
   FasciaDisponibilita,
   GiornoCalendario,
@@ -95,7 +97,9 @@ export class TutorDetailPage implements OnInit {
     private toastController: ToastController,
     private sanitizer: DomSanitizer,
     private tutorService: TutorService,
-    private platformService: PlatformService,
+    private userService: UserService,
+    private materialService: MaterialService,
+    private bookingService: BookingService,
   ) {
     addIcons({
       personOutline,
@@ -421,7 +425,7 @@ export class TutorDetailPage implements OnInit {
           cssClass: 'alert-button-primary',
           handler: async () => {
             try {
-              await this.tutorService.purchaseMaterial(dispensa.id);
+              await this.materialService.purchaseMaterial(dispensa.id);
               dispensa.acquistato = true;
               const itemLista = this.dispense.find(
                 (item) => Number(item.id) === Number(dispensa.id),
@@ -527,7 +531,7 @@ export class TutorDetailPage implements OnInit {
                 await this.verificaDisponibilitaPrimaPrenotazione();
               if (!disponibilitaConfermata) return;
 
-              await this.tutorService.createBooking({
+              await this.bookingService.createBooking({
                 disponibilita_id: this.disponibilitaIdPerPrenotazione(),
                 materia_id: this.materiaSelezionataId,
                 data: this.giornoSelezionato?.dataIso,
@@ -573,7 +577,7 @@ export class TutorDetailPage implements OnInit {
 
   private async verificaMetodoPagamentoStudente(message: string): Promise<boolean> {
     try {
-      const utente = await this.platformService.getMe();
+      const utente = await this.userService.getMe();
       if (utente.metodo_pagamento?.presente) {
         return true;
       }

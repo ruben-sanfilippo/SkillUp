@@ -18,7 +18,8 @@ import {
   statsChartOutline,
   schoolOutline,
 } from 'ionicons/icons'; // Aggiunta l'icona per i messaggi
-import { PlatformService } from '../../services/platformService';
+import { MessageService } from '../../services/messageService';
+import { UserService } from '../../services/userService';
 import { environment } from 'src/environments/environment';
 import { io, Socket } from 'socket.io-client';
 
@@ -49,7 +50,8 @@ export class TabsPage implements OnInit, OnDestroy {
   };
 
   constructor(
-    private platformService: PlatformService,
+    private userService: UserService,
+    private messageService: MessageService,
     private alertController: AlertController,
     private router: Router,
   ) {
@@ -87,7 +89,7 @@ export class TabsPage implements OnInit, OnDestroy {
     this.tipologiaUtente = ruoloSalvato.toLowerCase();
 
     try {
-      const utente = await this.platformService.getMe();
+      const utente = await this.userService.getMe();
       const ruoloBackend = utente?.tipologia_utente?.toLowerCase();
 
       if (ruoloBackend) {
@@ -103,7 +105,7 @@ export class TabsPage implements OnInit, OnDestroy {
   }
 
   private async aggiornaMessaggiNonLetti() {
-    const conversazioni = await this.platformService.getConversations();
+    const conversazioni = await this.messageService.getConversations();
     this.hasUnreadMessages = conversazioni.some(
       (chat) => Number(chat.unreadCount || 0) > 0,
     );

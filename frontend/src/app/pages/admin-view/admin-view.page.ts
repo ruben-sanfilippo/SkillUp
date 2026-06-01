@@ -16,7 +16,7 @@ import {
   checkmarkOutline,
   logOutOutline,
 } from 'ionicons/icons';
-import { PlatformService } from 'src/app/services/platformService';
+import { AdminService } from 'src/app/services/adminService';
 import type { UtenteAdmin } from 'src/app/interfaces/admin.interfaces';
 
 @Component({
@@ -116,7 +116,7 @@ export class AdminViewPage implements OnInit {
 
   constructor(
     private popoverCtrl: PopoverController,
-    private platformService: PlatformService,
+    private adminService: AdminService,
     private router: Router,
   ) {
     addIcons({
@@ -138,7 +138,7 @@ export class AdminViewPage implements OnInit {
   }
 
   async caricaUtenti() {
-    const users = await this.platformService.getAdminUsers();
+    const users = await this.adminService.getAdminUsers();
     this.masterUsersList.set(users.map((user) => this.mappaUtente(user)));
   }
 
@@ -166,12 +166,12 @@ export class AdminViewPage implements OnInit {
 
   async cambiaStatoUtente(user: UtenteAdmin, nuovoStato: 'Attivo' | 'Bloccato') {
     const stato = nuovoStato === 'Attivo' ? 'attivo' : 'bloccato';
-    const users = await this.platformService.updateUserStatus(user.id, stato);
+    const users = await this.adminService.updateUserStatus(user.id, stato);
     this.masterUsersList.set(users.map((u) => this.mappaUtente(u)));
   }
 
   async eliminaUtente(userId: string | number) {
-    const users = await this.platformService.deleteUser(userId);
+    const users = await this.adminService.deleteUser(userId);
     this.masterUsersList.set(users.map((u) => this.mappaUtente(u)));
   }
 

@@ -95,7 +95,9 @@
                   [alt]="lezione.studenteNome"
                 />
               } @else {
-                <span>{{ lezione.studenteNome[0] }}</span>
+                <div class="avatar-placeholder">
+                  {{ inizialiNome(lezione.studenteNome) }}
+                </div>
               }
             </div>
 
@@ -123,7 +125,7 @@
         </div>
       </article>
 
-      <article class="panel chart-panel">
+      <article class="panel">
         <div class="panel-header">
           <div>
             <span class="eyebrow">Andamento</span>
@@ -145,7 +147,7 @@
         </div>
       </article>
 
-      <article class="panel materials-panel">
+      <article class="panel">
         <div class="panel-header">
           <div>
             <span class="eyebrow">Dispense</span>

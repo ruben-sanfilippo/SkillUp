@@ -5,15 +5,16 @@ import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { searchOutline, send, chatbubblesOutline, chevronBackOutline } from 'ionicons/icons';
-import { PlatformService } from 'src/app/services/platformService';
+import { MessageService } from 'src/app/services/messageService';
+import { UserService } from 'src/app/services/userService';
 import { environment } from 'src/environments/environment';
 import { io, Socket } from 'socket.io-client';
 import { Subscription } from 'rxjs';
 import type {
   ConversazioneChat,
   MessaggioChat,
+  MessaggioApi,
 } from 'src/app/interfaces/messages.interfaces';
-import type { MessaggioApi } from 'src/app/interfaces/api.interfaces';
 
 @Component({
   selector: 'app-messages',
@@ -40,7 +41,8 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   private paginaAttiva = false;
 
   constructor(
-    private platformService: PlatformService,
+    private userService: UserService,
+    private messageService: MessageService,
     private route: ActivatedRoute,
   ) {
     addIcons({
@@ -52,7 +54,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   async ngOnInit() {
-    const utente = await this.platformService.getMe();
+    const utente = await this.userService.getMe();
     this.currentUserId = utente.id;
     this.apriSocket();
     await this.caricaConversazioni();
@@ -89,7 +91,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   async caricaConversazioni() {
-    const conversations = await this.platformService.getConversations();
+    const conversations = await this.messageService.getConversations();
     this.chats = conversations.map((chat) => ({
       id: chat.id,
       utenteId: chat.id,
@@ -124,7 +126,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   async selezionaChat(chat: ConversazioneChat) {
-    const messages = await this.platformService.getMessages(chat.utenteId);
+    const messages = await this.messageService.getMessages(chat.utenteId);
     chat.messaggi = messages.map((msg) => this.mappaMessaggio(msg));
     chat.nonLetta = false;
     this.activeChat = chat;
@@ -142,7 +144,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     if (!this.newMessageText || !this.newMessageText.trim() || !this.activeChat) return;
 
     const testo = this.newMessageText.trim();
-    const messages = await this.platformService.sendMessage(
+    const messages = await this.messageService.sendMessage(
       this.activeChat.utenteId,
       testo,
     );
@@ -236,7 +238,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
         this.activeChat!.messaggi.push(this.mappaMessaggio(msg));
       }
       chat.nonLetta = false;
-      await this.platformService.markMessagesRead(otherUserId);
+      await this.messageService.markMessagesRead(otherUserId);
       setTimeout(() => this.scrollToBottom(), 50);
     } else if (messaggioRicevuto) {
       chat.nonLetta = true;
@@ -268,7 +270,7 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     aggiungiAllaLista = true,
   ): Promise<ConversazioneChat | null> {
     try {
-      const user = await this.platformService.getUser(userId);
+      const user = await this.userService.getUser(userId);
       const chat: ConversazioneChat = {
         id: user.id,
         utenteId: user.id,

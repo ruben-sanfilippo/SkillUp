@@ -11,8 +11,14 @@ const cors = require("cors"); //serve per permettere al frontend di comunicare c
 const { Server } = require("socket.io");
 const db = require("./db/db"); //importo la connessione al database SQLite
 const authRoutes = require("./routes/authRoutes"); //importa il file authRoutes
+const adminUserRoutes = require("./routes/adminUserRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
-const platformRoutes = require("./routes/platformRoutes");
+const materialRoutes = require("./routes/materialRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const tutorRoutes = require("./routes/tutorRoutes");
+const userRoutes = require("./routes/userRoutes");
 const app = express(); //istanza del server
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -49,7 +55,13 @@ io.on("connection", (socket) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api", platformRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/tutors", tutorRoutes);
+app.use("/api/materials", materialRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/admin", adminUserRoutes);
 
 // Rotta di prova
 app.get("/", (req, res) => {

@@ -143,6 +143,19 @@ export class TutorDashboardPage implements OnInit {
     });
   }
 
+  inizialiNome(nomeCompleto?: string): string {
+    const parti = String(nomeCompleto || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    if (parti.length === 0) return 'U';
+    return parti
+      .slice(0, 2)
+      .map((parte) => parte[0])
+      .join('')
+      .toUpperCase();
+  }
+
   private creaRicaviVuoti(): RicavoMensile[] {
     return [
       'Gen',

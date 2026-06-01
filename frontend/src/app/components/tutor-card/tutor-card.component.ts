@@ -23,4 +23,19 @@ export class TutorCardComponent {
   vediProfilo() {
     this.router.navigate(['/tutor-detail', this.tutor.id]);
   }
+
+  inizialiTutor(): string {
+    const nomeCompleto =
+      `${this.tutor?.nome || ''} ${this.tutor?.cognome || ''}`.trim() ||
+      this.tutor?.name ||
+      'Tutor';
+
+    return nomeCompleto
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((parola: string) => parola[0])
+      .join('')
+      .toUpperCase();
+  }
 }

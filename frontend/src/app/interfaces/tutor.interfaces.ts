@@ -1,3 +1,5 @@
+import type { MaterialeDidatticoApi } from './material.interfaces';
+
 export interface FiltriRicerca {
   testo: string;
   materie: string[];
@@ -23,16 +25,6 @@ export interface DisponibilitaTutor {
   ora_fine?: string;
   tariffaOraria?: number;
   tariffa_oraria?: number;
-}
-
-export interface DatiMaterialeDidattico {
-  titolo: string;
-  descrizione: string;
-  materia?: string;
-  file: File;
-  anteprima?: File | null;
-  copertina?: File | null;
-  importo: number;
 }
 
 export interface TutorApi {
@@ -79,26 +71,6 @@ export interface OpzioneTrasferimentoTutor {
 export interface OpzioneTrasferimentoPayload {
   titolare_conto: string;
   iban: string;
-}
-
-export interface MaterialeDidatticoApi {
-  id: number;
-  titolo: string;
-  descrizione?: string;
-  file_url: string;
-  anteprima_url?: string;
-  copertina_url?: string;
-  importo: number;
-  materia?: string;
-  acquistato?: number | boolean;
-}
-
-export interface PrenotazionePayload {
-  disponibilita_id: number | string | undefined;
-  materia_id?: number | string | null;
-  data: string | undefined;
-  ora_inizio: string;
-  ora_fine: string;
 }
 
 export interface MateriaTutor {

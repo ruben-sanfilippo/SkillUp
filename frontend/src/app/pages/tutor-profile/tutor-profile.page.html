@@ -70,7 +70,6 @@
               <ion-button
                 fill="clear"
                 size="small"
-                class="edit-icon-btn"
                 (click)="attivaModificaMaterie()"
               >
                 <ion-icon slot="icon-only" name="create-outline"></ion-icon>
@@ -87,7 +86,6 @@
                 <ion-button
                   fill="clear"
                   size="small"
-                  class="save-card-btn"
                   (click)="salvaSezione('materie')"
                   >Salva</ion-button
                 >
@@ -114,7 +112,6 @@
               <div class="search-input-wrapper">
                 <ion-icon
                   name="search-outline"
-                  class="search-inline-icon"
                 ></ion-icon>
                 <input
                   type="text"
@@ -155,7 +152,6 @@
               <ion-button
                 fill="clear"
                 size="small"
-                class="edit-icon-btn"
                 (click)="attivaModificaLingue()"
               >
                 <ion-icon slot="icon-only" name="create-outline"></ion-icon>
@@ -172,7 +168,6 @@
                 <ion-button
                   fill="clear"
                   size="small"
-                  class="save-card-btn"
                   (click)="salvaSezione('lingue')"
                   >Salva</ion-button
                 >
@@ -199,7 +194,6 @@
               <div class="search-input-wrapper">
                 <ion-icon
                   name="search-outline"
-                  class="search-inline-icon"
                 ></ion-icon>
                 <input
                   type="text"
@@ -267,7 +261,6 @@
               <ion-button
                 fill="clear"
                 size="small"
-                class="edit-icon-btn"
                 (click)="attivaModificaDisponibilita()"
               >
                 <ion-icon slot="icon-only" name="create-outline"></ion-icon>
@@ -290,7 +283,6 @@
                 <ion-button
                   fill="clear"
                   size="small"
-                  class="save-card-btn"
                   (click)="salvaSezione('disponibilita')"
                   >Salva</ion-button
                 >
@@ -298,7 +290,7 @@
             </div>
             }
           </div>
-          <p class="section-subtitle">
+          <p>
             Seleziona i giorni sul calendario mensile per gestire lo stato di
             disponibilità e impostare le fasce orarie delle lezioni.
           </p>
@@ -323,7 +315,7 @@
 
             <div class="calendar-days-grid">
               @for (vuoto of spaziVuotiIniziali; track $index) {
-              <div class="calendar-day-wrapper empty-cell"></div>
+              <div class="calendar-day-wrapper"></div>
               } @for (giorno of giorniDelMese; track giorno.dataIso) {
               <div class="calendar-day-wrapper">
                 <div
@@ -333,7 +325,7 @@
                   [class.is-past-day]="isGiornoPassato(giorno)"
                   (click)="selezionaGiorno(giorno)"
                 >
-                  <span class="day-number-text">{{ giorno.giorno }}</span>
+                  <span>{{ giorno.giorno }}</span>
                   @if (giorno.info.attivo && !isGiornoPassato(giorno) && giorno.dataIso !==
                   giornoSelezionato?.dataIso) {
                   <span class="time-dot-indicator"></span>
@@ -362,14 +354,14 @@
                   </div>
                 } @else {
               <div class="editing-controls-inside-panel">
-                <div class="toggle-row">
+                <div>
                   <label class="checkbox-container-custom">
                     <input
                       type="checkbox"
                       [(ngModel)]="giornoSelezionato.info!.attivo"
                     />
                     <span class="checkmark-box"></span>
-                    <span class="label-text-checkbox"
+                    <span
                       >Disponibile in questo giorno</span
                     >
                   </label>
@@ -439,7 +431,7 @@
               <h3>Le tue dispense</h3>
             </div>
           </div>
-          <p class="section-subtitle">
+          <p>
             Carica dispense, appunti o eserciziari da mettere in vendita per gli
             studenti.
           </p>
@@ -487,7 +479,6 @@
               <div class="custom-input-box compact-input">
                 <ion-icon
                   name="cash-outline"
-                  class="input-inline-icon-cash"
                 ></ion-icon>
                 <input
                   type="number"
@@ -505,7 +496,7 @@
               </div>
 
               <button
-                class="file-mock-btn"
+                class="file-upload-btn"
                 (click)="copertinaInput.click()"
                 [style.border-color]="nuovaDispensa.urlCopertina ? 'var(--primary-color)' : ''"
               >
@@ -520,7 +511,7 @@
             </div>
 
             <button
-              class="file-mock-btn upload-preview-file"
+              class="file-upload-btn upload-preview-file"
               (click)="anteprimaInput.click()"
               [style.border-color]="nuovaDispensa.haAnteprima ? '#10b981' : ''"
               [style.color]="nuovaDispensa.haAnteprima ? '#10b981' : ''"
@@ -535,7 +526,7 @@
             </button>
 
             <button
-              class="file-mock-btn upload-main-file"
+              class="file-upload-btn upload-main-file"
               (click)="fileCompletoInput.click()"
               [style.border-color]="nuovaDispensa.haFileCompleto ? 'var(--tertiary-color)' : ''"
               [style.background]="nuovaDispensa.haFileCompleto ? 'rgba(var(--tertiary-color), 0.1)' : ''"
@@ -564,7 +555,7 @@
           <div class="uploaded-dispense-list">
             <h3>Dispense Pubblicate ({{ listaDispense.length }})</h3>
             @for (dispensa of listaDispense; track dispensa.id || dispensa.titolo) {
-            <div class="dispensa-item-card layout-between">
+            <div class="dispensa-item-card">
               <div class="dispensa-main-info">
                 <div class="dispensa-cover-preview">
                   @if (dispensa.urlCopertina) {
@@ -640,10 +631,10 @@
     (didDismiss)="isEditingBiografia = false"
   >
     <ng-template>
-      <div class="modal-wrapper">
+      <div>
         <div class="modal-header">
           <div class="title-left">
-            <ion-icon name="create-outline" class="header-icon"></ion-icon>
+            <ion-icon name="create-outline"></ion-icon>
             <h2>Modifica biografia</h2>
           </div>
           <ion-button
@@ -687,10 +678,10 @@
     (didDismiss)="chiudiModalOpzioniTrasferimento()"
   >
     <ng-template>
-      <div class="modal-wrapper">
+      <div>
         <div class="modal-header">
           <div class="title-left">
-            <ion-icon name="cash-outline" class="header-icon"></ion-icon>
+            <ion-icon name="cash-outline"></ion-icon>
             <h2>{{ opzioneTrasferimento.presente ? 'Modifica opzioni di trasferimento' : 'Opzioni di trasferimento' }}</h2>
           </div>
           <ion-button
@@ -745,10 +736,10 @@
     (didDismiss)="chiudiAnteprimaStudente()"
   >
     <ng-template>
-      <div class="modal-wrapper">
+      <div>
         <div class="modal-header">
           <div class="title-left">
-            <ion-icon name="eye-outline" class="header-icon"></ion-icon>
+            <ion-icon name="eye-outline"></ion-icon>
             <h2>Anteprima materiale</h2>
           </div>
           <ion-button
@@ -792,7 +783,7 @@
               />
             </div>
             } @else {
-            <div class="mock-page-sheet">
+            <div>
               <p style="text-align: center; color: var(--neutral-color)">
                 Nessuna anteprima disponibile.
               </p>

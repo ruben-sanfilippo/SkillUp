@@ -5,7 +5,7 @@
         <img [src]="tutor.image" alt="avatar" />
       } @else {
         <div class="avatar-placeholder">
-          {{ tutor.nome?.[0] || tutor.name?.[0] || 'T' }}
+          {{ inizialiTutor() }}
         </div>
       }
     </div>

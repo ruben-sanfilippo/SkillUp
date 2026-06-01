@@ -24,7 +24,10 @@ import {
   keyOutline,
   cardOutline,
 } from 'ionicons/icons';
-import { PlatformService } from 'src/app/services/platformService';
+import { BookingService } from 'src/app/services/bookingService';
+import { MaterialService } from 'src/app/services/materialService';
+import { ReviewService } from 'src/app/services/reviewService';
+import { UserService } from 'src/app/services/userService';
 import type {
   PrenotazioneProfilo,
   MaterialeAcquistato,
@@ -33,8 +36,10 @@ import type {
 import type {
   MetodoPagamentoPayload,
   MetodoPagamentoStudente,
+} from 'src/app/interfaces/user.interfaces';
+import type {
   PrenotazioneApi,
-} from 'src/app/interfaces/api.interfaces';
+} from 'src/app/interfaces/booking.interfaces';
 
 @Component({
   selector: 'app-student-profile',
@@ -65,13 +70,12 @@ export class StudentProfilePage implements OnInit {
   };
 
   student: DatiStudente = {
-    nome: 'Alessandro',
-    cognome: 'Rossi',
+    nome: '',
+    cognome: '',
     immagineProfilo: '',
-    biografia:
-      "Appassionato di intelligenza artificiale e machine learning. Sviluppo algoritmi efficienti per l'analisi dati.",
-    sessioniCompletate: 24,
-    oreStudio: 112,
+    biografia: '',
+    sessioniCompletate: 0,
+    oreStudio: 0,
   };
 
   public avatarActionSheetButtons = [
@@ -104,7 +108,10 @@ export class StudentProfilePage implements OnInit {
   purchasedMaterials: MaterialeAcquistato[] = [];
 
   constructor(
-    private platformService: PlatformService,
+    private userService: UserService,
+    private bookingService: BookingService,
+    private materialService: MaterialService,
+    private reviewService: ReviewService,
     private router: Router,
     private sanitizer: DomSanitizer,
     private toastController: ToastController,
@@ -140,9 +147,9 @@ export class StudentProfilePage implements OnInit {
 
   async caricaDatiStudente() {
     const [utente, prenotazioni, materiali] = await Promise.all([
-      this.platformService.getMe(),
-      this.platformService.getBookingsMe(),
-      this.platformService.getPurchasedMaterials(),
+      this.userService.getMe(),
+      this.bookingService.getBookingsMe(),
+      this.materialService.getPurchasedMaterials(),
     ]);
 
     const prenotazioniMappate = prenotazioni.map((prenotazione) =>
@@ -216,7 +223,7 @@ export class StudentProfilePage implements OnInit {
     const tutorId = this.selectedBookingForReview.tutorId;
 
     try {
-      await this.platformService.createReview({
+      await this.reviewService.createReview({
         prenotazione_id: targetId,
         voto: this.currentRating,
       });
@@ -314,7 +321,7 @@ export class StudentProfilePage implements OnInit {
     }
 
     try {
-      const utenteAggiornato = await this.platformService.updateMe({
+      const utenteAggiornato = await this.userService.updateMe({
         metodo_pagamento: {
           numero_carta: this.metodoPagamentoForm.numero_carta,
           scadenza: this.metodoPagamentoForm.scadenza,
@@ -353,7 +360,7 @@ export class StudentProfilePage implements OnInit {
         this.student.immagineProfilo = reader.result as string;
       };
       reader.readAsDataURL(file);
-      void this.platformService.uploadAvatar(file).then((utente) => {
+      void this.userService.uploadAvatar(file).then((utente) => {
         this.student.immagineProfilo = utente.immagine_profilo || '';
       });
     }
@@ -361,7 +368,7 @@ export class StudentProfilePage implements OnInit {
 
   rimuoviAvatar() {
     this.student.immagineProfilo = '';
-    this.platformService.updateMe({ immagine_profilo: '' });
+    this.userService.updateMe({ immagine_profilo: '' });
   }
 
   apriModalBio() {
@@ -379,7 +386,7 @@ export class StudentProfilePage implements OnInit {
   async salvaBio() {
     if (this.tempBio && this.tempBio.trim() && this.tempBio.length <= 200) {
       this.student.biografia = this.tempBio.trim();
-      await this.platformService.updateMe({ bio: this.student.biografia });
+      await this.userService.updateMe({ bio: this.student.biografia });
       this.chiudiModalBio();
     }
   }
@@ -398,7 +405,7 @@ export class StudentProfilePage implements OnInit {
   async scaricaMateriale(item: MaterialeAcquistato) {
     const estensione = this.estensioneFile(item.urlFile);
     const nomeFile = `${item.titolo.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.${estensione}`;
-    const blob = await this.platformService.downloadMaterial(item.materialeId || item.id);
+    const blob = await this.materialService.downloadMaterial(item.materialeId || item.id);
     const url = window.URL.createObjectURL(blob);
 
     const ancoraDownload = document.createElement('a');
@@ -451,7 +458,7 @@ export class StudentProfilePage implements OnInit {
       prenotazione.tutorAvatar ||
       prenotazione.immagine_profilo_tutor ||
       prenotazione.tutor_immagine_profilo ||
-      this.avatarTutorPredefinito(nomeTutor);
+      '';
 
     return {
       id: prenotazione.id,
@@ -505,9 +512,17 @@ export class StudentProfilePage implements OnInit {
     return parti[0] * 60 + parti[1];
   }
 
-  private avatarTutorPredefinito(nomeTutor: string): string {
-    const nome = encodeURIComponent(nomeTutor || 'Tutor');
-    return `https://ui-avatars.com/api/?name=${nome}&background=1e40af&color=fff`;
+  inizialiNome(nomeCompleto?: string): string {
+    const parti = String(nomeCompleto || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    if (parti.length === 0) return 'U';
+    return parti
+      .slice(0, 2)
+      .map((parte) => parte[0])
+      .join('')
+      .toUpperCase();
   }
 
   private preparaAnteprima(url?: string): string | SafeResourceUrl {

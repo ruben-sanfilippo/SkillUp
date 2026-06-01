@@ -16,13 +16,13 @@
 
           <div class="profile-identity-block">
             <div class="avatar-container detail-avatar">
-              <div class="avatar-placeholder">
-                @if (avatarUrl) {
-                  <img [src]="avatarUrl" alt="Avatar" class="avatar-img-render" />
-                } @else {
-                  <ion-icon name="person-outline"></ion-icon>
-                }
-              </div>
+              @if (avatarUrl) {
+                <img [src]="avatarUrl" alt="Avatar" class="avatar-img-render" />
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ nome[0] }}{{ cognome[0] }}
+                </div>
+              }
             </div>
 
             <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
@@ -100,7 +100,7 @@
             </div>
           </div>
 
-          <p class="section-subtitle">
+          <p>
             @if (puoInteragireComeStudente) {
               Seleziona un giorno blu dal calendario per vedere gli orari disponibili e prenotare.
             } @else {
@@ -125,7 +125,7 @@
 
             <div class="calendar-days-grid">
               @for (vuoto of spaziVuotiIniziali; track $index) {
-                <div class="calendar-day-wrapper empty-cell"></div>
+                <div class="calendar-day-wrapper"></div>
               }
               @for (giorno of giorniDelMese; track giorno.dataIso) {
                 <div class="calendar-day-wrapper">
@@ -135,7 +135,7 @@
                     [class.is-selected]="giorno.dataIso === giornoSelezionato?.dataIso"
                     (click)="selezionaGiorno(giorno)"
                   >
-                    <span class="day-number-text">{{ giorno.giorno }}</span>
+                    <span>{{ giorno.giorno }}</span>
                     @if (giorno.info.attivo && giorno.dataIso !== giornoSelezionato?.dataIso) {
                       <span class="time-dot-indicator"></span>
                     }
@@ -249,11 +249,11 @@
           </div>
           <div class="uploaded-dispense-list" style="margin-top: 0; border-top: none; padding-top: 0">
             @if (dispense.length === 0) {
-              <p class="section-subtitle">Nessuna dispensa caricata al momento.</p>
+              <p>Nessuna dispensa caricata al momento.</p>
             }
 
             @for (dispensa of dispense; track dispensa.id || dispensa.titolo) {
-              <div class="dispensa-item-card layout-between">
+              <div class="dispensa-item-card">
                 <div class="dispensa-main-info">
                   <div class="dispensa-cover-preview">
                     @if (dispensa.urlCopertina) {
@@ -315,10 +315,10 @@
     (didDismiss)="chiudiAnteprimaStudente()"
   >
     <ng-template>
-      <div class="modal-wrapper">
+      <div>
         <div class="modal-header">
           <div class="title-left">
-            <ion-icon name="eye-outline" class="header-icon"></ion-icon>
+            <ion-icon name="eye-outline"></ion-icon>
             <h2>Anteprima materiale</h2>
           </div>
           <ion-button fill="clear" color="medium" class="close-modal-btn" (click)="chiudiAnteprimaStudente()">
@@ -357,7 +357,7 @@
             }
 
             @if (!dispensaInEvidenza?.urlAnteprima) {
-              <div class="mock-page-sheet">
+              <div>
                 <p style="text-align: center; color: var(--neutral-color)">
                   Nessuna anteprima disponibile.
                 </p>

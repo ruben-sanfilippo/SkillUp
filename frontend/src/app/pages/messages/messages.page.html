@@ -21,7 +21,7 @@
           </div>
 
           <div class="chats-scroll-container">
-            <div class="chats-list">
+            <div>
               @for (chat of filteredChats; track chat.id) {
                 <div 
                   class="chat-item-row" 
@@ -32,7 +32,7 @@
                     @if (chat.immagineProfilo) {
                       <img [src]="chat.immagineProfilo" [alt]="chat.nome" />
                     } @else {
-                      <div class="avatar-initials">{{ iniziali(chat.nome) }}</div>
+                      <div class="avatar-placeholder">{{ iniziali(chat.nome) }}</div>
                     }
                     @if (chat.nonLetta) {
                       <span class="unread-dot"></span>
@@ -77,7 +77,7 @@
                   @if (activeChat.immagineProfilo) {
                     <img [src]="activeChat.immagineProfilo" [alt]="activeChat.nome" />
                   } @else {
-                    <div class="avatar-initials">{{ iniziali(activeChat.nome) }}</div>
+                    <div class="avatar-placeholder">{{ iniziali(activeChat.nome) }}</div>
                   }
                 </div>
                 <div class="user-meta-info">

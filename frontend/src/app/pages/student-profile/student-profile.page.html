@@ -14,7 +14,7 @@
                     <img [src]="student.immagineProfilo" alt="immagineProfilo Studente" />
                   } @else {
                     <div class="avatar-placeholder">
-                      {{ student.nome[0] }}{{ student.cognome[0] }}
+                      {{ inizialiNome(student.nome + ' ' + student.cognome) }}
                     </div>
                   }
                 </div>
@@ -90,7 +90,13 @@
             <div class="card booking-card">
               <div class="booking-top">
                 <div class="tutor">
-                  <img [src]="prenotazione.avatarTutor" alt="Tutor" />
+                  @if (prenotazione.avatarTutor) {
+                    <img [src]="prenotazione.avatarTutor" alt="Tutor" />
+                  } @else {
+                    <div class="avatar-placeholder">
+                      {{ inizialiNome(prenotazione.nomeTutor) }}
+                    </div>
+                  }
                   <div class="tutor-info">
                     <h4>{{ prenotazione.nomeTutor }}</h4>
                     <p>{{ prenotazione.materia }}</p>
@@ -194,7 +200,13 @@
             <div class="modal-booking-row">
               <div class="modal-left-layout">
                 <div class="modal-tutor-group">
-                  <img [src]="prenotazione.avatarTutor" alt="Tutor" />
+                  @if (prenotazione.avatarTutor) {
+                    <img [src]="prenotazione.avatarTutor" alt="Tutor" />
+                  } @else {
+                    <div class="avatar-placeholder">
+                      {{ inizialiNome(prenotazione.nomeTutor) }}
+                    </div>
+                  }
                   <div class="modal-tutor-details">
                     <h4>{{ prenotazione.nomeTutor }}</h4>
                     <p>{{ prenotazione.materia }}</p>
@@ -253,7 +265,7 @@
                 <img [src]="selectedBookingForReview.avatarTutor" alt="Tutor immagineProfilo" />
               } @else {
                 <div class="avatar-placeholder">
-                  {{ selectedBookingForReview.nomeTutor[0] }}
+                  {{ inizialiNome(selectedBookingForReview.nomeTutor) }}
                 </div>
               }
               <h3>{{ selectedBookingForReview.nomeTutor }}</h3>
@@ -378,7 +390,7 @@
 
       <ion-content class="modal-content-bg" scroll-y="false">
         <div class="payment-modal-body">
-          <div class="payment-field full">
+          <div class="payment-field">
             <label>Titolare carta</label>
             <input
               type="text"
@@ -387,7 +399,7 @@
               placeholder="Mario Rossi" />
           </div>
 
-          <div class="payment-field full">
+          <div class="payment-field">
             <label>Numero carta</label>
             <input
               type="text"

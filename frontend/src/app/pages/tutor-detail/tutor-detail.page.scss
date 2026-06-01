@@ -86,18 +86,25 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: var(--input-background);
+    background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
+    color: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 44px;
+    font-family: var(--font-headline);
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
     border: 3px solid var(--card-background);
     overflow: hidden;
   }
   .avatar-img-render {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
     object-fit: cover;
+    border: 3px solid var(--card-background);
   }
 }
 

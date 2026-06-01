@@ -123,7 +123,8 @@
         font-family: var(--font-headline);
         font-size: 2.2rem;
         font-weight: 800;
-        letter-spacing: -0.5px;
+        letter-spacing: 0;
+        text-transform: uppercase;
       }
     }
 
@@ -377,11 +378,29 @@
         display: flex;
         gap: 16px;
 
-        img {
+        img,
+        .avatar-placeholder {
           width: 56px;
           height: 56px;
           border-radius: 50%;
+        }
+
+        img {
           object-fit: cover;
+        }
+
+        .avatar-placeholder {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
+          color: #FFFFFF;
+          font-family: var(--font-headline);
+          font-size: 1rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0;
         }
 
         .tutor-info {
@@ -720,12 +739,30 @@
         gap: 16px;
         align-items: center;
 
-        img {
+        img,
+        .avatar-placeholder {
           width: 52px;
           height: 52px;
           border-radius: 50%;
+        }
+
+        img {
           object-fit: cover;
           display: block;
+        }
+
+        .avatar-placeholder {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
+          color: #FFFFFF;
+          font-family: var(--font-headline);
+          font-size: 0.95rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0;
         }
 
         .modal-tutor-details {
@@ -814,10 +851,13 @@
         align-items: center;
         justify-content: center;
         margin: 0 auto 12px;
-        background: var(--input-background);
-        color: var(--primary-color);
+        background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
+        color: #FFFFFF;
+        font-family: var(--font-headline);
         font-size: 28px;
         font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0;
       }
 
       h3 {

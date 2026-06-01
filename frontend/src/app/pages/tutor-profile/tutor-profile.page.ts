@@ -38,7 +38,9 @@ import {
   trashOutline,
   keyOutline,
 } from 'ionicons/icons';
+import { MaterialService } from 'src/app/services/materialService';
 import { TutorService } from 'src/app/services/tutorService';
+import { UserService } from 'src/app/services/userService';
 import type { Dispensa } from 'src/app/interfaces/profile.interfaces';
 import type {
   GiornoCalendario,
@@ -208,6 +210,8 @@ export class TutorProfilePage implements OnInit {
     private sanitizer: DomSanitizer,
     private alertController: AlertController,
     private tutorService: TutorService,
+    private userService: UserService,
+    private materialService: MaterialService,
     private router: Router,
   ) {
     addIcons({
@@ -749,8 +753,8 @@ export class TutorProfilePage implements OnInit {
       const reader = new FileReader();
       reader.onload = async () => {
         this.avatarUrl = reader.result as string;
-        const tutor = await this.tutorService.uploadAvatar(file);
-        this.avatarUrl = tutor.immagine_profilo || tutor.image || this.avatarUrl;
+        const utente = await this.userService.uploadAvatar(file);
+        this.avatarUrl = utente.immagine_profilo || this.avatarUrl;
       };
       reader.readAsDataURL(file);
     }
@@ -849,7 +853,7 @@ export class TutorProfilePage implements OnInit {
     };
 
     try {
-      const materialeCreato = await this.tutorService.createMaterial({
+      const materialeCreato = await this.materialService.createMaterial({
         titolo: dispensaDaSalvare.titolo,
         descrizione: dispensaDaSalvare.descrizione,
         materia: this.materieSelezionate[0],
@@ -908,7 +912,7 @@ export class TutorProfilePage implements OnInit {
           handler: async () => {
             try {
               if (dispensa.id) {
-                await this.tutorService.deleteMaterial(dispensa.id);
+                await this.materialService.deleteMaterial(dispensa.id);
               }
               this.listaDispense = this.listaDispense.filter(
                 (item) => item !== dispensa,
@@ -934,7 +938,7 @@ export class TutorProfilePage implements OnInit {
 
     const blob =
       dispensa.id && !dispensa.fileCompleto
-        ? await this.tutorService.downloadMaterial(dispensa.id)
+        ? await this.materialService.downloadMaterial(dispensa.id)
         : dispensa.fileCompleto || (await (await fetch(dispensa.urlFile || '')).blob());
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
