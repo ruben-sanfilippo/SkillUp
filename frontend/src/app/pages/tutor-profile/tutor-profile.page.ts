@@ -688,10 +688,6 @@ export class TutorProfilePage implements OnInit {
       for (const dataKey in this.databaseDisponibilitaTmp) {
         const blocco = this.databaseDisponibilitaTmp[dataKey];
         if (blocco.attivo) {
-          if (dataKey < this.dataLocale(new Date())) {
-            await this.mostraPopupErroreDataPassata();
-            return;
-          }
           if (blocco.dalle >= blocco.alle) {
             await this.mostraPopupErroreOrario();
             return;

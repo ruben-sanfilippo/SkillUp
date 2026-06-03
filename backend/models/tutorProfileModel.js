@@ -392,7 +392,6 @@ const TutorProfile = {
       const inizioMinuti = minuti(oraInizio);
       const fineMinuti = minuti(oraFine);
 
-      if (!data || data < dataLocale()) return { invalidPastDate: true };
       if (
         inizioMinuti === null ||
         fineMinuti === null ||
