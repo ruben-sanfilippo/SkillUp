@@ -19,13 +19,23 @@ function profileImagePath(imageUrl) {
   try {
     pathname = new URL(imageUrl).pathname;
   } catch {
-  // imageUrl puo gia essere un percorso relativo salvato da vecchi dati locali.
+    // imageUrl puo gia essere un percorso relativo salvato da vecchi dati locali.
   }
 
   if (!pathname.startsWith("/uploads/public/profiles/")) return null;
 
-  const absolutePath = path.resolve(__dirname, "..", pathname.replace(/^\/+/, ""));
-  const profilesRoot = path.resolve(__dirname, "..", "uploads", "public", "profiles");
+  const absolutePath = path.resolve(
+    __dirname,
+    "..",
+    pathname.replace(/^\/+/, ""),
+  );
+  const profilesRoot = path.resolve(
+    __dirname,
+    "..",
+    "uploads",
+    "public",
+    "profiles",
+  );
   if (!absolutePath.startsWith(`${profilesRoot}${path.sep}`)) return null;
 
   return absolutePath;
@@ -71,7 +81,13 @@ exports.getTutor = async (req, res) => {
         TutorProfile.getAvailableSchedule(req.params.id, studenteId),
       ]);
 
-    res.json({ ...tutor, availability, materials, bookedSlots, availableSchedule });
+    res.json({
+      ...tutor,
+      availability,
+      materials,
+      bookedSlots,
+      availableSchedule,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -83,14 +99,19 @@ exports.getTutorMe = async (req, res) => {
     const tutor = await TutorProfile.getTutorById(req.user.id);
     if (!tutor) return res.status(404).json({ message: "Tutor non trovato" });
 
-    const [availability, materials, bookedSlots, availableSchedule, transferOption] =
-      await Promise.all([
-        TutorProfile.getAvailability(req.user.id),
-        Material.getTutorMaterials(req.user.id),
-        TutorProfile.getBookedSlots(req.user.id),
-        TutorProfile.getAvailableSchedule(req.user.id),
-        TutorProfile.getTutorTransferOption(req.user.id),
-      ]);
+    const [
+      availability,
+      materials,
+      bookedSlots,
+      availableSchedule,
+      transferOption,
+    ] = await Promise.all([
+      TutorProfile.getAvailability(req.user.id),
+      Material.getTutorMaterials(req.user.id),
+      TutorProfile.getBookedSlots(req.user.id),
+      TutorProfile.getAvailableSchedule(req.user.id),
+      TutorProfile.getTutorTransferOption(req.user.id),
+    ]);
 
     res.json({
       ...tutor,
@@ -125,7 +146,9 @@ exports.updateTutorMe = async (req, res) => {
     ) {
       await deleteProfileImage(previous.immagine_profilo);
     }
-    const transferOption = await TutorProfile.getTutorTransferOption(req.user.id);
+    const transferOption = await TutorProfile.getTutorTransferOption(
+      req.user.id,
+    );
     res.json({ ...tutor, opzione_trasferimento: transferOption });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -140,11 +163,6 @@ exports.updateAvailabilityMe = async (req, res) => {
       req.body.disponibilita || [],
       req.body.tariffa_oraria,
     );
-    if (availability.invalidPastDate) {
-      return res.status(400).json({
-        message: "Non puoi aggiungere disponibilita per giorni gia passati.",
-      });
-    }
     if (availability.invalidTime) {
       return res.status(400).json({
         message: "Gli orari di disponibilita non sono validi.",
