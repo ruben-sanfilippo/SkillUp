@@ -315,7 +315,7 @@ paths:
   /api/tutors/search:
     post:
       summary: Cerca tutor in base ai filtri
-      description: Se la richiesta viene fatta da un tutor autenticato, il suo profilo viene escluso dai risultati.
+      description: Se la richiesta viene fatta da un tutor autenticato, il suo profilo viene escluso dai risultati. Se il tutor non ha una foto profilo, il campo image viene restituito vuoto e il frontend mostra il placeholder con iniziali.
       tags: [Tutor]
       security:
         - bearerAuth: []
@@ -357,7 +357,7 @@ paths:
                   rating: "4.8"
                   reviews: 12
                   price: 25
-                  image: https://ui-avatars.com/api/?name=Elena%20Bianchi
+                  image: ""
                   disponibileDal: "2026-06-02"
                   disponibileAl: "2026-06-18"
         "401":
@@ -545,7 +545,7 @@ paths:
   /api/materials/{id}:
     delete:
       summary: Elimina logicamente un materiale didattico
-      description: Il materiale non viene piu mostrato nella ricerca, ma resta disponibile agli studenti che lo avevano gia acquistato.
+      description: Il materiale viene eliminato logicamente e non viene piu mostrato tra i materiali pubblici del tutor. Gli acquisti gia effettuati restano nello storico dello studente.
       tags: [Materiali didattici]
       security:
         - bearerAuth: []
@@ -1242,6 +1242,7 @@ components:
           type: number
         image:
           type: string
+          description: URL della foto profilo del tutor. Se non esiste una foto profilo, il backend restituisce stringa vuota e il placeholder viene gestito dal frontend.
         disponibileDal:
           type: string
           nullable: true
