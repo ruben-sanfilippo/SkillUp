@@ -14,13 +14,23 @@ function profileImagePath(imageUrl) {
   try {
     pathname = new URL(imageUrl).pathname;
   } catch {
-    // imageUrl can already be a relative path saved by older local data.
+    // imageUrl può già essere un percorso relativo salvato da vecchi dati locali.
   }
 
   if (!pathname.startsWith("/uploads/public/profiles/")) return null;
 
-  const absolutePath = path.resolve(__dirname, "..", pathname.replace(/^\/+/, ""));
-  const profilesRoot = path.resolve(__dirname, "..", "uploads", "public", "profiles");
+  const absolutePath = path.resolve(
+    __dirname,
+    "..",
+    pathname.replace(/^\/+/, ""),
+  );
+  const profilesRoot = path.resolve(
+    __dirname,
+    "..",
+    "uploads",
+    "public",
+    "profiles",
+  );
   if (!absolutePath.startsWith(`${profilesRoot}${path.sep}`)) return null;
 
   return absolutePath;

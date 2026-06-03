@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Routes
+// Rotte
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/users", userRoutes);

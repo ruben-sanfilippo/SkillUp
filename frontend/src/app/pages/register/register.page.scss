@@ -47,7 +47,7 @@
   box-sizing: border-box;
 
   .segment-btn {
-    flex: 1;  /* permette all'elemento di occupare tutto lo spazio dell'elemento padre */
+    flex: 1; /* permette all'elemento di occupare tutto lo spazio dell'elemento padre */
     text-align: center;
     padding: 10px 0;
     font-weight: 600;
@@ -65,16 +65,14 @@
   }
 }
 
-/* Gestione dello switch quando il telefono passa in Dark Mode */
+/* Gestione dello switch quando il dispositivo passa in modalita scura */
 @media (prefers-color-scheme: dark) {
   .custom-segment-container {
-    background: var(
-      --input-background
-    );
+    background: var(--input-background);
 
     .segment-btn {
       &.active {
-        background: var(--card-background); 
+        background: var(--card-background);
         color: #ffffff;
         box-shadow: none;
       }
@@ -179,8 +177,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-3px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 576px) {
