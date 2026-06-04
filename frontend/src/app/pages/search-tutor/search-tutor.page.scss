@@ -46,7 +46,6 @@
   width: 100%;
 }
 
-/* Regole per sincronizzare la vista mobile/desktop a 1024px esatti */
 .desktop-only {
   display: block;
   @media (max-width: 1024px) {
@@ -61,9 +60,6 @@
   }
 }
 
-/* ==========================================
-   IL NUOVO PANNELLO FILTRI
-   ========================================== */
 .filters-panel {
   background: var(--card-background);
   border-radius: 20px;
@@ -71,13 +67,12 @@
   border: none;
   box-shadow: none;
   position: relative;
-  /* Assicura che la card arrivi fino in fondo come nel profilo */
   height: 100%;
 }
 
 .filters-banner {
   width: 100%;
-  height: 140px; /* Portato a 140px per matchare perfettamente il banner profilo */
+  height: 140px;
   background: linear-gradient(
     135deg,
     var(--primary-color),
@@ -116,7 +111,6 @@
 
 .filters-body {
   padding: 36px 24px;
-  /* Posizionamento per far sormontare leggermente il contenuto al banner, stile avatar */
   position: relative;
   z-index: 2;
   margin-top: -45px;
@@ -210,9 +204,6 @@
   }
 }
 
-/* ==========================================
-   AREA CONTENUTO PRINCIPALE E STRUTTURA
-   ========================================== */
 .header-section {
   margin-bottom: 32px;
 
@@ -323,9 +314,6 @@
   }
 }
 
-/* ==========================================
-   ELEMENTI SEARCHBAR INTEGRATA E CHIPS
-   ========================================== */
 .tag-selector-container {
   position: relative;
   width: 100%;
@@ -422,10 +410,8 @@
 
 .tutors-css-grid {
   display: grid;
-  /* MAGIA: Le card saranno larghe minimo 320px. 
-     Se c'è spazio le affianca, altrimenti le manda sotto in automatico! */
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 28px; /* Spazio perfettamente uniforme sia in orizzontale che in verticale */
+  gap: 28px;
   width: 100%;
   padding-bottom: 30px;
 }

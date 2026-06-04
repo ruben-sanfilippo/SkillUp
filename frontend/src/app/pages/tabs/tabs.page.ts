@@ -17,7 +17,7 @@ import {
   chatbubblesOutline,
   statsChartOutline,
   schoolOutline,
-} from 'ionicons/icons'; // Aggiunta l'icona per i messaggi
+} from 'ionicons/icons';
 import { MessageService } from '../../services/messageService';
 import { UserService } from '../../services/userService';
 import { environment } from 'src/environments/environment';
@@ -39,7 +39,6 @@ import { io, Socket } from 'socket.io-client';
   ],
 })
 export class TabsPage implements OnInit, OnDestroy {
-  // 1. Definiamo la variabile con un valore di default
   tipologiaUtente = 'studente';
   hasUnreadMessages = localStorage.getItem('skillup_messaggi_non_letti') === '1';
   private currentUserId = 0;

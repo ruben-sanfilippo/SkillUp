@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { authChildGuard, authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-  //LANDING PAGE E AUTENTICAZIONE
   {
     path: 'login',
     loadComponent: () =>
@@ -42,7 +41,6 @@ export const routes: Routes = [
       ),
   },
 
-  //VISTA ADMIN: separata e fuori dalle tabs
   {
     path: 'admin-view',
     canActivate: [authGuard],
@@ -51,7 +49,6 @@ export const routes: Routes = [
       import('./pages/admin-view/admin-view.page').then((m) => m.AdminViewPage),
   },
 
-  //AREA APPLICAZIONE PER TUTOR E STUDENTI. QUI COMPARE LA TAB
   {
     path: 'tabs',
     canActivate: [authGuard],
@@ -120,7 +117,6 @@ export const routes: Routes = [
         (m) => m.LandingPagePage,
       ),
   },
-  // se il path è sbagliato, reindirizza alla landing
   {
     path: '**',
     redirectTo: '',
