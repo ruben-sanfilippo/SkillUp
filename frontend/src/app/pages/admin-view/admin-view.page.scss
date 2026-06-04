@@ -1,7 +1,7 @@
 .main-bg {
   --background: var(--app-background);
   font-family: var(--font-body);
-  --overflow: hidden; /* Blocca gli scroll spuri della pagina esterna */
+  --overflow: hidden;
 }
 
 .admin-wrapper {
@@ -28,7 +28,6 @@
   overflow: hidden;
 }
 
-/* --- HEADER PRINCIPALE --- */
 .admin-header {
   display: flex;
   justify-content: space-between;
@@ -124,7 +123,6 @@
   }
 }
 
-/* --- BLOCCHI CONTEGGI (KPI) --- */
 .kpi-grid {
   display: flex;
   gap: 20px;
@@ -180,7 +178,6 @@
   }
 }
 
-/* --- STRUTTURA CONTENITORE TABELLA --- */
 .table-section {
   flex: 1;
   display: flex;
@@ -224,7 +221,6 @@
   &:hover { background: var(--app-background); }
 }
 
-/* ABILITA SCROLL INTERNO ALLA TABELLA SENZA SPOSTARE L'HEADER DELLA PAGINA */
 .table-scroll-container {
   flex: 1; 
   overflow-y: auto; 
@@ -259,15 +255,13 @@
   background: var(--card-background);
 }
 
-/* --- STRUTTURA TABELLA E PROPORZIONI COLONNE --- */
 .admin-table {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-width: 1000px; /* Forza lo scroll orizzontale pulito solo su schermi piccoli */
+  min-width: 1000px;
   background: var(--card-background);
 
-  /* PROPORZIONI BILANCIATE STRUTTURALI */
   .col-user    { flex: 2.2; min-width: 250px; }
   .col-role    { flex: 1.0; min-width: 110px; }
   .col-date    { flex: 1.3; min-width: 140px; }
@@ -277,14 +271,14 @@
   .table-header-row {
     display: flex;
     align-items: center;
-    gap: 24px; /* Padding/gap bilanciato e uniforme tra tutte le colonne */
+    gap: 24px;
     position: sticky;
     top: 0;
     z-index: 10;
     background: var(--card-background);
     border-bottom: 1.5px solid var(--input-background);
     padding: 16px 24px;
-    
+
     .th-cell {
       font-size: 0.75rem;
       text-transform: uppercase;
@@ -301,7 +295,7 @@
     .table-body-row {
       display: flex;
       align-items: center;
-      gap: 24px; /* Stesso identico gap dell'header per garantire l'allineamento geometrico */
+      gap: 24px;
       padding: 14px 24px;
       border-bottom: 1.5px solid var(--input-background);
       background: var(--card-background);
@@ -323,7 +317,6 @@
   }
 }
 
-/* --- ELEMENTI INTERNI DELLE RIGHE --- */
 .user-cell {
   display: flex;
   align-items: center;
@@ -401,18 +394,17 @@
   padding: 3px 10px;
   border-radius: 12px;
   white-space: nowrap;
-  
+
   .dot { width: 6px; height: 6px; border-radius: 50%; }
   &.status-active { background: rgba(16, 185, 129, 0.08); color: #10B981; .dot { background-color: #10B981; } }
   &.status-blocked { background: rgba(239, 68, 68, 0.08); color: #EF4444; .dot { background-color: #EF4444; } }
 }
 
-/* --- BLOCCO AZIONI (DISTANZIAMENTI ED ALLINEAMENTI AGGIORNATI) --- */
 .actions-cell {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Avvicina il pulsante "Attiva/Disabilita" alla colonna dello stato */
-  gap: 28px; /* Incrementa lo spazio vuoto di sicurezza prima dei tre puntini delle opzioni */
+  justify-content: flex-start;
+  gap: 28px;
   width: 100%;
 }
 
@@ -429,8 +421,7 @@
     color: #EF4444; 
     &:hover { opacity: 0.8; } 
   }
-  
-  /* AGGIORNATO: Impostato il colore verde coerente con lo stato attivo */
+
   &.btn-success-action { 
     color: #10B981; 
     &:hover { opacity: 0.8; } 

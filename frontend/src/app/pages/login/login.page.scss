@@ -2,7 +2,6 @@
   --background: var(--app-background);
 }
 
-/* Struttura Flexbox per il centraggio responsivo su ogni display */
 .responsive-container {
   display: flex;
   min-height: 100%;
@@ -48,15 +47,15 @@
   padding: 0 16px;
   height: 52px;
   margin-bottom: 14px;
-  box-sizing: border-box; /* evita che i form escano fuori dalla card */
-  border: 1px solid transparent; // Predisposizione per il bordo di errore
+  box-sizing: border-box;
+  border: 1px solid transparent;
   transition: all 0.2s ease-in-out;
 
   .input-icon {
     color: var(--neutral-color);
     font-size: 20px;
     margin-right: 10px;
-    flex-shrink: 0; /* In questo modo l'icona non viene compressa */
+    flex-shrink: 0;
   }
 
   ion-input {

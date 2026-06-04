@@ -14,7 +14,7 @@ function profileImagePath(imageUrl) {
   try {
     pathname = new URL(imageUrl).pathname;
   } catch {
-    // imageUrl può già essere un percorso relativo salvato da vecchi dati locali.
+    pathname = imageUrl;
   }
 
   if (!pathname.startsWith("/uploads/public/profiles/")) return null;

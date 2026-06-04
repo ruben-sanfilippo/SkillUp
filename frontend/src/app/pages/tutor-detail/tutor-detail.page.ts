@@ -57,10 +57,8 @@ export class TutorDetailPage implements OnInit {
   ruoloUtente = localStorage.getItem('tipologia_utente') || '';
   tutorId: string | null = null;
 
-  // Struttura identica a tutor-profile
   dispense: any[] = [];
 
-  // Calendario
   dataCorrenteCalendario: Date = new Date();
   giorniDelMese: GiornoCalendario[] = [];
   spaziVuotiIniziali: number[] = [];
@@ -86,7 +84,6 @@ export class TutorDetailPage implements OnInit {
   oraInizioSelezionata: string = '';
   oraFineSelezionata: string = '';
 
-  // Logica Anteprima (Replica di tutor-profile)
   isViewingAnteprima = false;
   dispensaInEvidenza: any = null;
 
@@ -383,7 +380,6 @@ export class TutorDetailPage implements OnInit {
     });
   }
 
-  // Gestione Modale Anteprima come tutor-profile
   apriAnteprimaStudente(dispensa: any) {
     this.dispensaInEvidenza = dispensa;
     this.isViewingAnteprima = true;

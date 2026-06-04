@@ -65,7 +65,6 @@
   }
 }
 
-/* Gestione dello switch quando il dispositivo passa in modalita scura */
 @media (prefers-color-scheme: dark) {
   .custom-segment-container {
     background: var(--input-background);

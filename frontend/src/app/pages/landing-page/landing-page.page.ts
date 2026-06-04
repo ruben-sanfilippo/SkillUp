@@ -35,7 +35,6 @@ import {
 })
 export class LandingPagePage implements OnInit {
   constructor(private router: Router) {
-    // Registriamo le icone necessarie per la pagina
     addIcons({
       schoolOutline,
       arrowForwardOutline,
@@ -47,7 +46,6 @@ export class LandingPagePage implements OnInit {
 
   ngOnInit() {}
 
-  // Metodi di navigazione semplici e chiari
   vaiAlLogin() {
     this.router.navigate(['/login']);
   }

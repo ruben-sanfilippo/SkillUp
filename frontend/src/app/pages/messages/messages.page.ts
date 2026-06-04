@@ -29,11 +29,9 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
   newMessageText: string = '';
   activeChat: ConversazioneChat | null = null;
   filteredChats: ConversazioneChat[] = [];
-  
-  // Variabile di controllo di navigazione per Smartphone
+
   isChatOpen: boolean = false;
 
-  // Nomi puliti senza la dicitura (Tutor)
   chats: ConversazioneChat[] = [];
   currentUserId = 0;
   private socket?: Socket;

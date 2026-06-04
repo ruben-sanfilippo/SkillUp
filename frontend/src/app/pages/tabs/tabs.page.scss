@@ -62,7 +62,7 @@
     height: 100%;
 
     ::ng-deep ion-tab-button {
-      flex: 0 1 auto; // Impedisce ai bottoni di stirarsi
+      flex: 0 1 auto;
       min-width: auto;
       --padding-start: 0;
       --padding-end: 0;
@@ -77,7 +77,6 @@
       padding: 0 22px;
     }
 
-    // Centriamo icona e label
     ::ng-deep ion-tab-button ion-icon {
       margin: 0;
       font-size: 22px;
@@ -130,7 +129,6 @@
 }
 
 @media (min-width: 1025px) {
-  /*mi serve per non permettere alla pagina dentro le tabs di sovrapporsi alle tabs*/
   :host ::ng-deep ion-tabs ion-router-outlet > .ion-page {
     top: 64px !important;
     height: calc(100% - 64px) !important;

@@ -19,7 +19,6 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 
-// IMPORTIAMO IL SERVIZIO
 import { TutorService, FiltriRicerca } from '../../services/tutorService';
 
 @Component({
@@ -42,10 +41,8 @@ export class SearchTutorPage implements OnInit {
   mostraFiltriMobile = false;
   tipologiaUtente = 'studente';
 
-  // Aggiungiamo uno stato di caricamento per l'UI
   isCaricamento = false;
 
-  // Variabili dei filtri
   testoRicerca = '';
   rangePrezzo = { lower: 0, upper: 100 };
   dataDa = '';
@@ -104,10 +101,8 @@ export class SearchTutorPage implements OnInit {
   lingueFiltrate = [...this.lingueDisponibili];
   linguaFiltro: string[] = [];
 
-  // L'array che mostriamo a schermo (all'inizio è vuoto o null)
   tutorsFiltrati: any[] = [];
 
-  // INIETTIAMO IL SERVIZIO NEL COSTRUTTORE
   constructor(private tutorService: TutorService) {
     addIcons({
       searchOutline,
@@ -120,7 +115,6 @@ export class SearchTutorPage implements OnInit {
   }
 
   ngOnInit() {
-    // Al caricamento della pagina, facciamo subito una prima ricerca a vuoto per mostrare tutti i tutor
     this.aggiornaRuolo();
     this.applicaFiltri();
   }
@@ -136,7 +130,6 @@ export class SearchTutorPage implements OnInit {
     ).toLowerCase();
   }
 
-  // --- I METODI DELLE MATERIE E LINGUE RIMANGONO IDENTICI ---
   filtraMaterie(event: any) {
     const q = event.target.value.toLowerCase();
     this.materieFiltrate = this.materieDisponibili.filter((m) =>
@@ -165,14 +158,10 @@ export class SearchTutorPage implements OnInit {
     this.linguaFiltro = this.linguaFiltro.filter((l) => l !== lingua);
   }
 
-  // ==========================================
-  // MOTORE DI RICERCA: ORA USA IL SERVIZIO!
-  // ==========================================
   async applicaFiltri() {
     this.mostraFiltriMobile = false;
-    this.isCaricamento = true; // Mostra lo spinner
+    this.isCaricamento = true;
 
-    // 1. Prepariamo l'oggetto (il "pacchetto" da inviare al backend)
     const payloadFiltri: FiltriRicerca = {
       testo: this.testoRicerca,
       materie: this.materiaFiltro,
@@ -184,13 +173,11 @@ export class SearchTutorPage implements OnInit {
     };
 
     try {
-      // 2. Facciamo la chiamata al Servizio (aspettando la Promise)
       this.tutorsFiltrati =
         await this.tutorService.ricercaTutors(payloadFiltri);
     } catch (error) {
       console.error('Errore durante la ricerca:', error);
     } finally {
-      // 3. Nascondiamo lo spinner sia in caso di successo che di errore
       this.isCaricamento = false;
     }
   }
@@ -202,7 +189,6 @@ export class SearchTutorPage implements OnInit {
     this.rangePrezzo = { lower: 0, upper: 100 };
     this.dataDa = '';
     this.dataA = '';
-    // Rifacciamo la chiamata con i filtri azzerati
     this.applicaFiltri();
   }
 }

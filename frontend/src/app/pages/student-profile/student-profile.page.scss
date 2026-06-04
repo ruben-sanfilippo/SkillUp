@@ -707,7 +707,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 20px 0;
-      gap: 16px; /* Aggiunto gap principale per separare nettamente l'area sinistra dallo status-chip grigio */
+      gap: 16px;
       border-bottom: 1.5px solid var(--app-background);
 
       &:last-child {
@@ -717,8 +717,8 @@
       .modal-left-layout {
         display: flex;
         align-items: center;
-        justify-content: space-between; /* Forza il badge della recensione tutto a destra del suo blocco */
-        gap: 24px; /* Lascia dello spazio minimo di sicurezza prima che i testi tocchino il badge */
+        justify-content: space-between;
+        gap: 24px;
         flex: 1;
 
         @media (max-width: 650px) {
@@ -731,7 +731,7 @@
       .modal-action-wrapper {
         display: flex;
         align-items: center;
-        margin-right: 4px; /* Genera il distacco visivo richiesto tra 'Lezione recensita' e il chip di stato */
+        margin-right: 4px;
       }
 
       .modal-tutor-group {

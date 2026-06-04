@@ -2,7 +2,6 @@
   --background: var(--app-background);
 }
 
-/* Configurazione dell'Header e della Navbar */
 .landing-header {
   position: absolute;
   top: 0;
@@ -66,16 +65,12 @@
   }
 }
 
-/* Wrapper Principale del Contenuto */
 .landing-wrapper {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px 24px 40px 24px; // 120px in alto per non finire sotto la navbar assoluta
+  padding: 120px 24px 40px 24px;
 }
 
-/* ==========================================
-   1. HERO SECTION STYLES
-   ========================================== */
 .hero-section {
   display: grid;
   grid-template-columns: 1fr;
@@ -150,7 +145,7 @@
   }
 
   @media (max-width: 991px) {
-    display: none; // Nascondiamo il placeholder sui telefoni per salvare spazio
+    display: none;
   }
 }
 
