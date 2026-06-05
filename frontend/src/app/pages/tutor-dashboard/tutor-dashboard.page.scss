@@ -282,30 +282,6 @@
   align-items: center;
   justify-content: center;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: 50%;
-  }
-
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-headline);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 1rem;
-    letter-spacing: 0;
-  }
-
   @media (max-width: 680px) {
     width: 46px;
     height: 46px;

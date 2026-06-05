@@ -22,13 +22,14 @@ import {
   RicavoMensile,
   StatisticaMateriale,
 } from 'src/app/services/dashboardService';
+import { AvatarComponent } from 'src/app/components/avatar/avatar.component';
 
 @Component({
   selector: 'app-tutor-dashboard',
   templateUrl: './tutor-dashboard.page.html',
   styleUrls: ['./tutor-dashboard.page.scss'],
   standalone: true,
-  imports: [IonContent, IonIcon, CommonModule, FormsModule],
+  imports: [IonContent, IonIcon, CommonModule, FormsModule, AvatarComponent],
 })
 export class TutorDashboardPage implements OnInit {
   isCaricamento = false;
@@ -141,19 +142,6 @@ export class TutorDashboardPage implements OnInit {
     this.router.navigate(['/tabs/messages'], {
       queryParams: { userId: lezione.studenteId },
     });
-  }
-
-  inizialiNome(nomeCompleto?: string): string {
-    const parti = String(nomeCompleto || '')
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
-    if (parti.length === 0) return 'U';
-    return parti
-      .slice(0, 2)
-      .map((parte) => parte[0])
-      .join('')
-      .toUpperCase();
   }
 
   private creaRicaviVuoti(): RicavoMensile[] {

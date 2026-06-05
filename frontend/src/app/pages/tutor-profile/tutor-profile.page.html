@@ -6,32 +6,14 @@
           <div class="profile-banner-top"></div>
 
           <div class="profile-identity-block">
-            <div class="avatar-container">
-              <div class="avatar-holder">
-                @if (avatarUrl) {
-                  <img [src]="avatarUrl" alt="immagineProfilo Tutor" />
-                } @else {
-                  <div class="avatar-placeholder">
-                    {{ nome[0] }}{{ cognome[0] }}
-                  </div>
-                }
-              </div>
-              <button
-                class="avatar-edit-badge"
-                (click)="apriMenuAvatar()"
-                title="Gestisci foto profilo"
-              >
-                <ion-icon name="camera-outline"></ion-icon>
-              </button>
-              <input
-                type="file"
-                id="avatarTutorFileInput"
-                #avatarInputHidden
-                accept="image/*"
-                style="display: none"
-                (change)="onAvatarSelected($event)"
-              />
-            </div>
+            <app-profile-avatar-editor
+              [immagine]="avatarUrl"
+              [nome]="nome"
+              [cognome]="cognome"
+              alt="immagineProfilo Tutor"
+              (fileSelezionato)="onAvatarSelected($event)"
+              (rimuovi)="rimuoviAvatar()"
+            ></app-profile-avatar-editor>
 
             <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
             <p class="tutor-role">Tutor</p>
@@ -672,135 +654,21 @@
     </ng-template>
   </ion-modal>
 
-  <ion-modal
-    [isOpen]="isTransferModalOpen"
-    class="transfer-modal"
-    (didDismiss)="chiudiModalOpzioniTrasferimento()"
-  >
-    <ng-template>
-      <div>
-        <div class="modal-header">
-          <div class="title-left">
-            <ion-icon name="cash-outline"></ion-icon>
-            <h2>{{ opzioneTrasferimento.presente ? 'Modifica opzioni di trasferimento' : 'Opzioni di trasferimento' }}</h2>
-          </div>
-          <ion-button
-            fill="clear"
-            color="medium"
-            class="close-modal-btn"
-            (click)="chiudiModalOpzioniTrasferimento()"
-          >
-            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-          </ion-button>
-        </div>
+  <app-transfer-option-modal
+    [aperta]="isTransferModalOpen"
+    [opzioneTrasferimento]="opzioneTrasferimento"
+    (chiudi)="chiudiModalOpzioniTrasferimento()"
+    (salva)="salvaOpzioniTrasferimento($event)"
+  ></app-transfer-option-modal>
 
-        <div class="modal-content transfer-modal-content">
-          <div class="transfer-field">
-            <label>Titolare del conto</label>
-            <input
-              type="text"
-              [(ngModel)]="opzioneTrasferimentoForm.titolare_conto"
-              placeholder="Mario Rossi"
-            />
-          </div>
+  <app-material-preview-modal
+    [aperta]="isViewingAnteprima"
+    [titolo]="dispensaInEvidenza?.titolo || ''"
+    [descrizione]="dispensaInEvidenza?.descrizione || ''"
+    [urlAnteprima]="dispensaInEvidenza?.urlAnteprima"
+    [anteprimaPdf]="!!dispensaInEvidenza?.anteprimaPdf"
+    (chiudi)="chiudiAnteprimaStudente()"
+  ></app-material-preview-modal>
 
-          <div class="transfer-field">
-            <label>IBAN</label>
-            <input
-              type="text"
-              maxlength="42"
-              [(ngModel)]="opzioneTrasferimentoForm.iban"
-              (input)="formattaIbanTrasferimento()"
-              placeholder="IT60 X054 2811 1010 0000 0123 456"
-            />
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <ion-button
-            expand="block"
-            class="save-modal-btn"
-            [disabled]="!opzioneTrasferimentoValida()"
-            (click)="salvaOpzioniTrasferimento()"
-          >
-            Salva opzioni di trasferimento
-          </ion-button>
-        </div>
-      </div>
-    </ng-template>
-  </ion-modal>
-
-  <ion-modal
-    [isOpen]="isViewingAnteprima"
-    class="preview-modal"
-    (didDismiss)="chiudiAnteprimaStudente()"
-  >
-    <ng-template>
-      <div>
-        <div class="modal-header">
-          <div class="title-left">
-            <ion-icon name="eye-outline"></ion-icon>
-            <h2>Anteprima materiale</h2>
-          </div>
-          <ion-button
-            fill="clear"
-            color="medium"
-            class="close-modal-btn"
-            (click)="chiudiAnteprimaStudente()"
-          >
-            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-          </ion-button>
-        </div>
-
-        <div class="modal-content preview-scroll-box">
-          <div class="preview-top-bar">
-            <div>
-              <h3 class="preview-doc-title">
-                {{ dispensaInEvidenza?.titolo }}
-              </h3>
-              <p class="preview-doc-desc">
-                {{ dispensaInEvidenza?.descrizione }}
-              </p>
-            </div>
-          </div>
-
-          <div class="document-preview-render structural-clean">
-            @if (dispensaInEvidenza?.anteprimaPdf) {
-            <div class="pdf-frame-container">
-              <iframe
-                [src]="dispensaInEvidenza?.urlAnteprima"
-                width="100%"
-                height="500px"
-                style="border: none; border-radius: 8px"
-              ></iframe>
-            </div>
-            } @else if (dispensaInEvidenza?.urlAnteprima) {
-            <div class="image-preview-clean-container">
-              <img
-                [src]="dispensaInEvidenza?.urlAnteprima"
-                alt="Anteprima Immagine"
-                class="real-preview-img-solid"
-              />
-            </div>
-            } @else {
-            <div>
-              <p style="text-align: center; color: var(--neutral-color)">
-                Nessuna anteprima disponibile.
-              </p>
-            </div>
-            }
-          </div>
-        </div>
-      </div>
-    </ng-template>
-  </ion-modal>
-
-  <ion-action-sheet
-    [isOpen]="isAvatarActionSheetOpen"
-    header="Gestisci Foto Profilo"
-    [buttons]="avatarActionSheetButtons"
-    (didDismiss)="isAvatarActionSheetOpen = false"
-  >
-  </ion-action-sheet>
 </ion-content>
 

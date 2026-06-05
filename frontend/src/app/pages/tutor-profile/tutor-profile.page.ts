@@ -1,13 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
 import {
   personOutline,
-  cameraOutline,
   star,
   briefcaseOutline,
   documentTextOutline,
@@ -41,6 +40,9 @@ import {
 import { MaterialService } from 'src/app/services/materialService';
 import { TutorService } from 'src/app/services/tutorService';
 import { UserService } from 'src/app/services/userService';
+import { MaterialPreviewModalComponent } from 'src/app/components/material-preview-modal/material-preview-modal.component';
+import { TransferOptionModalComponent } from 'src/app/components/transfer-option-modal/transfer-option-modal.component';
+import { ProfileAvatarEditorComponent } from 'src/app/components/profile-avatar-editor/profile-avatar-editor.component';
 import type { Dispensa } from 'src/app/interfaces/profile.interfaces';
 import type {
   GiornoCalendario,
@@ -54,7 +56,7 @@ import type {
   templateUrl: './tutor-profile.page.html',
   styleUrls: ['./tutor-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, MaterialPreviewModalComponent, TransferOptionModalComponent, ProfileAvatarEditorComponent],
 })
 export class TutorProfilePage implements OnInit {
   nome = '';
@@ -81,10 +83,6 @@ export class TutorProfilePage implements OnInit {
   lingueSelezionateTmp: string[] = [];
   dispensaInEvidenza: Dispensa | null = null;
   opzioneTrasferimento: OpzioneTrasferimentoTutor = { presente: false };
-  opzioneTrasferimentoForm: OpzioneTrasferimentoPayload = {
-    titolare_conto: '',
-    iban: '',
-  };
 
   dataCorrenteCalendario: Date = new Date();
   giorniDelMese: GiornoCalendario[] = [];
@@ -162,35 +160,6 @@ export class TutorProfilePage implements OnInit {
 
   avatarUrl = '';
 
-  isAvatarActionSheetOpen = false;
-  @ViewChild('avatarInputHidden')
-  avatarInputHidden!: ElementRef<HTMLInputElement>;
-
-  public avatarActionSheetButtons = [
-    {
-      text: 'Carica / Modifica foto',
-      icon: 'image-outline',
-      handler: () => {
-        this.triggerFileInput();
-      },
-    },
-    {
-      text: 'Rimuovi foto',
-      role: 'destructive',
-      icon: 'trash-outline',
-      handler: () => {
-        this.rimuoviAvatar();
-      },
-    },
-    {
-      text: 'Annulla',
-      role: 'cancel',
-      data: {
-        action: 'cancel',
-      },
-    },
-  ];
-
   nuovaDispensa: Dispensa = {
     titolo: '',
     descrizione: '',
@@ -209,6 +178,7 @@ export class TutorProfilePage implements OnInit {
   constructor(
     private sanitizer: DomSanitizer,
     private alertController: AlertController,
+    private toastController: ToastController,
     private tutorService: TutorService,
     private userService: UserService,
     private materialService: MaterialService,
@@ -216,7 +186,6 @@ export class TutorProfilePage implements OnInit {
   ) {
     addIcons({
       personOutline,
-      cameraOutline,
       star,
       briefcaseOutline,
       documentTextOutline,
@@ -318,67 +287,33 @@ export class TutorProfilePage implements OnInit {
   }
 
   apriModalOpzioniTrasferimento() {
-    this.opzioneTrasferimentoForm = {
-      titolare_conto: this.opzioneTrasferimento.titolare_conto || '',
-      iban: this.opzioneTrasferimento.iban || '',
-    };
     this.isTransferModalOpen = true;
   }
 
   chiudiModalOpzioniTrasferimento() {
     this.isTransferModalOpen = false;
-    this.opzioneTrasferimentoForm = {
-      titolare_conto: '',
-      iban: '',
-    };
   }
 
-  formattaIbanTrasferimento() {
-    const iban = this.opzioneTrasferimentoForm.iban
-      .replace(/\s+/g, '')
-      .toUpperCase()
-      .slice(0, 34);
-    this.opzioneTrasferimentoForm.iban = iban.replace(/(.{4})/g, '$1 ').trim();
-  }
-
-  opzioneTrasferimentoValida(): boolean {
-    const iban = this.opzioneTrasferimentoForm.iban.replace(/\s+/g, '');
-    return (
-      this.opzioneTrasferimentoForm.titolare_conto.trim().length >= 3 &&
-      /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)
-    );
-  }
-
-  async salvaOpzioniTrasferimento() {
-    if (!this.opzioneTrasferimentoValida()) {
-      await this.mostraPopupErrorePersonalizzato(
-        'Inserisci un titolare del conto e un IBAN validi.',
-      );
-      return;
-    }
-
+  async salvaOpzioniTrasferimento(opzioneTrasferimentoForm: OpzioneTrasferimentoPayload) {
     try {
       const tutorAggiornato = await this.tutorService.updateTutorMe({
         opzione_trasferimento: {
-          titolare_conto: this.opzioneTrasferimentoForm.titolare_conto,
-          iban: this.opzioneTrasferimentoForm.iban,
+          titolare_conto: opzioneTrasferimentoForm.titolare_conto,
+          iban: opzioneTrasferimentoForm.iban,
         },
       });
       this.opzioneTrasferimento =
         tutorAggiornato.opzione_trasferimento || {
           presente: true,
-          titolare_conto: this.opzioneTrasferimentoForm.titolare_conto
+          titolare_conto: opzioneTrasferimentoForm.titolare_conto
             .trim()
             .toUpperCase(),
-          iban: this.opzioneTrasferimentoForm.iban
+          iban: opzioneTrasferimentoForm.iban
             .replace(/\s+/g, '')
             .toUpperCase(),
         };
       this.chiudiModalOpzioniTrasferimento();
-      await this.mostraPopupSuccesso(
-        'Opzioni salvate',
-        'Le opzioni di trasferimento sono state aggiornate correttamente.',
-      );
+      await this.mostraToast('Opzioni di trasferimento salvate.', 'success');
     } catch (error: any) {
       await this.mostraPopupErrorePersonalizzato(
         error?.error?.message ||
@@ -401,29 +336,8 @@ export class TutorProfilePage implements OnInit {
     return `${parti[2]} ${this.mesiNomi[parseInt(parti[1]) - 1]} ${parti[0]}`;
   }
 
-  apriMenuAvatar() {
-    this.isAvatarActionSheetOpen = true;
-  }
-
-  triggerFileInput() {
-    if (this.avatarInputHidden?.nativeElement) {
-      this.avatarInputHidden.nativeElement.click();
-      return;
-    }
-
-    const fileInput = document.getElementById(
-      'avatarTutorFileInput',
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    }
-  }
-
   async rimuoviAvatar() {
     this.avatarUrl = '';
-    if (this.avatarInputHidden && this.avatarInputHidden.nativeElement) {
-      this.avatarInputHidden.nativeElement.value = '';
-    }
     await this.tutorService.updateTutorMe({ immagine_profilo: '' });
   }
 
@@ -610,17 +524,6 @@ export class TutorProfilePage implements OnInit {
     await alert.present();
   }
 
-  async mostraPopupSuccesso(header: string, message: string) {
-    const alert = await this.alertController.create({
-      header,
-      message,
-      buttons: [
-        { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
-      ],
-    });
-    await alert.present();
-  }
-
   async mostraPopupOpzioniTrasferimentoRichieste(message: string) {
     const alert = await this.alertController.create({
       header: 'Opzioni di trasferimento richieste',
@@ -635,6 +538,16 @@ export class TutorProfilePage implements OnInit {
       ],
     });
     await alert.present();
+  }
+
+  private async mostraToast(message: string, color: 'success' | 'danger' | 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2200,
+      color,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 
   async salvaSezione(sezione: string) {
@@ -732,17 +645,14 @@ export class TutorProfilePage implements OnInit {
     }
   }
 
-  onAvatarSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        this.avatarUrl = reader.result as string;
-        const utente = await this.userService.uploadAvatar(file);
-        this.avatarUrl = utente.immagine_profilo || this.avatarUrl;
-      };
-      reader.readAsDataURL(file);
-    }
+  onAvatarSelected(file: File) {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      this.avatarUrl = reader.result as string;
+      const utente = await this.userService.uploadAvatar(file);
+      this.avatarUrl = utente.immagine_profilo || this.avatarUrl;
+    };
+    reader.readAsDataURL(file);
   }
 
   onCopertinaSelected(event: any) {

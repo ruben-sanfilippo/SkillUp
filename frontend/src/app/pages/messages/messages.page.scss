@@ -164,28 +164,9 @@
   flex-shrink: 0;
   position: relative;
 
-  img {
-    width: 100%;
-    height: 100%;
+  app-avatar {
     border-radius: 50%;
-    object-fit: cover;
   }
-}
-
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
-  color: #FFFFFF;
-  font-family: var(--font-headline);
-  font-weight: 800;
-  font-size: 0.9rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
 }
 
 .unread-dot {
@@ -307,6 +288,10 @@
         height: 100%;
         border-radius: 50%;
         object-fit: cover;
+      }
+
+      app-avatar {
+        border-radius: 50%;
       }
     }
 

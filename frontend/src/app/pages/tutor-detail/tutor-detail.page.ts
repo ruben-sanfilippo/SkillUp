@@ -28,6 +28,8 @@ import { BookingService } from 'src/app/services/bookingService';
 import { MaterialService } from 'src/app/services/materialService';
 import { TutorService } from 'src/app/services/tutorService';
 import { UserService } from 'src/app/services/userService';
+import { AvatarComponent } from 'src/app/components/avatar/avatar.component';
+import { MaterialPreviewModalComponent } from 'src/app/components/material-preview-modal/material-preview-modal.component';
 import type {
   FasciaDisponibilita,
   GiornoCalendario,
@@ -40,7 +42,7 @@ import type {
   templateUrl: './tutor-detail.page.html',
   styleUrls: ['./tutor-detail.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, AvatarComponent, MaterialPreviewModalComponent],
 })
 export class TutorDetailPage implements OnInit {
   nome = '';

@@ -80,13 +80,12 @@
                   <div class="td-cell col-user">
                     <div class="user-cell">
                       <div class="avatar-holder">
-                        @if (user.immagineProfilo) {
-                          <img [src]="user.immagineProfilo" alt="Avatar" />
-                        } @else {
-                          <div class="avatar-placeholder">
-                            {{ user.nome[0] }}{{ user.cognome[0] }}
-                          </div>
-                        }
+                        <app-avatar
+                          [immagine]="user.immagineProfilo"
+                          [nome]="user.nome"
+                          [cognome]="user.cognome"
+                          alt="Avatar"
+                        ></app-avatar>
                       </div>
                       <div class="user-meta">
                         <h4>{{ user.nome }} {{ user.cognome }}</h4>

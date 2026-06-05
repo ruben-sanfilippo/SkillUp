@@ -16,13 +16,12 @@
 
           <div class="profile-identity-block">
             <div class="avatar-container detail-avatar">
-              @if (avatarUrl) {
-                <img [src]="avatarUrl" alt="Avatar" class="avatar-img-render" />
-              } @else {
-                <div class="avatar-placeholder">
-                  {{ nome[0] }}{{ cognome[0] }}
-                </div>
-              }
+              <app-avatar
+                [immagine]="avatarUrl"
+                [nome]="nome"
+                [cognome]="cognome"
+                alt="Avatar tutor"
+              ></app-avatar>
             </div>
 
             <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
@@ -309,83 +308,17 @@
     </div>
   </div>
 
-  <ion-modal
-    [isOpen]="isViewingAnteprima"
-    class="preview-modal"
-    (didDismiss)="chiudiAnteprimaStudente()"
-  >
-    <ng-template>
-      <div>
-        <div class="modal-header">
-          <div class="title-left">
-            <ion-icon name="eye-outline"></ion-icon>
-            <h2>Anteprima materiale</h2>
-          </div>
-          <ion-button fill="clear" color="medium" class="close-modal-btn" (click)="chiudiAnteprimaStudente()">
-            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-          </ion-button>
-        </div>
-
-        <div class="modal-content preview-scroll-box">
-          <div class="preview-top-bar">
-            <div>
-              <h3 class="preview-doc-title">{{ dispensaInEvidenza?.titolo }}</h3>
-              <p class="preview-doc-desc">{{ dispensaInEvidenza?.descrizione }}</p>
-            </div>
-          </div>
-
-          <div class="document-preview-render structural-clean">
-            @if (dispensaInEvidenza?.anteprimaPdf) {
-              <div class="pdf-frame-container">
-                <iframe
-                  [src]="dispensaInEvidenza?.urlAnteprima"
-                  width="100%"
-                  height="500px"
-                  style="border: none; border-radius: 8px"
-                ></iframe>
-              </div>
-            }
-
-            @if (!dispensaInEvidenza?.anteprimaPdf && dispensaInEvidenza?.urlAnteprima) {
-              <div class="image-preview-clean-container">
-                <img
-                  [src]="dispensaInEvidenza?.urlAnteprima"
-                  alt="Anteprima Immagine"
-                  class="real-preview-img-solid"
-                />
-              </div>
-            }
-
-            @if (!dispensaInEvidenza?.urlAnteprima) {
-              <div>
-                <p style="text-align: center; color: var(--neutral-color)">
-                  Nessuna anteprima disponibile.
-                </p>
-              </div>
-            }
-          </div>
-
-          @if (puoInteragireComeStudente) {
-            <div style="margin-top: 24px">
-              <ion-button
-                expand="block"
-                class="buy-dispensa-btn"
-                style="width: 100%; height: 50px"
-                [disabled]="dispensaInEvidenza?.acquistato"
-                (click)="acquistaDispensa(dispensaInEvidenza); chiudiAnteprimaStudente()"
-              >
-                <ion-icon slot="start" name="cart-outline"></ion-icon>
-                @if (dispensaInEvidenza?.acquistato) {
-                  Acquistato
-                } @else {
-                  Acquista a {{ dispensaInEvidenza?.prezzo | number:'1.2-2' }}€
-                }
-              </ion-button>
-            </div>
-          }
-        </div>
-      </div>
-    </ng-template>
-  </ion-modal>
+  <app-material-preview-modal
+    [aperta]="isViewingAnteprima"
+    [titolo]="dispensaInEvidenza?.titolo || ''"
+    [descrizione]="dispensaInEvidenza?.descrizione || ''"
+    [urlAnteprima]="dispensaInEvidenza?.urlAnteprima"
+    [anteprimaPdf]="!!dispensaInEvidenza?.anteprimaPdf"
+    [mostraAcquisto]="puoInteragireComeStudente"
+    [acquistato]="!!dispensaInEvidenza?.acquistato"
+    [prezzo]="dispensaInEvidenza?.prezzo"
+    (chiudi)="chiudiAnteprimaStudente()"
+    (acquista)="acquistaDispensa(dispensaInEvidenza); chiudiAnteprimaStudente()"
+  ></app-material-preview-modal>
 </ion-content>
 

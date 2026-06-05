@@ -15,10 +15,6 @@ import {
   chevronForwardOutline,
   createOutline,
   closeOutline,
-  cameraOutline,
-  imageOutline,
-  trashOutline,
-  checkmarkCircleOutline,
   logOutOutline,
   eyeOutline,
   keyOutline,
@@ -28,6 +24,11 @@ import { BookingService } from 'src/app/services/bookingService';
 import { MaterialService } from 'src/app/services/materialService';
 import { ReviewService } from 'src/app/services/reviewService';
 import { UserService } from 'src/app/services/userService';
+import { MaterialPreviewModalComponent } from 'src/app/components/material-preview-modal/material-preview-modal.component';
+import { PaymentMethodModalComponent } from 'src/app/components/payment-method-modal/payment-method-modal.component';
+import { BookingCardComponent } from 'src/app/components/booking-card/booking-card.component';
+import { ProfileAvatarEditorComponent } from 'src/app/components/profile-avatar-editor/profile-avatar-editor.component';
+import { ReviewModalComponent } from 'src/app/components/review-modal/review-modal.component';
 import type {
   PrenotazioneProfilo,
   MaterialeAcquistato,
@@ -46,28 +47,20 @@ import type {
   templateUrl: './student-profile.page.html',
   styleUrls: ['./student-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, MaterialPreviewModalComponent, PaymentMethodModalComponent, BookingCardComponent, ProfileAvatarEditorComponent, ReviewModalComponent],
 })
 export class StudentProfilePage implements OnInit {
   isModalOpen = false;
   isReviewModalOpen = false;
   isBioModalOpen = false;
-  isAvatarActionSheetOpen = false;
   isPreviewModalOpen = false;
   isPaymentModalOpen = false;
 
   selectedBookingForReview: PrenotazioneProfilo | null = null;
   selectedMaterialPreview: MaterialeAcquistato | null = null;
-  currentRating: number = 0;
   tempBio: string = '';
   email = '';
   metodoPagamento: MetodoPagamentoStudente = { presente: false };
-  metodoPagamentoForm: MetodoPagamentoPayload = {
-    numero_carta: '',
-    scadenza: '',
-    titolare: '',
-    cvv: '',
-  };
 
   student: DatiStudente = {
     nome: '',
@@ -77,31 +70,6 @@ export class StudentProfilePage implements OnInit {
     sessioniCompletate: 0,
     oreStudio: 0,
   };
-
-  public avatarActionSheetButtons = [
-    {
-      text: 'Carica / Modifica foto',
-      icon: 'image-outline',
-      handler: () => {
-        this.triggerFileInput();
-      },
-    },
-    {
-      text: 'Rimuovi foto',
-      role: 'destructive',
-      icon: 'trash-outline',
-      handler: () => {
-        this.rimuoviAvatar();
-      },
-    },
-    {
-      text: 'Annulla',
-      role: 'cancel',
-      data: {
-        action: 'cancel',
-      },
-    },
-  ];
 
   recentBookings: PrenotazioneProfilo[] = [];
   allBookings: PrenotazioneProfilo[] = [];
@@ -126,10 +94,6 @@ export class StudentProfilePage implements OnInit {
       chevronForwardOutline,
       createOutline,
       closeOutline,
-      cameraOutline,
-      imageOutline,
-      trashOutline,
-      checkmarkCircleOutline,
       logOutOutline,
       eyeOutline,
       keyOutline,
@@ -202,21 +166,15 @@ export class StudentProfilePage implements OnInit {
 
   apriModalRecensione(prenotazione: PrenotazioneProfilo) {
     this.selectedBookingForReview = prenotazione;
-    this.currentRating = 0;
     this.isReviewModalOpen = true;
   }
 
   chiudiModalRecensione() {
     this.isReviewModalOpen = false;
     this.selectedBookingForReview = null;
-    this.currentRating = 0;
   }
 
-  setRating(rating: number) {
-    this.currentRating = rating;
-  }
-
-  async inviaRecensione() {
+  async inviaRecensione(voto: number) {
     if (!this.selectedBookingForReview) return;
 
     const targetId = this.selectedBookingForReview.id;
@@ -225,7 +183,7 @@ export class StudentProfilePage implements OnInit {
     try {
       await this.reviewService.createReview({
         prenotazione_id: targetId,
-        voto: this.currentRating,
+        voto,
       });
     } catch (error: any) {
       alert(
@@ -255,78 +213,22 @@ export class StudentProfilePage implements OnInit {
     this.chiudiModalRecensione();
   }
 
-  apriMenuAvatar() {
-    this.isAvatarActionSheetOpen = true;
-  }
-
   apriModalMetodoPagamento() {
-    this.metodoPagamentoForm = {
-      numero_carta: '',
-      scadenza: this.metodoPagamento.scadenza || '',
-      titolare: this.metodoPagamento.titolare || '',
-      cvv: '',
-    };
     this.isPaymentModalOpen = true;
   }
 
   chiudiModalMetodoPagamento() {
     this.isPaymentModalOpen = false;
-    this.metodoPagamentoForm = {
-      numero_carta: '',
-      scadenza: '',
-      titolare: '',
-      cvv: '',
-    };
   }
 
-  formattaNumeroCarta() {
-    const cifre = this.metodoPagamentoForm.numero_carta
-      .replace(/\D/g, '')
-      .slice(0, 19);
-    this.metodoPagamentoForm.numero_carta = cifre.replace(/(.{4})/g, '$1 ').trim();
-  }
-
-  formattaScadenzaCarta() {
-    const cifre = this.metodoPagamentoForm.scadenza.replace(/\D/g, '').slice(0, 4);
-    this.metodoPagamentoForm.scadenza =
-      cifre.length > 2 ? `${cifre.slice(0, 2)}/${cifre.slice(2)}` : cifre;
-  }
-
-  formattaCvv() {
-    this.metodoPagamentoForm.cvv = this.metodoPagamentoForm.cvv
-      .replace(/\D/g, '')
-      .slice(0, 4);
-  }
-
-  metodoPagamentoValido(): boolean {
-    const numeroCarta = this.metodoPagamentoForm.numero_carta.replace(/\D/g, '');
-    const cvv = this.metodoPagamentoForm.cvv.replace(/\D/g, '');
-    return (
-      this.metodoPagamentoForm.titolare.trim().length >= 3 &&
-      numeroCarta.length >= 13 &&
-      numeroCarta.length <= 19 &&
-      /^\d{2}\/\d{2}$/.test(this.metodoPagamentoForm.scadenza) &&
-      cvv.length >= 3 &&
-      cvv.length <= 4
-    );
-  }
-
-  async salvaMetodoPagamento() {
-    if (!this.metodoPagamentoValido()) {
-      await this.mostraToast(
-        'Completa correttamente tutti i dati della carta.',
-        'danger',
-      );
-      return;
-    }
-
+  async salvaMetodoPagamento(metodoPagamentoForm: MetodoPagamentoPayload) {
     try {
       const utenteAggiornato = await this.userService.updateMe({
         metodo_pagamento: {
-          numero_carta: this.metodoPagamentoForm.numero_carta,
-          scadenza: this.metodoPagamentoForm.scadenza,
-          titolare: this.metodoPagamentoForm.titolare,
-          cvv: this.metodoPagamentoForm.cvv,
+          numero_carta: metodoPagamentoForm.numero_carta,
+          scadenza: metodoPagamentoForm.scadenza,
+          titolare: metodoPagamentoForm.titolare,
+          cvv: metodoPagamentoForm.cvv,
         },
       });
       this.metodoPagamento =
@@ -342,28 +244,15 @@ export class StudentProfilePage implements OnInit {
     }
   }
 
-  triggerFileInput() {
-    const fileInput = document.getElementById(
-      'avatarFileInput',
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    }
-  }
-
-  onAvatarSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.student.immagineProfilo = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-      void this.userService.uploadAvatar(file).then((utente) => {
-        this.student.immagineProfilo = utente.immagine_profilo || '';
-      });
-    }
+  onAvatarSelected(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.student.immagineProfilo = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+    void this.userService.uploadAvatar(file).then((utente) => {
+      this.student.immagineProfilo = utente.immagine_profilo || '';
+    });
   }
 
   rimuoviAvatar() {
@@ -510,19 +399,6 @@ export class StudentProfilePage implements OnInit {
       return null;
     }
     return parti[0] * 60 + parti[1];
-  }
-
-  inizialiNome(nomeCompleto?: string): string {
-    const parti = String(nomeCompleto || '')
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
-    if (parti.length === 0) return 'U';
-    return parti
-      .slice(0, 2)
-      .map((parte) => parte[0])
-      .join('')
-      .toUpperCase();
   }
 
   private preparaAnteprima(url?: string): string | SafeResourceUrl {

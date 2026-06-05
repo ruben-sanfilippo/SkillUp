@@ -1,0 +1,34 @@
+<div class="avatar-container" [class.sovrapposto]="sovrapposto">
+  <div class="avatar-holder">
+    <app-avatar
+      [immagine]="immagine"
+      [nome]="nome"
+      [cognome]="cognome"
+      [alt]="alt"
+    ></app-avatar>
+  </div>
+
+  <button
+    class="avatar-edit-badge"
+    (click)="apriMenuAvatar()"
+    title="Gestisci foto profilo"
+  >
+    <ion-icon name="camera-outline"></ion-icon>
+  </button>
+
+  <input
+    #avatarInput
+    type="file"
+    accept="image/*"
+    (change)="onFileSelected($event)"
+    hidden
+  />
+</div>
+
+<ion-action-sheet
+  [isOpen]="isActionSheetOpen"
+  header="Gestisci Foto Profilo"
+  [buttons]="actionSheetButtons"
+  (didDismiss)="isActionSheetOpen = false"
+>
+</ion-action-sheet>

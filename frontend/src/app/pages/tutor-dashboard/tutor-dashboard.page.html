@@ -89,16 +89,11 @@
           @for (lezione of prossimeLezioni; track lezione.id) {
           <div class="lesson-row">
             <div class="student-avatar">
-              @if (lezione.studenteAvatar) {
-                <img
-                  [src]="lezione.studenteAvatar"
-                  [alt]="lezione.studenteNome"
-                />
-              } @else {
-                <div class="avatar-placeholder">
-                  {{ inizialiNome(lezione.studenteNome) }}
-                </div>
-              }
+              <app-avatar
+                [immagine]="lezione.studenteAvatar"
+                [nomeCompleto]="lezione.studenteNome"
+                [alt]="lezione.studenteNome"
+              ></app-avatar>
             </div>
 
             <div class="lesson-main">
