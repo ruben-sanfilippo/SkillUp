@@ -582,17 +582,6 @@ export class TutorProfilePage implements OnInit {
     await alert.present();
   }
 
-  async mostraPopupErroreDataPassata() {
-    const alert = await this.alertController.create({
-      header: 'Data non valida',
-      message: 'Non puoi aggiungere disponibilita per giorni gia passati.',
-      buttons: [
-        { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
-      ],
-    });
-    await alert.present();
-  }
-
   async mostraPopupErroreMaterieMancanti() {
     await this.mostraPopupErrorePersonalizzato(
       'Seleziona almeno una materia prima di inserire disponibilita.',
