@@ -18,10 +18,6 @@ const Admin = {
     return this.getAdminUsers();
   },
 
-  async deleteUser(userId) {
-    await run(`DELETE FROM Utente WHERE id = ?`, [userId]);
-    return this.getAdminUsers();
-  },
 };
 
 module.exports = Admin;

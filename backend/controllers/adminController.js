@@ -33,11 +33,3 @@ exports.updateUserStatus = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
-  try {
-    if (!requireRole(req, res, ["amministratore"])) return;
-    res.json(await Admin.deleteUser(req.params.id));
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
