@@ -25,9 +25,4 @@ export class AdminService {
     );
   }
 
-  deleteUser(id: number | string) {
-    return firstValueFrom(
-      this.http.delete<UtenteAdmin[]>(`${environment.apiUrl}/api/admin/users/${id}`),
-    );
-  }
 }

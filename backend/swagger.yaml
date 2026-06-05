@@ -866,26 +866,6 @@ paths:
         "403":
           $ref: "#/components/responses/PermessiInsufficienti"
 
-  /api/admin/users/{id}:
-    delete:
-      summary: Elimina un utente
-      tags: [Amministrazione]
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      responses:
-        "200":
-          description: Utente eliminato, ritorna la lista aggiornata
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UtenteAdmin"
-        "403":
-          $ref: "#/components/responses/PermessiInsufficienti"
-
   /api/dashboard/tutor:
     get:
       summary: Statistiche dashboard del tutor autenticato

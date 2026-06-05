@@ -170,11 +170,6 @@ export class AdminViewPage implements OnInit {
     this.masterUsersList.set(users.map((u) => this.mappaUtente(u)));
   }
 
-  async eliminaUtente(userId: string | number) {
-    const users = await this.adminService.deleteUser(userId);
-    this.masterUsersList.set(users.map((u) => this.mappaUtente(u)));
-  }
-
   async apriFiltri(event: Event) {
     const pop = await this.popoverCtrl.create({
       component: FilterPopoverComponent,
@@ -201,8 +196,7 @@ export class AdminViewPage implements OnInit {
     });
     await pop.present();
     const { data } = await pop.onWillDismiss();
-    if (data?.action === 'delete') this.eliminaUtente(user.id);
-    else if (data?.action === 'email')
+    if (data?.action === 'email')
       window.location.href = `mailto:${user.email}`;
   }
 
