@@ -192,39 +192,6 @@ export class TutorDetailPage implements OnInit {
     return disponibilita;
   }
 
-  private creaDisponibilitaDaFasce(items: any[]): {
-    [key: string]: FasciaDisponibilita[];
-  } {
-    const disponibilita: { [key: string]: FasciaDisponibilita[] } = {};
-
-    for (const item of items) {
-      const data = this.normalizzaData(item.data);
-      if (!data) continue;
-
-      const fascia = {
-        id: item.id,
-        dalle: this.normalizzaOrario(item.ora_inizio),
-        alle: this.normalizzaOrario(item.ora_fine),
-      };
-
-      if (!fascia.dalle || !fascia.alle) continue;
-
-      const fasceGiorno = disponibilita[data] || [];
-      const giaPresente = fasceGiorno.some(
-        (esistente) =>
-          esistente.dalle === fascia.dalle && esistente.alle === fascia.alle,
-      );
-
-      if (!giaPresente) {
-        fasceGiorno.push(fascia);
-      }
-
-      disponibilita[data] = fasceGiorno;
-    }
-
-    return disponibilita;
-  }
-
   private isPdfDataUrl(url?: string): boolean {
     return !!url && (url.startsWith('data:application/pdf') || url.toLowerCase().includes('.pdf'));
   }
