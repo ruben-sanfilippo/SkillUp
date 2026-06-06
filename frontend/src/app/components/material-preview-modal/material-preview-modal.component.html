@@ -1,0 +1,76 @@
+<ion-modal
+  [isOpen]="aperta"
+  class="material-preview-modal"
+  (didDismiss)="gestisciChiusura()"
+>
+  <ng-template>
+    <div class="preview-shell">
+      <div class="modal-header">
+        <div class="title-left">
+          <ion-icon name="eye-outline"></ion-icon>
+          <h2>Anteprima materiale</h2>
+        </div>
+        <ion-button
+          fill="clear"
+          color="medium"
+          class="close-modal-btn"
+          (click)="richiediChiusura()"
+        >
+          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="modal-content">
+        <div class="preview-top-bar">
+          <div>
+            <h3 class="preview-doc-title">{{ titolo }}</h3>
+            <p class="preview-doc-desc">{{ descrizione }}</p>
+          </div>
+        </div>
+
+        <div class="document-preview-render">
+          @if (anteprimaPdf && urlAnteprima) {
+            <div class="pdf-frame-container">
+              <iframe
+                [src]="urlAnteprima"
+                title="Anteprima materiale"
+                width="100%"
+                height="500"
+              ></iframe>
+            </div>
+          } @else if (urlAnteprima) {
+            <div class="image-preview-clean-container">
+              <img
+                [src]="urlAnteprima"
+                alt="Anteprima materiale"
+                class="real-preview-img-solid"
+              />
+            </div>
+          } @else {
+            <div class="empty-preview">
+              <p>Nessuna anteprima disponibile.</p>
+            </div>
+          }
+        </div>
+
+        @if (mostraAcquisto) {
+          <div class="preview-action-area">
+            <ion-button
+              expand="block"
+              class="buy-dispensa-btn"
+              [disabled]="acquistato"
+              (click)="richiediAcquisto()"
+            >
+              <ion-icon slot="start" name="cart-outline"></ion-icon>
+              @if (acquistato) {
+                Acquistato
+              } @else {
+                Acquista a {{ prezzoFormattato }} €
+              }
+            </ion-button>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

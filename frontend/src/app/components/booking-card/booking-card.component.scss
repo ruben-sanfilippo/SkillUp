@@ -1,0 +1,253 @@
+:host {
+  display: block;
+}
+
+:host:last-child .modal-booking-row {
+  border-bottom: none;
+}
+
+:host(.booking-card-host) {
+  flex: 1;
+}
+
+.card {
+  background: var(--card-background);
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.booking-card {
+  height: 100%;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.booking-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.tutor {
+  display: flex;
+  gap: 16px;
+
+  app-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    --avatar-font-size: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+.tutor-info {
+  h4 {
+    font-family: var(--font-headline);
+    margin: 0 0 4px 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--neutral-color);
+    font-weight: 500;
+  }
+}
+
+.booking-mid {
+  background: var(--app-background);
+  padding: 16px;
+  border-radius: 12px;
+  margin: 24px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.booking-bottom {
+  display: flex;
+  margin-top: 20px;
+  width: 100%;
+  min-height: 48px;
+}
+
+.modal-booking-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  gap: 16px;
+  border-bottom: 1.5px solid var(--app-background);
+
+  @media (max-width: 650px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+.modal-left-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex: 1;
+
+  @media (max-width: 650px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
+
+.modal-action-wrapper {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.modal-tutor-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+
+  app-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    --avatar-font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+}
+
+.modal-tutor-details {
+  h4 {
+    font-family: var(--font-headline);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 2px 0;
+  }
+
+  p {
+    margin: 0 0 6px 0;
+    font-size: 0.9rem;
+    color: var(--neutral-color);
+    font-weight: 500;
+  }
+}
+
+.modal-time-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+
+  ion-icon {
+    color: var(--neutral-color);
+    font-size: 15px;
+  }
+}
+
+.status-chip {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(100, 116, 139, 0.1);
+  color: var(--neutral-color);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+
+  &.upcoming {
+    background: rgba(3, 105, 161, 0.1);
+    color: var(--tertiary-color);
+  }
+
+  &.ongoing {
+    background: rgba(245, 158, 11, 0.14);
+    color: #b45309;
+  }
+}
+
+.btn-outline {
+  --background: transparent;
+  --color: var(--primary-color);
+  --border-color: var(--primary-color);
+  --border-width: 1.5px;
+  --border-radius: 12px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  height: 48px;
+  font-size: 0.95rem;
+
+  &:hover {
+    background: rgba(30, 64, 175, 0.05);
+  }
+
+  &.full-width {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  &.btn-small {
+    height: 36px;
+    font-size: 0.85rem;
+    --border-radius: 8px;
+    --border-width: 1.2px;
+    padding: 0 12px;
+  }
+}
+
+.reviewed-badge {
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 1.5px solid rgba(16, 185, 129, 0.2);
+  box-sizing: border-box;
+  white-space: nowrap;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  &.full-width {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  &.badge-small {
+    height: 36px;
+    font-size: 0.88rem;
+    padding: 0 16px;
+    border-radius: 8px;
+    border-width: 1.2px;
+
+    ion-icon {
+      font-size: 17px;
+    }
+  }
+}

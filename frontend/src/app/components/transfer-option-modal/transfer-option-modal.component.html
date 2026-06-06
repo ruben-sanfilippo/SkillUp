@@ -1,0 +1,56 @@
+<ion-modal
+  [isOpen]="aperta"
+  class="transfer-modal"
+  (didDismiss)="gestisciChiusura()"
+>
+  <ng-template>
+    <div>
+      <div class="modal-header">
+        <div class="title-left">
+          <ion-icon name="cash-outline"></ion-icon>
+          <h2>{{ titolo }}</h2>
+        </div>
+        <ion-button
+          fill="clear"
+          color="medium"
+          (click)="richiediChiusura()"
+        >
+          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="modal-content transfer-modal-content">
+        <div class="transfer-field">
+          <label>Titolare del conto</label>
+          <input
+            type="text"
+            [(ngModel)]="form.titolare_conto"
+            placeholder="Mario Rossi"
+          />
+        </div>
+
+        <div class="transfer-field">
+          <label>IBAN</label>
+          <input
+            type="text"
+            maxlength="42"
+            [(ngModel)]="form.iban"
+            (input)="formattaIban()"
+            placeholder="IT60 X054 2811 1010 0000 0123 456"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <ion-button
+          expand="block"
+          class="save-modal-btn"
+          [disabled]="!valida"
+          (click)="inviaSalvataggio()"
+        >
+          Salva opzioni di trasferimento
+        </ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

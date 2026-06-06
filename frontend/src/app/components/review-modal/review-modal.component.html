@@ -1,0 +1,51 @@
+<ion-modal [isOpen]="aperta" (didDismiss)="gestisciChiusura()" class="review-modal">
+  <ng-template>
+    <ion-header class="ion-no-border modal-header">
+      <ion-toolbar>
+        <ion-title>Valuta il tutor</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="richiediChiusura()" class="close-modal-btn">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content-bg">
+      <div class="review-modal-body">
+        @if (prenotazione) {
+          <div class="target-tutor">
+            <app-avatar
+              [immagine]="prenotazione.avatarTutor"
+              [nomeCompleto]="prenotazione.nomeTutor"
+              alt="Immagine profilo del tutor"
+            ></app-avatar>
+            <h3>{{ prenotazione.nomeTutor }}</h3>
+            <p>{{ prenotazione.materia }}</p>
+          </div>
+
+          <div class="stars-rating-container">
+            @for (star of stelle; track star) {
+              <span
+                class="star-clickable-item"
+                [class.star-selected]="star <= currentRating"
+                (click)="setRating(star); $event.stopPropagation();">
+                ★
+              </span>
+            }
+          </div>
+
+          <div class="review-actions">
+            <ion-button
+              expand="block"
+              class="btn-submit-review"
+              [disabled]="currentRating === 0"
+              (click)="inviaRecensione()">
+              Invia recensione
+            </ion-button>
+          </div>
+        }
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

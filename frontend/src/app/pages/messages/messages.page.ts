@@ -7,6 +7,7 @@ import { addIcons } from 'ionicons';
 import { searchOutline, send, chatbubblesOutline, chevronBackOutline } from 'ionicons/icons';
 import { MessageService } from 'src/app/services/messageService';
 import { UserService } from 'src/app/services/userService';
+import { AvatarComponent } from 'src/app/components/avatar/avatar.component';
 import { environment } from 'src/environments/environment';
 import { io, Socket } from 'socket.io-client';
 import { Subscription } from 'rxjs';
@@ -21,7 +22,7 @@ import type {
   templateUrl: './messages.page.html',
   styleUrls: ['./messages.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, AvatarComponent]
 })
 export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
 
@@ -161,16 +162,6 @@ export class MessagesPage implements OnInit, AfterViewChecked, OnDestroy {
     this.newMessageText = '';
 
     this.scrollToBottom();
-  }
-
-  iniziali(nome: string): string {
-    return nome
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((parte) => parte[0])
-      .join('')
-      .toUpperCase();
   }
 
   private scrollToBottom() {

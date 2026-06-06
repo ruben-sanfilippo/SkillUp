@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/search-tutor" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>Profilo Tutor</ion-title>
+    <ion-title>Profilo tutor</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -16,17 +16,16 @@
 
           <div class="profile-identity-block">
             <div class="avatar-container detail-avatar">
-              @if (avatarUrl) {
-                <img [src]="avatarUrl" alt="Avatar" class="avatar-img-render" />
-              } @else {
-                <div class="avatar-placeholder">
-                  {{ nome[0] }}{{ cognome[0] }}
-                </div>
-              }
+              <app-avatar
+                [immagine]="avatarUrl"
+                [nome]="nome"
+                [cognome]="cognome"
+                alt="Avatar tutor"
+              ></app-avatar>
             </div>
 
             <h2 class="tutor-name">{{ nome }} {{ cognome }}</h2>
-            <p class="tutor-role">Tutor Universitario</p>
+            <p class="tutor-role">Tutor universitario</p>
 
             <div class="tutor-stats-display">
               <div class="stat-block">
@@ -39,7 +38,7 @@
             @if (puoInteragireComeStudente) {
               <ion-button expand="block" class="contact-tutor-btn" (click)="contattaTutor()">
                 <ion-icon slot="start" name="chatbubble-ellipses-outline"></ion-icon>
-                Contatta Tutor
+                Contatta tutor
               </ion-button>
             }
           </div>
@@ -71,7 +70,7 @@
             <div class="section-header-inline">
               <div class="section-title-box">
                 <ion-icon name="globe-outline"></ion-icon>
-                <h3>Lingue Parlate</h3>
+                <h3>Lingue parlate</h3>
               </div>
             </div>
             <div class="tag-selector-container">
@@ -90,7 +89,7 @@
           <div class="section-header-inline">
             <div class="section-title-box">
               <ion-icon name="calendar-outline"></ion-icon>
-              <h3>Disponibilita e Prenotazione</h3>
+              <h3>Disponibilità e prenotazione</h3>
             </div>
             <div class="right-actions-mix">
               <div class="price-display-box">
@@ -230,7 +229,7 @@
                       @if (giornoSelezionato.info.dalle) {
                         <p>Non ci sono fasce orarie disponibili per questa data.</p>
                       } @else {
-                        <p>Il tutor non ha inserito disponibilita per questa data.</p>
+                        <p>Il tutor non ha inserito disponibilità per questa data.</p>
                       }
                     </div>
                   }
@@ -267,7 +266,7 @@
                     <p>{{ dispensa.descrizione }}</p>
 
                     <div class="dispensa-meta-inline">
-                      <span class="dispensa-price-tag">€{{ dispensa.prezzo | number:'1.2-2' }}</span>
+                      <span class="dispensa-price-tag">{{ dispensa.prezzo | number:'1.2-2' }} €</span>
                       @if (dispensa.haAnteprima) {
                         <span class="preview-badge">Anteprima disponibile</span>
                       } @else {
@@ -294,7 +293,7 @@
                       fill="clear"
                       size="small"
                       class="view-preview-action-btn"
-                      title="Vedi Anteprima"
+                      title="Vedi anteprima"
                       (click)="apriAnteprimaStudente(dispensa)"
                     >
                       <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
@@ -309,83 +308,17 @@
     </div>
   </div>
 
-  <ion-modal
-    [isOpen]="isViewingAnteprima"
-    class="preview-modal"
-    (didDismiss)="chiudiAnteprimaStudente()"
-  >
-    <ng-template>
-      <div>
-        <div class="modal-header">
-          <div class="title-left">
-            <ion-icon name="eye-outline"></ion-icon>
-            <h2>Anteprima materiale</h2>
-          </div>
-          <ion-button fill="clear" color="medium" class="close-modal-btn" (click)="chiudiAnteprimaStudente()">
-            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-          </ion-button>
-        </div>
-
-        <div class="modal-content preview-scroll-box">
-          <div class="preview-top-bar">
-            <div>
-              <h3 class="preview-doc-title">{{ dispensaInEvidenza?.titolo }}</h3>
-              <p class="preview-doc-desc">{{ dispensaInEvidenza?.descrizione }}</p>
-            </div>
-          </div>
-
-          <div class="document-preview-render structural-clean">
-            @if (dispensaInEvidenza?.anteprimaPdf) {
-              <div class="pdf-frame-container">
-                <iframe
-                  [src]="dispensaInEvidenza?.urlAnteprima"
-                  width="100%"
-                  height="500px"
-                  style="border: none; border-radius: 8px"
-                ></iframe>
-              </div>
-            }
-
-            @if (!dispensaInEvidenza?.anteprimaPdf && dispensaInEvidenza?.urlAnteprima) {
-              <div class="image-preview-clean-container">
-                <img
-                  [src]="dispensaInEvidenza?.urlAnteprima"
-                  alt="Anteprima Immagine"
-                  class="real-preview-img-solid"
-                />
-              </div>
-            }
-
-            @if (!dispensaInEvidenza?.urlAnteprima) {
-              <div>
-                <p style="text-align: center; color: var(--neutral-color)">
-                  Nessuna anteprima disponibile.
-                </p>
-              </div>
-            }
-          </div>
-
-          @if (puoInteragireComeStudente) {
-            <div style="margin-top: 24px">
-              <ion-button
-                expand="block"
-                class="buy-dispensa-btn"
-                style="width: 100%; height: 50px"
-                [disabled]="dispensaInEvidenza?.acquistato"
-                (click)="acquistaDispensa(dispensaInEvidenza); chiudiAnteprimaStudente()"
-              >
-                <ion-icon slot="start" name="cart-outline"></ion-icon>
-                @if (dispensaInEvidenza?.acquistato) {
-                  Acquistato
-                } @else {
-                  Acquista a {{ dispensaInEvidenza?.prezzo | number:'1.2-2' }}€
-                }
-              </ion-button>
-            </div>
-          }
-        </div>
-      </div>
-    </ng-template>
-  </ion-modal>
+  <app-material-preview-modal
+    [aperta]="isViewingAnteprima"
+    [titolo]="dispensaInEvidenza?.titolo || ''"
+    [descrizione]="dispensaInEvidenza?.descrizione || ''"
+    [urlAnteprima]="dispensaInEvidenza?.urlAnteprima"
+    [anteprimaPdf]="!!dispensaInEvidenza?.anteprimaPdf"
+    [mostraAcquisto]="puoInteragireComeStudente"
+    [acquistato]="!!dispensaInEvidenza?.acquistato"
+    [prezzo]="dispensaInEvidenza?.prezzo"
+    (chiudi)="chiudiAnteprimaStudente()"
+    (acquista)="acquistaDispensa(dispensaInEvidenza)"
+  ></app-material-preview-modal>
 </ion-content>
 

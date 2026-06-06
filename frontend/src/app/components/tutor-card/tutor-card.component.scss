@@ -32,28 +32,12 @@
     .avatar-container {
       position: relative;
       flex-shrink: 0;
-      img {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-
-      .avatar-placeholder {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
-        color: #FFFFFF;
-        font-family: var(--font-headline);
-        font-size: 24px;
-        font-weight: 800;
-        letter-spacing: 0;
-        text-transform: uppercase;
-      }
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      font-family: var(--font-headline);
+      font-size: 24px;
+      --avatar-font-size: 24px;
     }
 
     .subjects-container {

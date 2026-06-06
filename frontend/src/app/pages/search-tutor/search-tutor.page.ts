@@ -20,6 +20,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { TutorService, FiltriRicerca } from '../../services/tutorService';
+import type { TutorApi } from '../../interfaces/tutor.interfaces';
 
 @Component({
   selector: 'app-search-tutor',
@@ -101,7 +102,7 @@ export class SearchTutorPage implements OnInit {
   lingueFiltrate = [...this.lingueDisponibili];
   linguaFiltro: string[] = [];
 
-  tutorsFiltrati: any[] = [];
+  tutorsFiltrati: TutorApi[] = [];
 
   constructor(private tutorService: TutorService) {
     addIcons({

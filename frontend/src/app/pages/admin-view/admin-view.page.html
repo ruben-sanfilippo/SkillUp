@@ -3,7 +3,7 @@
 
     <header class="admin-header">
       <div class="header-title-group">
-        <h2>Gestione Utenti</h2>
+        <h2>Gestione utenti</h2>
         <p>Monitora e gestisci gli account degli studenti e dei tutor sulla piattaforma.</p>
       </div>
 
@@ -14,7 +14,7 @@
             type="text"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
-            placeholder="Cerca per nome, email o ruolo..." />
+            placeholder="Cerca per nome, e-mail o ruolo..." />
         </div>
         <button class="logout-admin-btn" (click)="logout()">
           <ion-icon name="log-out-outline"></ion-icon>
@@ -26,7 +26,7 @@
     <section class="kpi-grid">
       <div class="card kpi-card">
         <div class="kpi-top">
-          <span class="kpi-label">Utenti Totali</span>
+          <span class="kpi-label">Utenti totali</span>
           <div class="kpi-icon-box primary-tint">
             <ion-icon name="people-outline"></ion-icon>
           </div>
@@ -38,7 +38,7 @@
 
       <div class="card kpi-card">
         <div class="kpi-top">
-          <span class="kpi-label">Account Bloccati</span>
+          <span class="kpi-label">Account bloccati</span>
           <div class="kpi-icon-box danger-tint">
             <ion-icon name="ban-outline"></ion-icon>
           </div>
@@ -52,7 +52,7 @@
     <section class="card table-section">
       
       <div class="table-toolbar">
-        <h3>Elenco Utenti ({{ filteredUsersList().length }})</h3>
+        <h3>Elenco utenti ({{ filteredUsersList().length }})</h3>
         <div>
           <button class="btn-action-outline" (click)="apriFiltri($event)">
             <ion-icon name="funnel-outline"></ion-icon>
@@ -68,7 +68,7 @@
             <div class="table-header-row">
               <div class="th-cell col-user">Utente</div>
               <div class="th-cell col-role">Ruolo</div>
-              <div class="th-cell col-date">Data Iscrizione</div>
+              <div class="th-cell col-date">Data di iscrizione</div>
               <div class="th-cell col-status">Stato</div>
               <div class="th-cell col-actions">Azioni</div>
             </div>
@@ -80,13 +80,12 @@
                   <div class="td-cell col-user">
                     <div class="user-cell">
                       <div class="avatar-holder">
-                        @if (user.immagineProfilo) {
-                          <img [src]="user.immagineProfilo" alt="Avatar" />
-                        } @else {
-                          <div class="avatar-placeholder">
-                            {{ user.nome[0] }}{{ user.cognome[0] }}
-                          </div>
-                        }
+                        <app-avatar
+                          [immagine]="user.immagineProfilo"
+                          [nome]="user.nome"
+                          [cognome]="user.cognome"
+                          alt="Avatar"
+                        ></app-avatar>
                       </div>
                       <div class="user-meta">
                         <h4>{{ user.nome }} {{ user.cognome }}</h4>

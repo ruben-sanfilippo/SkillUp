@@ -29,11 +29,11 @@
                   (click)="selezionaChat(chat)">
                   
                   <div class="avatar-sidebar-wrapper">
-                    @if (chat.immagineProfilo) {
-                      <img [src]="chat.immagineProfilo" [alt]="chat.nome" />
-                    } @else {
-                      <div class="avatar-placeholder">{{ iniziali(chat.nome) }}</div>
-                    }
+                    <app-avatar
+                      [immagine]="chat.immagineProfilo"
+                      [nomeCompleto]="chat.nome"
+                      [alt]="chat.nome"
+                    ></app-avatar>
                     @if (chat.nonLetta) {
                       <span class="unread-dot"></span>
                     }
@@ -74,11 +74,11 @@
 
               <div class="active-user-profile">
                 <div class="avatar-active-chat">
-                  @if (activeChat.immagineProfilo) {
-                    <img [src]="activeChat.immagineProfilo" [alt]="activeChat.nome" />
-                  } @else {
-                    <div class="avatar-placeholder">{{ iniziali(activeChat.nome) }}</div>
-                  }
+                  <app-avatar
+                    [immagine]="activeChat.immagineProfilo"
+                    [nomeCompleto]="activeChat.nome"
+                    [alt]="activeChat.nome"
+                  ></app-avatar>
                 </div>
                 <div class="user-meta-info">
                   <h3>{{ activeChat.nome }}</h3>
@@ -123,7 +123,7 @@
               <div class="icon-bubble">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
               </div>
-              <h3>I tuoi Messaggi</h3>
+              <h3>I tuoi messaggi</h3>
               <p>Seleziona una conversazione dall'elenco per iniziare a scambiare messaggi.</p>
             </div>
           </div>

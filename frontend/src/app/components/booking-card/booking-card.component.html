@@ -1,0 +1,78 @@
+@if (variant === 'modal') {
+  <div class="modal-booking-row">
+    <div class="modal-left-layout">
+      <div class="modal-tutor-group">
+        <app-avatar
+          [immagine]="prenotazione.avatarTutor"
+          [nomeCompleto]="prenotazione.nomeTutor"
+          alt="Tutor"
+        ></app-avatar>
+        <div class="modal-tutor-details">
+          <h4>{{ prenotazione.nomeTutor }}</h4>
+          <p>{{ prenotazione.materia }}</p>
+          <div class="modal-time-info">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ prenotazione.dataItaliana }} • {{ prenotazione.oraInizio }} - {{ prenotazione.oraFine }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-action-wrapper">
+        @if (completataNonRecensita) {
+          <ion-button fill="outline" class="btn-outline btn-small" (click)="recensisci.emit(prenotazione)">
+            Lascia una recensione
+          </ion-button>
+        } @else if (completataRecensita) {
+          <div class="reviewed-badge badge-small">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>Tutor recensito</span>
+          </div>
+        }
+      </div>
+    </div>
+    <div
+      class="status-chip"
+      [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'"
+      [class.ongoing]="prenotazione.stato === 'IN CORSO'">
+      {{ prenotazione.stato }}
+    </div>
+  </div>
+} @else {
+  <div class="card booking-card">
+    <div class="booking-top">
+      <div class="tutor">
+        <app-avatar
+          [immagine]="prenotazione.avatarTutor"
+          [nomeCompleto]="prenotazione.nomeTutor"
+          alt="Tutor"
+        ></app-avatar>
+        <div class="tutor-info">
+          <h4>{{ prenotazione.nomeTutor }}</h4>
+          <p>{{ prenotazione.materia }}</p>
+        </div>
+      </div>
+      <div
+        class="status-chip"
+        [class.upcoming]="prenotazione.stato === 'IN PROGRAMMA'"
+        [class.ongoing]="prenotazione.stato === 'IN CORSO'">
+        {{ prenotazione.stato }}
+      </div>
+    </div>
+    <div class="booking-mid">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span>{{ prenotazione.dataItaliana }} • {{ prenotazione.oraInizio }} - {{ prenotazione.oraFine }}</span>
+    </div>
+    <div class="booking-bottom">
+      @if (completataNonRecensita) {
+        <ion-button fill="outline" class="btn-outline full-width" (click)="recensisci.emit(prenotazione)">
+          Lascia una recensione
+        </ion-button>
+      } @else if (completataRecensita) {
+        <div class="reviewed-badge full-width">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>Tutor recensito</span>
+        </div>
+      }
+    </div>
+  </div>
+}

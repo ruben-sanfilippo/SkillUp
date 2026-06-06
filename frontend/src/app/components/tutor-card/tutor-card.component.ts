@@ -1,22 +1,24 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { star } from 'ionicons/icons';
 
 import { IonIcon } from '@ionic/angular/standalone';
+import { AvatarComponent } from '../avatar/avatar.component';
+import type { TutorApi } from 'src/app/interfaces/tutor.interfaces';
 
 @Component({
   selector: 'app-tutor-card',
   templateUrl: './tutor-card.component.html',
   styleUrls: ['./tutor-card.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonIcon],
+  imports: [IonIcon, AvatarComponent],
 })
 export class TutorCardComponent {
-  @Input() tutor: any;
+  @Input({ required: true }) tutor!: TutorApi;
+  private router = inject(Router);
 
-  constructor(private router: Router) {
+  constructor() {
     addIcons({ star });
   }
 
@@ -24,18 +26,12 @@ export class TutorCardComponent {
     this.router.navigate(['/tutor-detail', this.tutor.id]);
   }
 
-  inizialiTutor(): string {
-    const nomeCompleto =
-      `${this.tutor?.nome || ''} ${this.tutor?.cognome || ''}`.trim() ||
-      this.tutor?.name ||
-      'Tutor';
-
-    return nomeCompleto
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((parola: string) => parola[0])
-      .join('')
-      .toUpperCase();
+  formatEuro(valore: number): string {
+    return new Intl.NumberFormat('it-IT', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(valore);
   }
 }

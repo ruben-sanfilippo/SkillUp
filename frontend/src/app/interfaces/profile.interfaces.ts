@@ -9,6 +9,11 @@ export interface DatiStudente {
   oreStudio: number;
 }
 
+export interface SelezioneAvatar {
+  file: File;
+  anteprima: string;
+}
+
 export interface PrenotazioneProfilo {
   id: string | number;
   tutorId: string | number;

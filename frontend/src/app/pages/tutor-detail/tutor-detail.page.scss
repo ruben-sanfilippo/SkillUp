@@ -76,30 +76,10 @@
   width: 110px;
   height: 110px;
   margin-bottom: 12px;
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-headline);
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: 0;
-    text-transform: uppercase;
-    border: 3px solid var(--card-background);
-    overflow: hidden;
-  }
-  .avatar-img-render {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--card-background);
-  }
+  border-radius: 50%;
+  border: 3px solid var(--card-background);
+  overflow: hidden;
+  --avatar-font-size: 2rem;
 }
 
 .tutor-name {
@@ -561,85 +541,4 @@
   font-size: 13px;
   border: 1px solid rgba(var(--primary-color), 0.2);
   margin: 0;
-}
-
-.preview-modal {
-  --width: 100%;
-  --max-width: 640px;
-  --height: auto;
-  align-items: center;
-  &::part(content) {
-    background: var(--card-background);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(var(--neutral-color), 0.1);
-  .title-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    h2 {
-      font-size: 17px;
-      font-weight: 700;
-      margin: 0;
-    }
-  }
-}
-
-.modal-content {
-  padding: 24px;
-  &.preview-scroll-box {
-    max-height: 75vh;
-    overflow-y: auto;
-  }
-}
-
-.preview-top-bar {
-  display: block;
-  margin-bottom: 18px;
-  .preview-doc-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-main);
-  }
-  .preview-doc-desc {
-    font-size: 13px;
-    color: var(--neutral-color);
-    margin: 4px 0 0 0;
-  }
-}
-
-.document-preview-render.structural-clean {
-  background: #ffffff;
-  border: 1px solid rgba(var(--neutral-color), 0.2);
-  border-radius: 12px;
-  padding: 12px;
-}
-.pdf-frame-container {
-  width: 100%;
-  height: 500px;
-  background: #525659;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.image-preview-clean-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 8px;
-  .real-preview-img-solid {
-    width: 100%;
-    max-height: 550px;
-    object-fit: contain;
-  }
 }

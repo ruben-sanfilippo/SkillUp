@@ -17,6 +17,7 @@ import {
   logOutOutline,
 } from 'ionicons/icons';
 import { AdminService } from 'src/app/services/adminService';
+import { AvatarComponent } from 'src/app/components/avatar/avatar.component';
 import type { UtenteAdmin } from 'src/app/interfaces/admin.interfaces';
 
 @Component({
@@ -105,6 +106,7 @@ export class OptionsPopoverComponent {
     CommonModule,
     FormsModule,
     IonicModule,
+    AvatarComponent,
   ],
 })
 export class AdminViewPage implements OnInit {

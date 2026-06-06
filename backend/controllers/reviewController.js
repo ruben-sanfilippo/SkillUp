@@ -25,7 +25,7 @@ exports.createReview = async (req, res) => {
     }
     if (bookings.duplicateReview) {
       return res.status(409).json({
-        message: "Hai gia lasciato una recensione per questo tutor.",
+        message: "Hai già lasciato una recensione per questo tutor.",
       });
     }
     res.status(201).json(bookings);

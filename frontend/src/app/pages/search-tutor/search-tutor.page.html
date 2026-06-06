@@ -95,7 +95,7 @@
           </div>
 
           <div class="filter-group">
-            <label>Tariffa Oraria</label>
+            <label>Tariffa oraria</label>
             <ion-range
               [dualKnobs]="true"
               min="0"
@@ -104,8 +104,8 @@
               color="dark"
             ></ion-range>
             <div class="range-labels">
-              <span>€{{ rangePrezzo.lower }}</span>
-              <span>€{{ rangePrezzo.upper }}</span>
+              <span>{{ rangePrezzo.lower | number:'1.2-2' }} €</span>
+              <span>{{ rangePrezzo.upper | number:'1.2-2' }} €</span>
             </div>
           </div>
 

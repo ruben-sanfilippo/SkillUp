@@ -28,6 +28,8 @@ import { BookingService } from 'src/app/services/bookingService';
 import { MaterialService } from 'src/app/services/materialService';
 import { TutorService } from 'src/app/services/tutorService';
 import { UserService } from 'src/app/services/userService';
+import { AvatarComponent } from 'src/app/components/avatar/avatar.component';
+import { MaterialPreviewModalComponent } from 'src/app/components/material-preview-modal/material-preview-modal.component';
 import type {
   FasciaDisponibilita,
   GiornoCalendario,
@@ -40,7 +42,7 @@ import type {
   templateUrl: './tutor-detail.page.html',
   styleUrls: ['./tutor-detail.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, AvatarComponent, MaterialPreviewModalComponent],
 })
 export class TutorDetailPage implements OnInit {
   nome = '';
@@ -379,8 +381,8 @@ export class TutorDetailPage implements OnInit {
     }
 
     const alert = await this.alertController.create({
-      header: 'Conferma Acquisto',
-      message: `Confermi l'acquisto di "${dispensa.titolo}" per ${dispensa.prezzo}€?`,
+      header: 'Conferma acquisto',
+      message: `Confermi l'acquisto di "${dispensa.titolo}" per ${this.formatEuro(Number(dispensa.prezzo || 0))}?`,
       buttons: [
         { text: 'Annulla', role: 'cancel' },
         {
@@ -481,7 +483,7 @@ export class TutorDetailPage implements OnInit {
     }
 
     const alert = await this.alertController.create({
-      header: 'Conferma Prenotazione',
+      header: 'Conferma prenotazione',
       message: `Vuoi prenotare una lezione per il ${this.dataFormattataPannello} dalle ${this.oraInizioSelezionata} alle ${this.oraFineSelezionata}? Prezzo totale: ${this.formatEuro(prezzoLezione)}.`,
       buttons: [
         { text: 'Annulla', role: 'cancel' },
@@ -614,9 +616,9 @@ export class TutorDetailPage implements OnInit {
 
   private async mostraErroreDisponibilitaNonDisponibile() {
     const alertErrore = await this.alertController.create({
-      header: 'Disponibilita non disponibile',
+      header: 'Disponibilità non disponibile',
       message:
-        'La disponibilita scelta non e piu disponibile. Seleziona un altro giorno o un altro orario.',
+        'La disponibilità scelta non è più disponibile. Seleziona un altro giorno o un altro orario.',
       buttons: ['OK'],
     });
     await alertErrore.present();

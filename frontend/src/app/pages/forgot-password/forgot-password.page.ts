@@ -60,7 +60,7 @@ export class ForgotPasswordPage {
     const emailNormalizzata = this.email.trim().toLowerCase();
     if (!emailNormalizzata) {
       this.erroreEmail = true;
-      this.messaggioErrore = 'Inserisci la tua email.';
+      this.messaggioErrore = 'Inserisci la tua e-mail.';
       return;
     }
 
@@ -69,10 +69,10 @@ export class ForgotPasswordPage {
       await firstValueFrom(this.authService.richiediOtpPassword(emailNormalizzata));
       this.email = emailNormalizzata;
       this.otpInviato = true;
-      this.messaggioSuccesso = 'Codice OTP inviato alla tua email.';
+      this.messaggioSuccesso = 'Codice OTP inviato alla tua e-mail.';
     } catch (error: any) {
       this.messaggioErrore =
-        error?.error?.message || 'Non e stato possibile inviare il codice OTP.';
+        error?.error?.message || 'Non è stato possibile inviare il codice OTP.';
     } finally {
       this.isLoading = false;
     }

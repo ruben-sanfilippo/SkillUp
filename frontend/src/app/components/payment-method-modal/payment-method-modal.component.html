@@ -1,0 +1,72 @@
+<ion-modal [isOpen]="aperta" (didDismiss)="gestisciChiusura()" class="payment-modal">
+  <ng-template>
+    <ion-header class="ion-no-border modal-header">
+      <ion-toolbar>
+        <ion-title>{{ titolo }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="richiediChiusura()" class="close-modal-btn">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content-bg" scroll-y="false">
+      <div class="payment-modal-body">
+        <div class="payment-field">
+          <label>Titolare carta</label>
+          <input
+            type="text"
+            autocomplete="cc-name"
+            [(ngModel)]="form.titolare"
+            placeholder="Mario Rossi" />
+        </div>
+
+        <div class="payment-field">
+          <label>Numero carta</label>
+          <input
+            type="text"
+            inputmode="numeric"
+            autocomplete="cc-number"
+            maxlength="23"
+            [(ngModel)]="form.numero_carta"
+            (input)="formattaNumeroCarta()"
+            placeholder="1234 5678 9012 3456" />
+        </div>
+
+        <div class="payment-fields-row">
+          <div class="payment-field">
+            <label>Scadenza</label>
+            <input
+              type="text"
+              inputmode="numeric"
+              autocomplete="cc-exp"
+              maxlength="5"
+              [(ngModel)]="form.scadenza"
+              (input)="formattaScadenza()"
+              placeholder="MM/AA" />
+          </div>
+          <div class="payment-field">
+            <label>CVV</label>
+            <input
+              type="password"
+              inputmode="numeric"
+              autocomplete="cc-csc"
+              maxlength="4"
+              [(ngModel)]="form.cvv"
+              (input)="formattaCvv()"
+              placeholder="123" />
+          </div>
+        </div>
+
+        <ion-button
+          expand="block"
+          class="btn-submit-payment"
+          [disabled]="!valido"
+          (click)="inviaSalvataggio()">
+          Salva metodo di pagamento
+        </ion-button>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
