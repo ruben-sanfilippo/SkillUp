@@ -1,10 +1,10 @@
-<ion-modal [isOpen]="aperta" (didDismiss)="chiudi.emit()" class="payment-modal">
+<ion-modal [isOpen]="aperta" (didDismiss)="gestisciChiusura()" class="payment-modal">
   <ng-template>
     <ion-header class="ion-no-border modal-header">
       <ion-toolbar>
         <ion-title>{{ titolo }}</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="chiudi.emit()" class="close-modal-btn">
+          <ion-button (click)="richiediChiusura()" class="close-modal-btn">
             <ion-icon name="close-outline"></ion-icon>
           </ion-button>
         </ion-buttons>

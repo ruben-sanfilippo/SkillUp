@@ -165,13 +165,13 @@ exports.updateAvailabilityMe = async (req, res) => {
     );
     if (availability.invalidTime) {
       return res.status(400).json({
-        message: "Gli orari di disponibilita non sono validi.",
+        message: "Gli orari di disponibilità non sono validi.",
       });
     }
     if (availability.noSubjects) {
       return res.status(400).json({
         message:
-          "Seleziona almeno una materia prima di inserire disponibilita.",
+          "Seleziona almeno una materia prima di inserire disponibilità.",
       });
     }
     if (availability.missingTransferOption) {

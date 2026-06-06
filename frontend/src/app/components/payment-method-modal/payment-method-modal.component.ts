@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -14,7 +13,7 @@ import type {
   templateUrl: './payment-method-modal.component.html',
   styleUrls: ['./payment-method-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [FormsModule, IonicModule],
 })
 export class PaymentMethodModalComponent implements OnChanges {
   @Input() aperta = false;
@@ -29,6 +28,7 @@ export class PaymentMethodModalComponent implements OnChanges {
     titolare: '',
     cvv: '',
   };
+  private chiusuraRichiesta = false;
 
   constructor() {
     addIcons({ closeOutline });
@@ -36,6 +36,7 @@ export class PaymentMethodModalComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['aperta']?.currentValue) {
+      this.chiusuraRichiesta = false;
       this.form = {
         numero_carta: '',
         scadenza: this.metodoPagamento.scadenza || '',
@@ -58,10 +59,21 @@ export class PaymentMethodModalComponent implements OnChanges {
       this.form.titolare.trim().length >= 3 &&
       numeroCarta.length >= 13 &&
       numeroCarta.length <= 19 &&
-      /^\d{2}\/\d{2}$/.test(this.form.scadenza) &&
+      this.scadenzaValida &&
       cvv.length >= 3 &&
       cvv.length <= 4
     );
+  }
+
+  get scadenzaValida(): boolean {
+    const corrispondenza = this.form.scadenza.match(/^(\d{2})\/(\d{2})$/);
+    if (!corrispondenza) return false;
+
+    const mese = Number(corrispondenza[1]);
+    const anno = Number(`20${corrispondenza[2]}`);
+    if (mese < 1 || mese > 12) return false;
+
+    return new Date(anno, mese, 0, 23, 59, 59) >= new Date();
   }
 
   formattaNumeroCarta() {
@@ -79,8 +91,25 @@ export class PaymentMethodModalComponent implements OnChanges {
     this.form.cvv = this.form.cvv.replace(/\D/g, '').slice(0, 4);
   }
 
+  richiediChiusura() {
+    this.chiusuraRichiesta = true;
+    this.chiudi.emit();
+  }
+
+  gestisciChiusura() {
+    if (!this.chiusuraRichiesta) {
+      this.chiudi.emit();
+    }
+    this.chiusuraRichiesta = false;
+  }
+
   inviaSalvataggio() {
     if (!this.valido) return;
-    this.salva.emit({ ...this.form });
+    this.salva.emit({
+      numero_carta: this.form.numero_carta.replace(/\D/g, ''),
+      scadenza: this.form.scadenza,
+      titolare: this.form.titolare.trim().toUpperCase(),
+      cvv: this.form.cvv.replace(/\D/g, ''),
+    });
   }
 }

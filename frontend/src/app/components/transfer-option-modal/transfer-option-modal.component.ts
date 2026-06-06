@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -14,7 +13,7 @@ import type {
   templateUrl: './transfer-option-modal.component.html',
   styleUrls: ['./transfer-option-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [FormsModule, IonicModule],
 })
 export class TransferOptionModalComponent implements OnChanges {
   @Input() aperta = false;
@@ -27,6 +26,7 @@ export class TransferOptionModalComponent implements OnChanges {
     titolare_conto: '',
     iban: '',
   };
+  private chiusuraRichiesta = false;
 
   constructor() {
     addIcons({ cashOutline, closeOutline });
@@ -34,6 +34,7 @@ export class TransferOptionModalComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['aperta']?.currentValue) {
+      this.chiusuraRichiesta = false;
       this.form = {
         titolare_conto: this.opzioneTrasferimento.titolare_conto || '',
         iban: this.opzioneTrasferimento.iban || '',
@@ -51,7 +52,7 @@ export class TransferOptionModalComponent implements OnChanges {
     const iban = this.form.iban.replace(/\s+/g, '');
     return (
       this.form.titolare_conto.trim().length >= 3 &&
-      /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)
+      this.ibanValido(iban)
     );
   }
 
@@ -60,8 +61,42 @@ export class TransferOptionModalComponent implements OnChanges {
     this.form.iban = iban.replace(/(.{4})/g, '$1 ').trim();
   }
 
+  richiediChiusura() {
+    this.chiusuraRichiesta = true;
+    this.chiudi.emit();
+  }
+
+  gestisciChiusura() {
+    if (!this.chiusuraRichiesta) {
+      this.chiudi.emit();
+    }
+    this.chiusuraRichiesta = false;
+  }
+
   inviaSalvataggio() {
     if (!this.valida) return;
-    this.salva.emit({ ...this.form });
+    this.salva.emit({
+      titolare_conto: this.form.titolare_conto.trim().toUpperCase(),
+      iban: this.form.iban.replace(/\s+/g, '').toUpperCase(),
+    });
+  }
+
+  private ibanValido(iban: string): boolean {
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)) return false;
+
+    const riordinato = `${iban.slice(4)}${iban.slice(0, 4)}`;
+    let resto = 0;
+
+    for (const carattere of riordinato) {
+      const valore = /\d/.test(carattere)
+        ? carattere
+        : String(carattere.charCodeAt(0) - 55);
+
+      for (const cifra of valore) {
+        resto = (resto * 10 + Number(cifra)) % 97;
+      }
+    }
+
+    return resto === 1;
   }
 }

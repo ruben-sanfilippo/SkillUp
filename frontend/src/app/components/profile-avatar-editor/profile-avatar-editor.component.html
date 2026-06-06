@@ -19,11 +19,15 @@
   <input
     #avatarInput
     type="file"
-    accept="image/*"
+    accept="image/jpeg,image/png,image/webp"
     (change)="onFileSelected($event)"
     hidden
   />
 </div>
+
+@if (messaggioErrore) {
+  <p class="avatar-error" role="alert">{{ messaggioErrore }}</p>
+}
 
 <ion-action-sheet
   [isOpen]="isActionSheetOpen"

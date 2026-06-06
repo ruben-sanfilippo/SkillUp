@@ -33,6 +33,7 @@ import type {
   PrenotazioneProfilo,
   MaterialeAcquistato,
   DatiStudente,
+  SelezioneAvatar,
 } from 'src/app/interfaces/profile.interfaces';
 import type {
   MetodoPagamentoPayload,
@@ -238,21 +239,26 @@ export class StudentProfilePage implements OnInit {
     } catch (error: any) {
       await this.mostraToast(
         error?.error?.message ||
-          'Non e stato possibile salvare il metodo di pagamento.',
+          'Non è stato possibile salvare il metodo di pagamento.',
         'danger',
       );
     }
   }
 
-  onAvatarSelected(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.student.immagineProfilo = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-    void this.userService.uploadAvatar(file).then((utente) => {
+  async onAvatarSelected(selezione: SelezioneAvatar) {
+    const immaginePrecedente = this.student.immagineProfilo;
+    this.student.immagineProfilo = selezione.anteprima;
+
+    try {
+      const utente = await this.userService.uploadAvatar(selezione.file);
       this.student.immagineProfilo = utente.immagine_profilo || '';
-    });
+    } catch (error: any) {
+      this.student.immagineProfilo = immaginePrecedente;
+      await this.mostraToast(
+        error?.error?.message || 'Non è stato possibile caricare l’immagine.',
+        'danger',
+      );
+    }
   }
 
   rimuoviAvatar() {

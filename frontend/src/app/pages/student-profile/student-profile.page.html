@@ -12,7 +12,7 @@
                 [immagine]="student.immagineProfilo"
                 [nome]="student.nome"
                 [cognome]="student.cognome"
-                alt="immagineProfilo Studente"
+                alt="Immagine profilo dello studente"
                 [sovrapposto]="true"
                 (fileSelezionato)="onAvatarSelected($event)"
                 (rimuovi)="rimuoviAvatar()"
@@ -36,7 +36,7 @@
                 <span class="val">{{ student.sessioniCompletate }}</span>
               </div>
               <div class="stat-box">
-                <span class="label">Ore Studio</span>
+                <span class="label">Ore di studio</span>
                 <span class="val">{{ student.oreStudio }}h</span>
               </div>
             </div>
@@ -64,7 +64,7 @@
 
       <main class="main-content">
         <div class="row-header">
-          <h3>Le tue Prenotazioni</h3>
+          <h3>Le tue prenotazioni</h3>
           <button class="link-btn" (click)="apriModalPrenotazioni()">Vedi tutto</button>
         </div>
 
@@ -72,7 +72,7 @@
           @if (recentBookings.length === 0) {
             <div class="card empty-state-card">
               <ion-icon name="calendar-outline"></ion-icon>
-              <p>Non hai ancora effettuato prenotazioni</p>
+              <p>Non hai ancora effettuato prenotazioni.</p>
             </div>
           } @else {
             @for (prenotazione of recentBookings; track prenotazione.id) {
@@ -88,14 +88,14 @@
 
         <div class="card material-section">
           <div class="row-header">
-            <h3>Materiali Acquistati</h3>
+            <h3>Materiali acquistati</h3>
           </div>
           <div class="material-scroll-container">
             <div class="material-list">
               @if (purchasedMaterials.length === 0) {
                 <div class="empty-state-card material-empty-state">
                   <ion-icon name="document-text-outline"></ion-icon>
-                  <p>Non hai ancora comprato nessun materiale didattico</p>
+                  <p>Non hai ancora acquistato materiale didattico.</p>
                 </div>
               } @else {
                 @for (item of purchasedMaterials; track item.id) {
@@ -135,7 +135,7 @@
     <ng-template>
       <ion-header class="ion-no-border modal-header">
         <ion-toolbar>
-          <ion-title>Storico Prenotazioni</ion-title>
+          <ion-title>Storico prenotazioni</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="isModalOpen = false" class="close-modal-btn">
               <ion-icon name="close-outline"></ion-icon>
@@ -149,7 +149,7 @@
           @if (allBookingsSorted.length === 0) {
             <div class="empty-state-card modal-empty-state">
               <ion-icon name="calendar-outline"></ion-icon>
-              <p>Non hai ancora effettuato prenotazioni</p>
+              <p>Non hai ancora effettuato prenotazioni.</p>
             </div>
           } @else {
             @for (prenotazione of allBookingsSorted; track prenotazione.id) {
@@ -185,7 +185,7 @@
     <ng-template>
       <ion-header class="ion-no-border modal-header">
         <ion-toolbar>
-          <ion-title>Modifica Biografia</ion-title>
+          <ion-title>Modifica biografia</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="chiudiModalBio()" class="close-modal-btn">
               <ion-icon name="close-outline"></ion-icon>
@@ -215,7 +215,7 @@
               class="btn-submit-bio" 
               [disabled]="!tempBio || !tempBio.trim() || tempBio.length > 200" 
               (click)="salvaBio()">
-              Salva Modifiche
+              Salva modifiche
             </ion-button>
           </div>
         </div>

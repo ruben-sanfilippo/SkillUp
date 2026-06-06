@@ -35,7 +35,12 @@
           >{{ materiaPiuPrenotata?.nome || 'Nessuna prenotazione' }}</strong
         >
         <p>
-          {{ materiaPiuPrenotata?.prenotazioni || 0 }} prenotazioni confermate
+          {{ materiaPiuPrenotata?.prenotazioni || 0 }}
+          {{
+            (materiaPiuPrenotata?.prenotazioni || 0) === 1
+              ? 'prenotazione confermata'
+              : 'prenotazioni confermate'
+          }}
         </p>
         <div class="progress-track">
           <span [style.width.%]="progressoMateriaPiuPrenotata"></span>
@@ -50,7 +55,14 @@
         <strong
           >{{ materialePiuAcquistato?.titolo || 'Nessun materiale' }}</strong
         >
-        <p>{{ materialePiuAcquistato?.acquisti || 0 }} acquisti</p>
+        <p>
+          {{ materialePiuAcquistato?.acquisti || 0 }}
+          {{
+            (materialePiuAcquistato?.acquisti || 0) === 1
+              ? 'acquisto'
+              : 'acquisti'
+          }}
+        </p>
         <div class="metric-row">
           <span>Ricavi generati</span>
           <b>{{ formatEuro(materialePiuAcquistato?.ricavi || 0) }}</b>
@@ -63,7 +75,13 @@
         </div>
         <span class="stat-label">Materiali venduti</span>
         <strong>{{ totaleAcquistiMateriali }}</strong>
-        <p>Acquisti totali sulle dispense pubblicate</p>
+        <p>
+          {{
+            totaleAcquistiMateriali === 1
+              ? 'Acquisto totale sulle dispense pubblicate'
+              : 'Acquisti totali sulle dispense pubblicate'
+          }}
+        </p>
         <div class="metric-row">
           <span>Ricavi materiali</span>
           <b>{{ formatEuro(totaleRicaviMateriali) }}</b>
@@ -76,7 +94,7 @@
         <div class="panel-header">
           <div>
             <span class="eyebrow">Calendario</span>
-            <h2>Lezioni da effetuare</h2>
+            <h2>Lezioni da effettuare</h2>
           </div>
           <ion-icon name="calendar-outline"></ion-icon>
         </div>

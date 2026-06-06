@@ -15,7 +15,7 @@ exports.createBooking = async (req, res) => {
     if (!booking) {
       return res.status(400).json({
         message:
-          "La disponibilita scelta non e piu disponibile. Seleziona un altro orario.",
+          "La disponibilità scelta non è più disponibile. Seleziona un altro orario.",
       });
     }
     if (booking.invalidTime) {
@@ -27,12 +27,12 @@ exports.createBooking = async (req, res) => {
     if (booking.invalidSlot) {
       return res.status(400).json({
         message:
-          "La fascia oraria scelta non e piu disponibile. Seleziona un altro orario.",
+          "La fascia oraria scelta non è più disponibile. Seleziona un altro orario.",
       });
     }
     if (booking.invalidSubject) {
       return res.status(400).json({
-        message: "La materia scelta non e tra quelle insegnate dal tutor.",
+        message: "La materia scelta non è tra quelle insegnate dal tutor.",
       });
     }
     if (booking.conflict) {

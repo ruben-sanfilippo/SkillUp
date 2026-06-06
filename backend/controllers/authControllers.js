@@ -52,7 +52,7 @@ async function inviaEmailOtp(email, otp) {
     from: process.env.SMTP_FROM || emailUser,
     to: email,
     subject: "Codice OTP recupero password SkillUp",
-    text: `Il tuo codice OTP per modificare la password e: ${otp}. Il codice scade tra 10 minuti.`,
+    text: `Il tuo codice OTP per modificare la password è: ${otp}. Il codice scade tra 10 minuti.`,
   });
 }
 
@@ -61,7 +61,7 @@ exports.register = async (req, res) => {
     const { nome, cognome, email, password, tipologia_utente } = req.body;
 
     if (!nome || !cognome || !email || !password || !tipologia_utente) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "Compila tutti i campi richiesti." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -100,7 +100,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     const existingUser = await User.findByEmail(email);
     if (!existingUser) {
-      return res.status(400).json({ message: "Email o Password non corrette" });
+      return res.status(400).json({ message: "E-mail o password non corrette." });
     }
 
     if (existingUser.stato === "bloccato") {
@@ -113,7 +113,7 @@ exports.login = async (req, res) => {
     //Verifica che la password criptata sia corrispondente
     const isMatch = await bcrypt.compare(password, existingUser.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Credenziali non valide" });
+      return res.status(400).json({ message: "Credenziali non valide." });
     }
 
     //Creazione del token JWT
@@ -140,12 +140,12 @@ exports.requestPasswordOtp = async (req, res) => {
   try {
     const email = String(req.body.email || "").trim().toLowerCase();
     if (!email) {
-      return res.status(400).json({ message: "Inserisci la tua email." });
+      return res.status(400).json({ message: "Inserisci la tua e-mail." });
     }
 
     const user = await User.findByEmail(email);
     if (!user) {
-      return res.status(404).json({ message: "Email non trovata." });
+      return res.status(404).json({ message: "E-mail non trovata." });
     }
     if (user.stato === "bloccato") {
       return res.status(403).json({
@@ -175,7 +175,7 @@ exports.requestPasswordOtp = async (req, res) => {
     );
 
     await inviaEmailOtp(email, otp);
-    res.json({ message: "Codice OTP inviato alla tua email." });
+    res.json({ message: "Codice OTP inviato alla tua e-mail." });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -186,7 +186,7 @@ exports.verifyPasswordOtp = async (req, res) => {
     const email = String(req.body.email || "").trim().toLowerCase();
     const otp = String(req.body.otp || "").trim();
     if (!email || !otp) {
-      return res.status(400).json({ message: "Email e codice OTP richiesti." });
+      return res.status(400).json({ message: "E-mail e codice OTP richiesti." });
     }
 
     const reset = await get(

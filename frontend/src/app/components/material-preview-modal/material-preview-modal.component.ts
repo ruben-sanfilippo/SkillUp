@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
@@ -8,7 +7,7 @@ import { cartOutline, closeOutline, eyeOutline } from 'ionicons/icons';
 @Component({
   selector: 'app-material-preview-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
   templateUrl: './material-preview-modal.component.html',
   styleUrls: ['./material-preview-modal.component.scss'],
 })
@@ -24,6 +23,7 @@ export class MaterialPreviewModalComponent {
 
   @Output() chiudi = new EventEmitter<void>();
   @Output() acquista = new EventEmitter<void>();
+  private chiusuraRichiesta = false;
 
   constructor() {
     addIcons({ cartOutline, closeOutline, eyeOutline });
@@ -35,5 +35,23 @@ export class MaterialPreviewModalComponent {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
+  }
+
+  richiediChiusura() {
+    this.chiusuraRichiesta = true;
+    this.chiudi.emit();
+  }
+
+  richiediAcquisto() {
+    this.chiusuraRichiesta = true;
+    this.acquista.emit();
+    this.chiudi.emit();
+  }
+
+  gestisciChiusura() {
+    if (!this.chiusuraRichiesta) {
+      this.chiudi.emit();
+    }
+    this.chiusuraRichiesta = false;
   }
 }

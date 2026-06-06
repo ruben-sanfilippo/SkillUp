@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -11,7 +10,7 @@ import type { PrenotazioneProfilo } from 'src/app/interfaces/profile.interfaces'
   templateUrl: './review-modal.component.html',
   styleUrls: ['./review-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, AvatarComponent],
+  imports: [IonicModule, AvatarComponent],
 })
 export class ReviewModalComponent implements OnChanges {
   @Input() aperta = false;
@@ -22,6 +21,7 @@ export class ReviewModalComponent implements OnChanges {
 
   currentRating = 0;
   stelle = [1, 2, 3, 4, 5];
+  private chiusuraRichiesta = false;
 
   constructor() {
     addIcons({ closeOutline });
@@ -30,7 +30,20 @@ export class ReviewModalComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['aperta']?.currentValue || changes['prenotazione']) {
       this.currentRating = 0;
+      this.chiusuraRichiesta = false;
     }
+  }
+
+  richiediChiusura() {
+    this.chiusuraRichiesta = true;
+    this.chiudi.emit();
+  }
+
+  gestisciChiusura() {
+    if (!this.chiusuraRichiesta) {
+      this.chiudi.emit();
+    }
+    this.chiusuraRichiesta = false;
   }
 
   setRating(rating: number) {

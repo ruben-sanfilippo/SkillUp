@@ -1,10 +1,10 @@
-<ion-modal [isOpen]="aperta" (didDismiss)="chiudi.emit()" class="review-modal">
+<ion-modal [isOpen]="aperta" (didDismiss)="gestisciChiusura()" class="review-modal">
   <ng-template>
     <ion-header class="ion-no-border modal-header">
       <ion-toolbar>
-        <ion-title>Valuta il Tutor</ion-title>
+        <ion-title>Valuta il tutor</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="chiudi.emit()" class="close-modal-btn">
+          <ion-button (click)="richiediChiusura()" class="close-modal-btn">
             <ion-icon name="close-outline"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -18,7 +18,7 @@
             <app-avatar
               [immagine]="prenotazione.avatarTutor"
               [nomeCompleto]="prenotazione.nomeTutor"
-              alt="Tutor immagineProfilo"
+              alt="Immagine profilo del tutor"
             ></app-avatar>
             <h3>{{ prenotazione.nomeTutor }}</h3>
             <p>{{ prenotazione.materia }}</p>
@@ -41,7 +41,7 @@
               class="btn-submit-review"
               [disabled]="currentRating === 0"
               (click)="inviaRecensione()">
-              Invia Recensione
+              Invia recensione
             </ion-button>
           </div>
         }

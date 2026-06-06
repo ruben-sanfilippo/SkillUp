@@ -10,7 +10,7 @@
               [immagine]="avatarUrl"
               [nome]="nome"
               [cognome]="cognome"
-              alt="immagineProfilo Tutor"
+              alt="Immagine profilo del tutor"
               (fileSelezionato)="onAvatarSelected($event)"
               (rimuovi)="rimuoviAvatar()"
             ></app-profile-avatar-editor>
@@ -127,7 +127,7 @@
             <div class="section-header-inline">
               <div class="section-title-box">
                 <ion-icon name="globe-outline"></ion-icon>
-                <h3>Lingue Parlate</h3>
+                <h3>Lingue parlate</h3>
               </div>
 
               @if (!isEditingLingue) {
@@ -502,8 +502,8 @@
                 [name]="nuovaDispensa.haAnteprima ? 'checkmark-circle-outline' : 'document-text-outline'"
               ></ion-icon>
               <span
-                >{{ nuovaDispensa.haAnteprima ? 'Anteprima Caricata' : 'Carica
-                Pagine di Anteprima (PDF/Img)' }}</span
+                  >{{ nuovaDispensa.haAnteprima ? 'Anteprima caricata' : 'Carica
+                pagine di anteprima (PDF/immagine)' }}</span
               >
             </button>
 
@@ -517,9 +517,9 @@
                 [name]="nuovaDispensa.haFileCompleto ? 'checkmark-circle-outline' : 'cloud-upload-outline'"
               ></ion-icon>
               <span
-                >{{ nuovaDispensa.haFileCompleto ? 'File Completo Caricato (' +
-                nuovaDispensa.fileCompleto?.name + ')' : 'Carica il File
-                Completo (PDF, ZIP)' }}</span
+                >{{ nuovaDispensa.haFileCompleto ? 'File completo caricato (' +
+                nuovaDispensa.fileCompleto?.name + ')' : 'Carica il file
+                completo (PDF, ZIP)' }}</span
               >
             </button>
 
@@ -528,14 +528,14 @@
               class="add-dispensa-btn"
               (click)="aggiungiDispensa(copertinaInput, anteprimaInput, fileCompletoInput)"
             >
-              Pubblica Dispensa
+              Pubblica dispensa
               <ion-icon slot="end" name="add-circle-outline"></ion-icon>
             </ion-button>
           </div>
 
           @if (listaDispense.length > 0) {
           <div class="uploaded-dispense-list">
-            <h3>Dispense Pubblicate ({{ listaDispense.length }})</h3>
+            <h3>Dispense pubblicate ({{ listaDispense.length }})</h3>
             @for (dispensa of listaDispense; track dispensa.id || dispensa.titolo) {
             <div class="dispensa-item-card">
               <div class="dispensa-main-info">
@@ -556,7 +556,7 @@
 
                   <div class="dispensa-meta-inline">
                     <span class="dispensa-price-tag"
-                      >€{{ dispensa.prezzo }}</span
+                      >{{ dispensa.prezzo | number:'1.2-2' }} €</span
                     >
                     @if (dispensa.haAnteprima) {
                     <span class="preview-badge">Anteprima disponibile</span>
@@ -570,7 +570,7 @@
                   fill="clear"
                   size="small"
                   color="primary"
-                  title="Scarica File Originale"
+                  title="Scarica file originale"
                   (click)="scaricaFileCompleto(dispensa)"
                 >
                   <ion-icon slot="icon-only" name="download-outline"></ion-icon>
@@ -581,7 +581,7 @@
                   fill="clear"
                   size="small"
                   class="view-preview-action-btn"
-                  title="Vedi Anteprima"
+                  title="Vedi anteprima"
                   (click)="apriAnteprimaStudente(dispensa)"
                 >
                   <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
@@ -592,7 +592,7 @@
                   fill="clear"
                   size="small"
                   color="danger"
-                  title="Elimina Dispensa"
+                  title="Elimina dispensa"
                   (click)="eliminaDispensa(dispensa)"
                 >
                   <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
@@ -647,7 +647,7 @@
             class="save-modal-btn"
             (click)="salvaSezione('biografia')"
           >
-            Salva Biografia
+            Salva biografia
           </ion-button>
         </div>
       </div>

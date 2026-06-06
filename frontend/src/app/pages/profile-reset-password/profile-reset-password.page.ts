@@ -103,7 +103,7 @@ export class ProfileResetPasswordPage implements OnInit {
       setTimeout(() => this.router.navigate([this.returnUrl]), 1200);
     } catch (error: any) {
       this.messaggioErrore =
-        error?.error?.message || 'Non e stato possibile modificare la password.';
+        error?.error?.message || 'Non è stato possibile modificare la password.';
     } finally {
       this.isLoading = false;
     }

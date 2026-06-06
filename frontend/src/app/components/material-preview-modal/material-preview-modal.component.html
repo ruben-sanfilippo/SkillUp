@@ -1,7 +1,7 @@
 <ion-modal
   [isOpen]="aperta"
   class="material-preview-modal"
-  (didDismiss)="chiudi.emit()"
+  (didDismiss)="gestisciChiusura()"
 >
   <ng-template>
     <div class="preview-shell">
@@ -14,13 +14,13 @@
           fill="clear"
           color="medium"
           class="close-modal-btn"
-          (click)="chiudi.emit()"
+          (click)="richiediChiusura()"
         >
           <ion-icon slot="icon-only" name="close-outline"></ion-icon>
         </ion-button>
       </div>
 
-      <div class="modal-content preview-scroll-box">
+      <div class="modal-content">
         <div class="preview-top-bar">
           <div>
             <h3 class="preview-doc-title">{{ titolo }}</h3>
@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <div class="document-preview-render structural-clean">
+        <div class="document-preview-render">
           @if (anteprimaPdf && urlAnteprima) {
             <div class="pdf-frame-container">
               <iframe
@@ -59,13 +59,13 @@
               expand="block"
               class="buy-dispensa-btn"
               [disabled]="acquistato"
-              (click)="acquista.emit()"
+              (click)="richiediAcquisto()"
             >
               <ion-icon slot="start" name="cart-outline"></ion-icon>
               @if (acquistato) {
                 Acquistato
               } @else {
-                Acquista a {{ prezzoFormattato }}€
+                Acquista a {{ prezzoFormattato }} €
               }
             </ion-button>
           </div>

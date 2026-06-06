@@ -1,7 +1,7 @@
 <ion-modal
   [isOpen]="aperta"
   class="transfer-modal"
-  (didDismiss)="chiudi.emit()"
+  (didDismiss)="gestisciChiusura()"
 >
   <ng-template>
     <div>
@@ -13,8 +13,7 @@
         <ion-button
           fill="clear"
           color="medium"
-          class="close-modal-btn"
-          (click)="chiudi.emit()"
+          (click)="richiediChiusura()"
         >
           <ion-icon slot="icon-only" name="close-outline"></ion-icon>
         </ion-button>

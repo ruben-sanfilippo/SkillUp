@@ -381,8 +381,8 @@ export class TutorDetailPage implements OnInit {
     }
 
     const alert = await this.alertController.create({
-      header: 'Conferma Acquisto',
-      message: `Confermi l'acquisto di "${dispensa.titolo}" per ${dispensa.prezzo}€?`,
+      header: 'Conferma acquisto',
+      message: `Confermi l'acquisto di "${dispensa.titolo}" per ${this.formatEuro(Number(dispensa.prezzo || 0))}?`,
       buttons: [
         { text: 'Annulla', role: 'cancel' },
         {
@@ -483,7 +483,7 @@ export class TutorDetailPage implements OnInit {
     }
 
     const alert = await this.alertController.create({
-      header: 'Conferma Prenotazione',
+      header: 'Conferma prenotazione',
       message: `Vuoi prenotare una lezione per il ${this.dataFormattataPannello} dalle ${this.oraInizioSelezionata} alle ${this.oraFineSelezionata}? Prezzo totale: ${this.formatEuro(prezzoLezione)}.`,
       buttons: [
         { text: 'Annulla', role: 'cancel' },
@@ -616,9 +616,9 @@ export class TutorDetailPage implements OnInit {
 
   private async mostraErroreDisponibilitaNonDisponibile() {
     const alertErrore = await this.alertController.create({
-      header: 'Disponibilita non disponibile',
+      header: 'Disponibilità non disponibile',
       message:
-        'La disponibilita scelta non e piu disponibile. Seleziona un altro giorno o un altro orario.',
+        'La disponibilità scelta non è più disponibile. Seleziona un altro giorno o un altro orario.',
       buttons: ['OK'],
     });
     await alertErrore.present();

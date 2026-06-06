@@ -43,7 +43,10 @@ import { UserService } from 'src/app/services/userService';
 import { MaterialPreviewModalComponent } from 'src/app/components/material-preview-modal/material-preview-modal.component';
 import { TransferOptionModalComponent } from 'src/app/components/transfer-option-modal/transfer-option-modal.component';
 import { ProfileAvatarEditorComponent } from 'src/app/components/profile-avatar-editor/profile-avatar-editor.component';
-import type { Dispensa } from 'src/app/interfaces/profile.interfaces';
+import type {
+  Dispensa,
+  SelezioneAvatar,
+} from 'src/app/interfaces/profile.interfaces';
 import type {
   GiornoCalendario,
   InfoDisponibilita,
@@ -317,7 +320,7 @@ export class TutorProfilePage implements OnInit {
     } catch (error: any) {
       await this.mostraPopupErrorePersonalizzato(
         error?.error?.message ||
-          'Non e stato possibile salvare le opzioni di trasferimento.',
+          'Non è stato possibile salvare le opzioni di trasferimento.',
       );
     }
   }
@@ -498,13 +501,13 @@ export class TutorProfilePage implements OnInit {
 
   async mostraPopupErroreMaterieMancanti() {
     await this.mostraPopupErrorePersonalizzato(
-      'Seleziona almeno una materia prima di inserire disponibilita.',
+      'Seleziona almeno una materia prima di inserire disponibilità.',
     );
   }
 
   async mostraPopupErrorePersonalizzato(message: string) {
     const alert = await this.alertController.create({
-      header: 'Disponibilita non salvata',
+      header: 'Disponibilità non salvata',
       message,
       buttons: [
         { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
@@ -515,7 +518,7 @@ export class TutorProfilePage implements OnInit {
 
   async mostraPopupSalvataggioDisponibilita() {
     const alert = await this.alertController.create({
-      header: 'Disponibilita salvata',
+      header: 'Disponibilità salvata',
       message: 'Le tue fasce orarie sono state aggiornate correttamente.',
       buttons: [
         { text: 'OK', role: 'cancel', cssClass: 'alert-button-primary' },
@@ -620,7 +623,7 @@ export class TutorProfilePage implements OnInit {
           this.prezzoOrario,
         );
       } catch (error: any) {
-        const message = error?.error?.message || 'Disponibilita non salvata.';
+        const message = error?.error?.message || 'Disponibilità non salvata.';
         await this.mostraPopupErrorePersonalizzato(message);
         return;
       }
@@ -645,14 +648,20 @@ export class TutorProfilePage implements OnInit {
     }
   }
 
-  onAvatarSelected(file: File) {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      this.avatarUrl = reader.result as string;
-      const utente = await this.userService.uploadAvatar(file);
+  async onAvatarSelected(selezione: SelezioneAvatar) {
+    const immaginePrecedente = this.avatarUrl;
+    this.avatarUrl = selezione.anteprima;
+
+    try {
+      const utente = await this.userService.uploadAvatar(selezione.file);
       this.avatarUrl = utente.immagine_profilo || this.avatarUrl;
-    };
-    reader.readAsDataURL(file);
+    } catch (error: any) {
+      this.avatarUrl = immaginePrecedente;
+      await this.mostraToast(
+        error?.error?.message || 'Non è stato possibile caricare l’immagine.',
+        'danger',
+      );
+    }
   }
 
   onCopertinaSelected(event: any) {
@@ -766,7 +775,7 @@ export class TutorProfilePage implements OnInit {
         error?.status === 413
           ? 'Il file e troppo grande per essere caricato.'
           : error?.error?.message ||
-            'Non e stato possibile salvare la dispensa.';
+            'Non è stato possibile salvare la dispensa.';
       await this.mostraPopupErrorePersonalizzato(message);
       return;
     }
@@ -798,7 +807,7 @@ export class TutorProfilePage implements OnInit {
     const alert = await this.alertController.create({
       header: 'Elimina dispensa',
       message:
-        'La dispensa non sara piu visibile nella ricerca. Gli studenti che l hanno gia acquistata continueranno ad averla nel profilo.',
+        'La dispensa non sarà più visibile nella ricerca. Gli studenti che l’hanno già acquistata continueranno ad averla nel profilo.',
       buttons: [
         { text: 'Annulla', role: 'cancel' },
         {
@@ -815,7 +824,7 @@ export class TutorProfilePage implements OnInit {
             } catch (error: any) {
               const message =
                 error?.error?.message ||
-                'Non e stato possibile eliminare la dispensa.';
+                'Non è stato possibile eliminare la dispensa.';
               await this.mostraPopupErrorePersonalizzato(message);
             }
           },
