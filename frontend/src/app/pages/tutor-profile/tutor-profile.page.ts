@@ -3,13 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { DomSanitizer } from '@angular/platform-browser';
 import { addIcons } from 'ionicons';
 import {
   personOutline,
   star,
   briefcaseOutline,
-  documentTextOutline,
   globeOutline,
   locationOutline,
   calendarOutline,
@@ -18,35 +16,23 @@ import {
   closeCircle,
   checkmarkDoneOutline,
   searchOutline,
-  folderOpenOutline,
   createOutline,
   cashOutline,
-  imageOutline,
-  cloudUploadOutline,
-  addCircleOutline,
-  documentOutline,
-  eyeOutline,
-  checkmarkCircleOutline,
   closeOutline,
-  downloadOutline,
   timeOutline,
   chevronBackOutline,
   chevronForwardOutline,
   informationCircleOutline,
   logOutOutline,
-  trashOutline,
   keyOutline,
 } from 'ionicons/icons';
-import { MaterialService } from 'src/app/services/materialService';
 import { TutorService } from 'src/app/services/tutorService';
 import { UserService } from 'src/app/services/userService';
-import { MaterialPreviewModalComponent } from 'src/app/components/material-preview-modal/material-preview-modal.component';
 import { TransferOptionModalComponent } from 'src/app/components/transfer-option-modal/transfer-option-modal.component';
 import { ProfileAvatarEditorComponent } from 'src/app/components/profile-avatar-editor/profile-avatar-editor.component';
-import type {
-  Dispensa,
-  SelezioneAvatar,
-} from 'src/app/interfaces/profile.interfaces';
+import { TutorMaterialComponent } from 'src/app/components/tutor-material/tutor-material.component';
+import type { MaterialeDidatticoApi } from 'src/app/interfaces/material.interfaces';
+import type { SelezioneAvatar } from 'src/app/interfaces/profile.interfaces';
 import type {
   GiornoCalendario,
   InfoDisponibilita,
@@ -59,7 +45,14 @@ import type {
   templateUrl: './tutor-profile.page.html',
   styleUrls: ['./tutor-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, MaterialPreviewModalComponent, TransferOptionModalComponent, ProfileAvatarEditorComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    TransferOptionModalComponent,
+    ProfileAvatarEditorComponent,
+    TutorMaterialComponent,
+  ],
 })
 export class TutorProfilePage implements OnInit {
   nome = '';
@@ -77,15 +70,14 @@ export class TutorProfilePage implements OnInit {
   isEditingLingue = false;
   isEditingMaterie = false;
   isEditingDisponibilita = false;
-  isViewingAnteprima = false;
   isTransferModalOpen = false;
 
   biografiaTmp = '';
   prezzoOrarioTmp = 0;
   materieSelezionateTmp: string[] = [];
   lingueSelezionateTmp: string[] = [];
-  dispensaInEvidenza: Dispensa | null = null;
   opzioneTrasferimento: OpzioneTrasferimentoTutor = { presente: false };
+  materialiTutor: MaterialeDidatticoApi[] = [];
 
   dataCorrenteCalendario: Date = new Date();
   giorniDelMese: GiornoCalendario[] = [];
@@ -163,35 +155,17 @@ export class TutorProfilePage implements OnInit {
 
   avatarUrl = '';
 
-  nuovaDispensa: Dispensa = {
-    titolo: '',
-    descrizione: '',
-    prezzo: null,
-    urlCopertina: '',
-    urlAnteprima: '',
-    fileCopertina: null,
-    fileAnteprima: null,
-    fileCompleto: null,
-    haAnteprima: false,
-    haFileCompleto: false,
-    anteprimaPdf: false,
-  };
-  listaDispense: Dispensa[] = [];
-
   constructor(
-    private sanitizer: DomSanitizer,
     private alertController: AlertController,
     private toastController: ToastController,
     private tutorService: TutorService,
     private userService: UserService,
-    private materialService: MaterialService,
     private router: Router,
   ) {
     addIcons({
       personOutline,
       star,
       briefcaseOutline,
-      documentTextOutline,
       globeOutline,
       locationOutline,
       calendarOutline,
@@ -200,23 +174,14 @@ export class TutorProfilePage implements OnInit {
       closeCircle,
       checkmarkDoneOutline,
       searchOutline,
-      folderOpenOutline,
       createOutline,
       cashOutline,
-      imageOutline,
-      cloudUploadOutline,
-      addCircleOutline,
-      documentOutline,
-      eyeOutline,
-      checkmarkCircleOutline,
       closeOutline,
-      downloadOutline,
       timeOutline,
       chevronBackOutline,
       chevronForwardOutline,
       informationCircleOutline,
       logOutOutline,
-      trashOutline,
       keyOutline,
     });
   }
@@ -246,6 +211,7 @@ export class TutorProfilePage implements OnInit {
     this.opzioneTrasferimento = tutor.opzione_trasferimento || {
       presente: false,
     };
+    this.materialiTutor = tutor.materials || [];
     this.databaseDisponibilita = {};
 
     for (const item of tutor.availability || []) {
@@ -257,20 +223,6 @@ export class TutorProfilePage implements OnInit {
       };
     }
 
-    this.listaDispense = (tutor.materials || []).map((materiale: any) => ({
-      id: materiale.id,
-      titolo: materiale.titolo,
-      descrizione: materiale.descrizione,
-      prezzo: materiale.importo,
-      urlCopertina: materiale.copertina_url,
-      urlAnteprimaRaw: materiale.anteprima_url,
-      urlAnteprima: this.preparaAnteprima(materiale.anteprima_url),
-      anteprimaPdf: this.isPdfDataUrl(materiale.anteprima_url),
-      urlFile: materiale.file_url,
-      haAnteprima: !!materiale.anteprima_url,
-      haFileCompleto: !!materiale.file_url,
-      fileCompleto: null,
-    }));
   }
 
   logout() {
@@ -486,19 +438,6 @@ export class TutorProfilePage implements OnInit {
     await alert.present();
   }
 
-  async mostraPopupErroreDispensa() {
-    const alert = await this.alertController.create({
-      header: 'Campi incompleti',
-      subHeader: 'Impossibile pubblicare',
-      message:
-        'Per caricare una nuova dispensa devi compilare obbligatoriamente il Titolo, impostare un Prezzo e inserire il File Completo (PDF o ZIP).',
-      buttons: [
-        { text: 'Ho capito', role: 'cancel', cssClass: 'alert-button-primary' },
-      ],
-    });
-    await alert.present();
-  }
-
   async mostraPopupErroreMaterieMancanti() {
     await this.mostraPopupErrorePersonalizzato(
       'Seleziona almeno una materia prima di inserire disponibilità.',
@@ -662,219 +601,6 @@ export class TutorProfilePage implements OnInit {
         'danger',
       );
     }
-  }
-
-  onCopertinaSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.nuovaDispensa.fileCopertina = file;
-      const reader = new FileReader();
-      reader.onload = () =>
-        (this.nuovaDispensa.urlCopertina = reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  }
-
-  onAnteprimaSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.nuovaDispensa.fileAnteprima = file;
-      if (file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result as string;
-          this.nuovaDispensa.urlAnteprimaRaw = dataUrl;
-          this.nuovaDispensa.urlAnteprima =
-            this.sanitizer.bypassSecurityTrustResourceUrl(dataUrl);
-          this.nuovaDispensa.anteprimaPdf = true;
-          this.nuovaDispensa.haAnteprima = true;
-        };
-        reader.readAsDataURL(file);
-      } else if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.nuovaDispensa.urlAnteprimaRaw = reader.result as string;
-          this.nuovaDispensa.urlAnteprima = this.nuovaDispensa.urlAnteprimaRaw;
-          this.nuovaDispensa.anteprimaPdf = false;
-          this.nuovaDispensa.haAnteprima = true;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  }
-
-  onFileCompletoSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.nuovaDispensa.fileCompleto = file;
-        this.nuovaDispensa.urlFile = reader.result as string;
-        this.nuovaDispensa.haFileCompleto = true;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  async aggiungiDispensa(
-    copertinaEl: HTMLInputElement,
-    anteprimaEl: HTMLInputElement,
-    fileCompletoEl: HTMLInputElement,
-  ) {
-    if (
-      !this.nuovaDispensa.titolo ||
-      this.nuovaDispensa.prezzo === null ||
-      !this.nuovaDispensa.haFileCompleto
-    ) {
-      await this.mostraPopupErroreDispensa();
-      return;
-    }
-
-    if (
-      Number(this.nuovaDispensa.prezzo || 0) > 0 &&
-      !this.opzioneTrasferimento.presente
-    ) {
-      await this.mostraPopupOpzioniTrasferimentoRichieste(
-        'Per pubblicare materiali didattici a pagamento devi prima inserire titolare del conto e IBAN.',
-      );
-      return;
-    }
-
-    const dispensaDaSalvare: Dispensa = {
-      titolo: this.nuovaDispensa.titolo,
-      descrizione: this.nuovaDispensa.descrizione,
-      prezzo: this.nuovaDispensa.prezzo,
-      urlCopertina: this.nuovaDispensa.urlCopertina,
-      urlAnteprima: this.nuovaDispensa.urlAnteprima,
-      urlAnteprimaRaw: this.nuovaDispensa.urlAnteprimaRaw,
-      anteprimaPdf: this.nuovaDispensa.anteprimaPdf,
-      fileCopertina: this.nuovaDispensa.fileCopertina,
-      fileAnteprima: this.nuovaDispensa.fileAnteprima,
-      fileCompleto: this.nuovaDispensa.fileCompleto,
-      urlFile: this.nuovaDispensa.urlFile,
-      haAnteprima: this.nuovaDispensa.haAnteprima,
-      haFileCompleto: this.nuovaDispensa.haFileCompleto,
-    };
-
-    try {
-      const materialeCreato = await this.materialService.createMaterial({
-        titolo: dispensaDaSalvare.titolo,
-        descrizione: dispensaDaSalvare.descrizione,
-        materia: this.materieSelezionate[0],
-        file: dispensaDaSalvare.fileCompleto as File,
-        anteprima: dispensaDaSalvare.fileAnteprima || null,
-        copertina: dispensaDaSalvare.fileCopertina || null,
-        importo: dispensaDaSalvare.prezzo || 0,
-      });
-
-      dispensaDaSalvare.urlFile =
-        materialeCreato.file_url || dispensaDaSalvare.urlFile;
-      dispensaDaSalvare.id = materialeCreato.id;
-    } catch (error: any) {
-      const message =
-        error?.status === 413
-          ? 'Il file e troppo grande per essere caricato.'
-          : error?.error?.message ||
-            'Non è stato possibile salvare la dispensa.';
-      await this.mostraPopupErrorePersonalizzato(message);
-      return;
-    }
-
-    this.listaDispense.push(dispensaDaSalvare);
-
-    if (copertinaEl) copertinaEl.value = '';
-    if (anteprimaEl) anteprimaEl.value = '';
-    if (fileCompletoEl) fileCompletoEl.value = '';
-
-    this.nuovaDispensa = {
-      titolo: '',
-      descrizione: '',
-      prezzo: null,
-      urlCopertina: '',
-      urlAnteprima: '',
-      urlAnteprimaRaw: '',
-      fileCompleto: null,
-      urlFile: '',
-      haAnteprima: false,
-      haFileCompleto: false,
-      anteprimaPdf: false,
-      fileCopertina: null,
-      fileAnteprima: null,
-    };
-  }
-
-  async eliminaDispensa(dispensa: Dispensa) {
-    const alert = await this.alertController.create({
-      header: 'Elimina dispensa',
-      message:
-        'La dispensa non sarà più visibile nella ricerca. Gli studenti che l’hanno già acquistata continueranno ad averla nel profilo.',
-      buttons: [
-        { text: 'Annulla', role: 'cancel' },
-        {
-          text: 'Elimina',
-          role: 'destructive',
-          handler: async () => {
-            try {
-              if (dispensa.id) {
-                await this.materialService.deleteMaterial(dispensa.id);
-              }
-              this.listaDispense = this.listaDispense.filter(
-                (item) => item !== dispensa,
-              );
-            } catch (error: any) {
-              const message =
-                error?.error?.message ||
-                'Non è stato possibile eliminare la dispensa.';
-              await this.mostraPopupErrorePersonalizzato(message);
-            }
-          },
-        },
-      ],
-    });
-    await alert.present();
-  }
-
-  async scaricaFileCompleto(dispensa: Dispensa) {
-    if (!dispensa.urlFile && !dispensa.fileCompleto) {
-      alert('Nessun file scaricabile trovato.');
-      return;
-    }
-
-    const blob =
-      dispensa.id && !dispensa.fileCompleto
-        ? await this.materialService.downloadMaterial(dispensa.id)
-        : dispensa.fileCompleto || (await (await fetch(dispensa.urlFile || '')).blob());
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download =
-      dispensa.fileCompleto?.name ||
-      `${dispensa.titolo.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }
-
-  apriAnteprimaStudente(dispensa: Dispensa) {
-    this.dispensaInEvidenza = dispensa;
-    this.isViewingAnteprima = true;
-  }
-  chiudiAnteprimaStudente() {
-    this.isViewingAnteprima = false;
-    this.dispensaInEvidenza = null;
-  }
-
-  private isPdfDataUrl(url?: string): boolean {
-    return !!url && (url.startsWith('data:application/pdf') || url.toLowerCase().includes('.pdf'));
-  }
-
-  private preparaAnteprima(url?: string) {
-    if (!url) return '';
-    if (this.isPdfDataUrl(url)) {
-      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    }
-    return url;
   }
 
   private dataLocale(data: Date): string {
