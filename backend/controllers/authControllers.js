@@ -3,10 +3,10 @@ const bcrypt = require("bcrypt"); // per criptare le informazioni
 const jwt = require("jsonwebtoken"); // per creare token di autenticazione, che permettono di mantenere la sessione dell'utente dopo il login
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const { get, run } = require("../db/query");
 const User = require("../models/userModel");
 const Tutor = require("../models/tutorModel");
 const Student = require("../models/studentModel");
+const PasswordReset = require("../models/passwordResetModel");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 function capitalizzaNome(value) {
@@ -157,22 +157,8 @@ exports.requestPasswordOtp = async (req, res) => {
     const otp = generaOtp();
     const otpHash = await bcrypt.hash(otp, 10);
 
-    await run(
-      `
-        UPDATE Password_Reset
-        SET usato = 1
-        WHERE user_id = ? AND usato = 0
-      `,
-      [user.id],
-    );
-    await run(
-      `
-        INSERT INTO Password_Reset
-          (user_id, email, otp_hash, scadenza)
-        VALUES (?, ?, ?, datetime('now', '+10 minutes'))
-      `,
-      [user.id, email, otpHash],
-    );
+    await PasswordReset.invalidateActiveForUser(user.id);
+    await PasswordReset.create(user.id, email, otpHash);
 
     await inviaEmailOtp(email, otp);
     res.json({ message: "Codice OTP inviato alla tua e-mail." });
@@ -189,19 +175,7 @@ exports.verifyPasswordOtp = async (req, res) => {
       return res.status(400).json({ message: "E-mail e codice OTP richiesti." });
     }
 
-    const reset = await get(
-      `
-        SELECT pr.*, u.stato
-        FROM Password_Reset pr
-        JOIN Utente u ON u.id = pr.user_id
-        WHERE pr.email = ?
-          AND pr.usato = 0
-          AND pr.scadenza > datetime('now')
-        ORDER BY pr.id DESC
-        LIMIT 1
-      `,
-      [email],
-    );
+    const reset = await PasswordReset.findLatestValidOtpByEmail(email);
 
     if (!reset) {
       return res.status(400).json({ message: "Codice OTP scaduto o non valido." });
@@ -220,14 +194,7 @@ exports.verifyPasswordOtp = async (req, res) => {
 
     const resetToken = generaResetToken();
     const resetTokenHash = await bcrypt.hash(resetToken, 10);
-    await run(
-      `
-        UPDATE Password_Reset
-        SET verificato = 1, reset_token_hash = ?
-        WHERE id = ?
-      `,
-      [resetTokenHash, reset.id],
-    );
+    await PasswordReset.markVerified(reset.id, resetTokenHash);
 
     res.json({
       message: "Codice OTP verificato.",
@@ -259,20 +226,7 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    const reset = await get(
-      `
-        SELECT pr.*, u.stato
-        FROM Password_Reset pr
-        JOIN Utente u ON u.id = pr.user_id
-        WHERE pr.email = ?
-          AND pr.verificato = 1
-          AND pr.usato = 0
-          AND pr.scadenza > datetime('now')
-        ORDER BY pr.id DESC
-        LIMIT 1
-      `,
-      [email],
-    );
+    const reset = await PasswordReset.findLatestVerifiedByEmail(email);
 
     if (!reset || !reset.reset_token_hash) {
       return res.status(400).json({ message: "Richiesta non valida o scaduta." });
@@ -291,7 +245,7 @@ exports.resetPassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(nuovaPassword, 10);
     await User.updatePassword(reset.user_id, hashedPassword);
-    await run(`UPDATE Password_Reset SET usato = 1 WHERE id = ?`, [reset.id]);
+    await PasswordReset.markUsed(reset.id);
 
     res.json({ message: "Password modificata con successo." });
   } catch (err) {
