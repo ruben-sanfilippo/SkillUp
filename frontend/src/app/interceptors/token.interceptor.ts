@@ -1,8 +1,5 @@
 import { inject } from '@angular/core';
-import {
-  HttpErrorResponse,
-  HttpInterceptorFn,
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
@@ -25,13 +22,17 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
       ).toLowerCase();
       const accountBloccato =
         error.status === 403 && messaggioErrore.includes('bloccato');
+      const richiestaAutenticazione = req.url.includes('/api/auth/');
 
-      if (error.status === 401 || accountBloccato) {
+      if (
+        !richiestaAutenticazione &&
+        (error.status === 401 || accountBloccato)
+      ) {
         localStorage.removeItem('token');
         localStorage.removeItem('tipologia_utente');
         localStorage.removeItem('skillup_messaggi_non_letti');
         if (accountBloccato) {
-          window.alert('Il tuo account e stato bloccato. Verrai disconnesso.');
+          window.alert('Il tuo account è stato bloccato. Verrai disconnesso.');
         }
         router.navigate(['/login']);
       }

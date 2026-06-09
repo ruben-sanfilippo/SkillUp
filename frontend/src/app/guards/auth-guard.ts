@@ -1,16 +1,18 @@
 import { inject } from '@angular/core';
-import {
-  CanActivateChildFn,
-  CanActivateFn,
-  Router,
-} from '@angular/router';
+import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  return controllaAccesso(route.data['roles'] as string[] | undefined, state.url);
+  return controllaAccesso(
+    route.data['roles'] as string[] | undefined,
+    state.url,
+  );
 };
 
 export const authChildGuard: CanActivateChildFn = (route, state) => {
-  return controllaAccesso(route.data['roles'] as string[] | undefined, state.url);
+  return controllaAccesso(
+    route.data['roles'] as string[] | undefined,
+    state.url,
+  );
 };
 
 function controllaAccesso(ruoliRichiesti: string[] | undefined, url: string) {
@@ -27,7 +29,10 @@ function controllaAccesso(ruoliRichiesti: string[] | undefined, url: string) {
     });
   }
 
-  if (ruoliNormalizzati?.length && !ruoliNormalizzati.includes(tipologiaUtente)) {
+  if (
+    ruoliNormalizzati?.length &&
+    !ruoliNormalizzati.includes(tipologiaUtente)
+  ) {
     return router.createUrlTree([rottaPredefinitaPerRuolo(tipologiaUtente)]);
   }
 
