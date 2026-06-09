@@ -1,8 +1,5 @@
 import { inject } from '@angular/core';
-import {
-  HttpErrorResponse,
-  HttpInterceptorFn,
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
@@ -31,7 +28,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
         localStorage.removeItem('tipologia_utente');
         localStorage.removeItem('skillup_messaggi_non_letti');
         if (accountBloccato) {
-          window.alert('Il tuo account e stato bloccato. Verrai disconnesso.');
+          window.alert('Il tuo account è stato bloccato. Verrai disconnesso.');
         }
         router.navigate(['/login']);
       }
