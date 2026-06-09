@@ -22,8 +22,12 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
       ).toLowerCase();
       const accountBloccato =
         error.status === 403 && messaggioErrore.includes('bloccato');
+      const richiestaAutenticazione = req.url.includes('/api/auth/');
 
-      if (error.status === 401 || accountBloccato) {
+      if (
+        !richiestaAutenticazione &&
+        (error.status === 401 || accountBloccato)
+      ) {
         localStorage.removeItem('token');
         localStorage.removeItem('tipologia_utente');
         localStorage.removeItem('skillup_messaggi_non_letti');
