@@ -142,7 +142,6 @@ const Material = {
         SELECT *
         FROM Materiale_Didattico
         WHERE id = ?
-          AND COALESCE(eliminato, 0) = 0
       `,
       [materialeId],
     );
