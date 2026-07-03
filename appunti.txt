@@ -1,5 +1,0 @@
-Account disponibile:
-
-Admin
-Email: admin@admin.com
-Password: admin
